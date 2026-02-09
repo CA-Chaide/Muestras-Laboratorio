@@ -19,5 +19,5 @@ export function saveSample(firestore: Firestore, userId: string, sampleData: Sam
         userId: userId,
     };
 
-    addDocumentNonBlocking(samplesCollectionRef, dataToSave);
+    return addDocumentNonBlocking(samplesCollectionRef, dataToSave);
 }

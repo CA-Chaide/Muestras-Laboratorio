@@ -3,17 +3,33 @@
 import { useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { SampleForm, type SampleFormValues } from '@/components/samples/sample-form';
+import { SampleForm, sampleFormSchema, type SampleFormValues } from '@/components/samples/sample-form';
 import { useToast } from "@/hooks/use-toast";
 import { useFirebase } from '@/firebase';
 import { saveSample } from '@/lib/samples';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function FabricSamplePage() {
   const { toast } = useToast();
   const { firestore, user } = useFirebase();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (values: SampleFormValues) => {
+  const form = useForm<SampleFormValues>({
+    resolver: zodResolver(sampleFormSchema),
+    defaultValues: {
+      identificacion: '',
+      horaIngreso: '00:00',
+      descripcion: '',
+      fechaFabricacionLote: '',
+      ensayosSolicitados: '',
+      solicitudNumero: '',
+      informeNumero: '',
+      tipoMuestra: 'Producción Normal'
+    },
+  });
+
+  const handleSubmit = async (values: SampleFormValues) => {
     if (!firestore || !user) {
       toast({
         variant: "destructive",
@@ -24,14 +40,18 @@ export default function FabricSamplePage() {
     }
     setIsSubmitting(true);
 
-    saveSample(firestore, user.uid, values);
-    
-    toast({
-      title: "Muestra registrada",
-      description: "La muestra de Tela ha sido registrada exitosamente.",
-    });
-
-    setIsSubmitting(false);
+    try {
+      await saveSample(firestore, user.uid, values);
+      toast({
+        title: "Muestra registrada",
+        description: "La muestra de Tela ha sido registrada exitosamente.",
+      });
+      form.reset();
+    } catch(e) {
+      // The global error handler will display a toast for permission errors
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,7 +66,7 @@ export default function FabricSamplePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SampleForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+            <SampleForm form={form} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
           </CardContent>
         </Card>
       </main>

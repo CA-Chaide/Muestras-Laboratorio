@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import * as z from 'zod';
 import {
   Form,
@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const formSchema = z.object({
+export const sampleFormSchema = z.object({
   identificacion: z.string().min(1, 'La identificación es requerida.'),
   fechaIngreso: z.date({
     required_error: 'La fecha de ingreso es requerida.',
@@ -48,27 +48,15 @@ const formSchema = z.object({
   informeNumero: z.string().min(1, 'El número de informe es requerido.'),
 });
 
-export type SampleFormValues = z.infer<typeof formSchema>;
+export type SampleFormValues = z.infer<typeof sampleFormSchema>;
 
 interface SampleFormProps {
+  form: UseFormReturn<SampleFormValues>;
   onSubmit: (values: SampleFormValues) => void;
   isSubmitting?: boolean;
 }
 
-export function SampleForm({ onSubmit, isSubmitting }: SampleFormProps) {
-  const form = useForm<SampleFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      identificacion: '',
-      horaIngreso: '00:00',
-      descripcion: '',
-      fechaFabricacionLote: '',
-      ensayosSolicitados: '',
-      solicitudNumero: '',
-      informeNumero: '',
-    },
-  });
-
+export function SampleForm({ form, onSubmit, isSubmitting }: SampleFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

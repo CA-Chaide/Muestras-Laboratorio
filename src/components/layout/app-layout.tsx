@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   SidebarProvider,
@@ -6,7 +8,6 @@ import {
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { SidebarNav } from './sidebar-nav';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -20,8 +21,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import { useFirebase } from '@/firebase';
+import { Skeleton } from '../ui/skeleton';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, auth, isUserLoading } = useFirebase();
+
+  const handleLogout = () => {
+    if (auth) {
+      auth.signOut();
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -50,16 +61,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarFooter>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="justify-start w-full h-auto p-2">
+                <Button variant="ghost" className="justify-start w-full h-auto p-2" disabled={isUserLoading}>
                   <div className="flex justify-between items-center w-full">
                     <div className="flex gap-2 items-center">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src="https://picsum.photos/seed/1/100/100" data-ai-hint="scientist portrait" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarFallback>
+                          {isUserLoading ? '' : 'U'}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col items-start text-sm">
-                        <span className="font-medium">Usuario</span>
-                        <span className="text-muted-foreground text-xs">Rol</span>
+                        {isUserLoading ? (
+                          <>
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-3 w-16 mt-1" />
+                          </>
+                        ) : user ? (
+                          <>
+                            <span className="font-medium">
+                              {user.isAnonymous ? 'Usuario Anónimo' : user.email || 'Usuario'}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              {user.isAnonymous ? 'Invitado' : 'Administrador'}
+                            </span>
+                          </>
+                        ) : (
+                           <span className="font-medium">No autenticado</span>
+                        )}
                       </div>
                     </div>
                     <MoreHorizontal className="w-4 h-4 ml-2" />
@@ -69,10 +97,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent side="right" align="start" className="w-56">
                 <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Perfil</DropdownMenuItem>
-                <DropdownMenuItem>Configuración</DropdownMenuItem>
+                <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
+                <DropdownMenuItem disabled>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
