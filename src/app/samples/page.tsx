@@ -42,7 +42,7 @@ const sampleTypes = [
     description: 'Registrar nuevas muestras de complementos.',
   },
   {
-    title: 'Ensayos Espuma en línea de producción',
+    title: 'Ensayos Espuma en Línea de Producción',
     href: '/samples/production-line-foam-test',
     icon: Factory,
     description: 'Registrar ensayos de espuma en la línea de producción.',
