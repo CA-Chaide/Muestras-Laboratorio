@@ -14,8 +14,8 @@ export default function SamplesPage() {
           <CardContent>
             <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
               <Beaker className="w-16 h-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold">Registro de Muestras Próximamente</h3>
-              <p className="text-muted-foreground">Este módulo para registrar y gestionar muestras está en construcción.</p>
+              <h3 className="text-xl font-semibold">Módulo de Registro de Muestras</h3>
+              <p className="text-muted-foreground">Este módulo está listo para ser construido.</p>
             </div>
           </CardContent>
         </Card>

@@ -1,13 +1,24 @@
 import { Header } from '@/components/layout/header';
-import TestAnalysis from '@/components/tests/test-analysis';
-import { tests } from '@/lib/data';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FlaskConical } from 'lucide-react';
 
 export default function TestsPage() {
   return (
     <div className="flex flex-col w-full">
       <Header title="Pruebas Asignadas" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <TestAnalysis tests={tests} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Pruebas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
+              <FlaskConical className="w-16 h-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold">Módulo de Pruebas Asignadas</h3>
+              <p className="text-muted-foreground">Este módulo está listo para ser construido.</p>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

@@ -55,11 +55,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex gap-2 items-center">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src="https://picsum.photos/seed/1/100/100" data-ai-hint="scientist portrait" />
-                        <AvatarFallback>AD</AvatarFallback>
+                        <AvatarFallback>U</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col items-start text-sm">
-                        <span className="font-medium">Alex Doe</span>
-                        <span className="text-muted-foreground text-xs">Técnico</span>
+                        <span className="font-medium">Usuario</span>
+                        <span className="text-muted-foreground text-xs">Rol</span>
                       </div>
                     </div>
                     <MoreHorizontal className="w-4 h-4 ml-2" />
