@@ -73,10 +73,14 @@ export function SamplesTable({ filters }: SamplesTableProps) {
     <TableHeader>
       <TableRow>
         <TableHead>Identificación</TableHead>
+        <TableHead>Fecha y Hora Ingreso</TableHead>
+        <TableHead>Descripción</TableHead>
+        <TableHead>Fecha Fab./Lote</TableHead>
         <TableHead>Categoría</TableHead>
-        <TableHead>Fecha de Ingreso</TableHead>
         <TableHead>Tipo de Muestra</TableHead>
+        <TableHead>Ensayos Solicitados</TableHead>
         <TableHead>N° Solicitud</TableHead>
+        <TableHead>N° Informe</TableHead>
         <TableHead>Estado</TableHead>
       </TableRow>
     </TableHeader>
@@ -90,9 +94,13 @@ export function SamplesTable({ filters }: SamplesTableProps) {
           {[...Array(5)].map((_, i) => (
             <TableRow key={i}>
               <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-32" /></TableCell>
               <TableCell><Skeleton className="h-6 w-48" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-40" /></TableCell>
               <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-40" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-20" /></TableCell>
               <TableCell><Skeleton className="h-6 w-20" /></TableCell>
               <TableCell><Skeleton className="h-6 w-28" /></TableCell>
             </TableRow>
@@ -116,7 +124,7 @@ export function SamplesTable({ filters }: SamplesTableProps) {
         {tableHeader}
         <TableBody>
           <TableRow>
-            <TableCell colSpan={6} className="text-center h-24">
+            <TableCell colSpan={10} className="text-center h-24">
               No hay muestras que coincidan con los filtros seleccionados.
             </TableCell>
           </TableRow>
@@ -132,10 +140,14 @@ export function SamplesTable({ filters }: SamplesTableProps) {
         {samples.map((sample) => (
           <TableRow key={sample.id}>
             <TableCell className="font-medium">{sample.identificacion}</TableCell>
-            <TableCell>{sample.categoria}</TableCell>
             <TableCell>{format(new Date(sample.registrationDateTime), 'PPpp', { locale: es })}</TableCell>
+            <TableCell className="max-w-[200px] truncate" title={sample.descripcion}>{sample.descripcion}</TableCell>
+            <TableCell>{sample.fechaFabricacionLote}</TableCell>
+            <TableCell>{sample.categoria}</TableCell>
             <TableCell>{sample.tipoMuestra}</TableCell>
+            <TableCell className="max-w-[200px] truncate" title={sample.ensayosSolicitados}>{sample.ensayosSolicitados}</TableCell>
             <TableCell>{sample.solicitudNumero}</TableCell>
+            <TableCell>{sample.informeNumero}</TableCell>
             <TableCell>
               <Badge variant={sample.status === 'Registrado' ? 'default' : 'secondary'}>{sample.status}</Badge>
             </TableCell>
