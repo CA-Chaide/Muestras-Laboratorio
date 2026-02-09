@@ -34,7 +34,6 @@
         }
       },
       "required": [
-        "id",
         "title",
         "fileUrl",
         "uploadDate",
@@ -47,38 +46,65 @@
       "type": "object",
       "description": "Represents a lab sample with its registration details.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Sample entity."
-        },
-        "sampleId": {
+        "identificacion": {
           "type": "string",
           "description": "Identifier assigned to the sample by the lab."
         },
-        "clientId": {
+        "registrationDateTime": {
           "type": "string",
-          "description": "Reference to Client. (Relationship: Client 1:N Sample)"
-        },
-        "registrationDate": {
-          "type": "string",
-          "description": "Date and time when the sample was registered.",
+          "description": "Date and time when the sample was registered, in ISO format.",
           "format": "date-time"
         },
-        "storageLocation": {
+        "descripcion": {
           "type": "string",
-          "description": "Location where the sample is stored."
+          "description": "Detailed description of the sample."
         },
-        "description": {
+        "fechaFabricacionLote": {
           "type": "string",
-          "description": "Optional description or notes about the sample."
+          "description": "Manufacturing date or lot number of the sample."
+        },
+        "tipoMuestra": {
+          "type": "string",
+          "description": "The type of the sample.",
+          "enum": [
+            "Producción Normal",
+            "Prueba de Producción",
+            "Prueba de Calidad",
+            "Ensayo Rápido"
+          ]
+        },
+        "ensayosSolicitados": {
+          "type": "string",
+          "description": "List of requested tests for the sample."
+        },
+        "solicitudNumero": {
+          "type": "string",
+          "description": "The request number associated with the sample."
+        },
+        "informeNumero": {
+          "type": "string",
+          "description": "The report number associated with the sample."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the sample.",
+          "default": "Registrado"
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who registered the sample."
         }
       },
       "required": [
-        "id",
-        "sampleId",
-        "clientId",
-        "registrationDate",
-        "storageLocation"
+        "identificacion",
+        "registrationDateTime",
+        "descripcion",
+        "fechaFabricacionLote",
+        "tipoMuestra",
+        "ensayosSolicitados",
+        "solicitudNumero",
+        "informeNumero",
+        "userId"
       ]
     },
     "Test": {
@@ -114,7 +140,6 @@
         }
       },
       "required": [
-        "id",
         "sampleId",
         "testName",
         "assignedDate",
@@ -155,44 +180,9 @@
         }
       },
       "required": [
-        "id",
         "testId",
         "generationDate",
         "results"
-      ]
-    },
-    "Client": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Client",
-      "type": "object",
-      "description": "Represents a client who submits samples for testing.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Client entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the client."
-        },
-        "contactEmail": {
-          "type": "string",
-          "description": "Email address of the client contact person.",
-          "format": "email"
-        },
-        "contactPhone": {
-          "type": "string",
-          "description": "Phone number of the client contact person."
-        },
-        "address": {
-          "type": "string",
-          "description": "Address of the client."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "contactEmail"
       ]
     }
   },
@@ -225,94 +215,26 @@
         }
       },
       {
-        "path": "/clients/{clientId}",
-        "definition": {
-          "entityName": "Client",
-          "schema": {
-            "$ref": "#/backend/entities/Client"
-          },
-          "description": "Stores client information. Accessible to lab administrators and client users with appropriate permissions.",
-          "params": [
-            {
-              "name": "clientId",
-              "description": "The ID of the client."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/clients/{clientId}/samples/{sampleId}",
+        "path": "/users/{userId}/samples/{sampleId}",
         "definition": {
           "entityName": "Sample",
           "schema": {
             "$ref": "#/backend/entities/Sample"
           },
-          "description": "Stores sample registration information. Accessible to lab administrators and the owning client.",
+          "description": "Stores samples registered by a specific user. Access is restricted to the owning user.",
           "params": [
             {
-              "name": "clientId",
-              "description": "The ID of the client who owns the sample."
+              "name": "userId",
+              "description": "The ID of the user who owns the sample."
             },
             {
               "name": "sampleId",
               "description": "The ID of the sample."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/clients/{clientId}/samples/{sampleId}/tests/{testId}",
-        "definition": {
-          "entityName": "Test",
-          "schema": {
-            "$ref": "#/backend/entities/Test"
-          },
-          "description": "Stores test assignments for a given sample. Accessible to lab administrators and the owning client.",
-          "params": [
-            {
-              "name": "clientId",
-              "description": "The ID of the client who owns the sample."
-            },
-            {
-              "name": "sampleId",
-              "description": "The ID of the sample."
-            },
-            {
-              "name": "testId",
-              "description": "The ID of the test."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId}",
-        "definition": {
-          "entityName": "Report",
-          "schema": {
-            "$ref": "#/backend/entities/Report"
-          },
-          "description": "Stores test reports. Accessible to lab administrators and the owning client.",
-          "params": [
-            {
-              "name": "clientId",
-              "description": "The ID of the client who owns the sample."
-            },
-            {
-              "name": "sampleId",
-              "description": "The ID of the sample."
-            },
-            {
-              "name": "testId",
-              "description": "The ID of the test."
-            },
-            {
-              "name": "reportId",
-              "description": "The ID of the report."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the LabTrack application's requirements for document management, sample registration, test assignment, and report generation. The structure prioritizes authorization independence by avoiding hierarchical `get()` calls in security rules. This is achieved by leveraging path-based ownership for user-specific data and membership maps for collaborative data, ensuring atomic operations and simplified debugging.\n\n**Authorization Independence (Denormalization):** Access control for samples, tests, and reports is implicitly linked to client ownership. Client ID is stored with samples to avoid rules requiring `get()` calls to other collections. Tests inherit the sample's client ID. Reports inherit the test's client ID.\n\n**Structural Segregation:** Each collection houses data with a homogeneous security posture. User-specific documents are stored under `/users/{userId}/documents/{documentId}` to apply simple ownership-based rules.\n\n**Access Modeling:** Path-based ownership is used for user documents. The `/clients/{clientId}/samples/{sampleId}` structure establishes clear ownership. Tests associated with samples reside under `/clients/{clientId}/samples/{sampleId}/tests/{testId}`, Reports associated with tests reside under `/clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId}`.\n\n**QAPs (Rules are not Filters):**  The data structure allows secure `list` operations by clearly defining ownership and access rights at each level.  Path-based rules can efficiently filter collections based on the requesting user's ID or client ID, without needing complex filtering logic within the rules themselves."
+    "reasoning": "The Firestore data structure is designed to be user-centric. Each user has their own collections of documents and samples, ensuring strong data isolation. Authorization is handled through path-based ownership, where security rules check if the requesting user's UID matches the {userId} in the document path. This model is simple, secure, and avoids complex queries or lookups in security rules."
   }
 }

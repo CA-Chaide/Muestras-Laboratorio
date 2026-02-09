@@ -11,10 +11,16 @@ export type Test = {
 
 export type Sample = {
   id: string;
-  name: string;
-  client: string;
-  receivedDate: string;
-  status: 'Recibido' | 'En Prueba' | 'Completado' | 'Archivado';
+  identificacion: string;
+  registrationDateTime: string; // ISO String
+  descripcion: string;
+  fechaFabricacionLote: string;
+  tipoMuestra: 'Producción Normal' | 'Prueba de Producción' | 'Prueba de Calidad' | 'Ensayo Rápido';
+  ensayosSolicitados: string;
+  solicitudNumero: string;
+  informeNumero: string;
+  status: string;
+  userId: string;
 };
 
 export type Document = {

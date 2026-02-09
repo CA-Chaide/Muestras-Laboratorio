@@ -3,27 +3,21 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * Core Philosophy: This ruleset establishes a dual-silo security model. The first silo provides strict
-     * user-ownership for personal data stored under the `/users/{userId}` path. The second silo manages
-     * collaborative lab data under the `/clients/{clientId}` path, where access is controlled by a
-     * membership list on each client document.
-     *
-     * Data Structure:
-     * 1. /users/{userId}/documents/{documentId}: Private documents owned exclusively by a single user.
-     * 2. /clients/{clientId}/*: A hierarchical structure for clients and their associated samples, tests,
-     *    and reports. Access to any document in this tree is governed by the parent client document.
+     * Core Philosophy: This ruleset establishes a strict user-ownership security model.
+     * All user-generated data (documents, samples, etc.) is stored in sub-collections
+     * under the `/users/{userId}` path. Access to any document is granted only if the
+     * requesting user's authenticated UID matches the `userId` in the path.
      *
      * Key Security Decisions:
-     * - Client Membership: Access to any data under `/clients/{clientId}` requires the authenticated
-     *   user's UID to be present in a `members` map on the corresponding `/clients/{clientId}` document.
-     *   This critical authorization data must be denormalized onto the client document itself.
-     * - Role-Based Deletion: Destructive operations, such as deleting a client record, are restricted
-     *   to users with an 'admin' role within that client's `members` map.
-     * - Path Integrity: Rules enforce that relational IDs within documents (e.g., `sample.clientId`)
-     *   match the corresponding IDs in the document's path, ensuring data consistency.
-     * - Secure Listing: Listing all clients is disallowed. Client-side queries must be used to fetch
-     *   only the clients a user is a member of. Listing of sub-collections like samples or tests is
-     *   scoped to the parent client, which is secure.
+     * - User-Owned Silos: All data is siloed under a user's personal path. There is no
+     *   shared or public data in this model.
+     * - Path-Based Security: Authorization is derived entirely from the document path.
+     *   Rules do not need to inspect document data to determine ownership.
+     * - Data Integrity: On creation, rules enforce that a `userId` field within the
+     *   document must match the `userId` in the path, ensuring data consistency and
+     *   preventing users from creating data in other users' silos with misleading fields.
+     * - Secure Listing: `list` operations are permitted, but they are inherently secure
+     *   because they are scoped to a specific user's path (e.g., `/users/{request.auth.uid}/samples`).
      * - Default Deny: All paths not explicitly matched are denied access by default.
      */
 
@@ -54,26 +48,6 @@ service cloud.firestore {
       return isOwner(userId) && resource != null;
     }
 
-    /**
-     * Checks if a user is a member of a given client by reading the `members`
-     * map on the client document. This function is critical for securing all
-     * client-related subcollections.
-     * @param clientId The ID of the client document to check.
-     */
-    function isClientMember(clientId) {
-      return isSignedIn() && get(/databases/$(database)/documents/clients/$(clientId)).data.members[request.auth.uid] != null;
-    }
-
-    /**
-     * Checks if a user has an 'admin' role for a given client.
-     * Used to restrict sensitive operations like deleting a client record.
-     * @param clientId The ID of the client document to check.
-     */
-    function isClientAdmin(clientId) {
-      return isSignedIn() && get(/databases/$(database)/documents/clients/$(clientId)).data.members[request.auth.uid] == 'admin';
-    }
-
-
     // ------------------------------------------------------------------------
     // User Data Rules
     // ------------------------------------------------------------------------
@@ -88,82 +62,23 @@ service cloud.firestore {
     match /users/{userId}/documents/{documentId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      // NOTE: The Document entity should contain a `userId` field for data integrity.
-      // Prototyping rules permit creation without it, but it's recommended for production.
       allow create: if isOwner(userId);
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
-
-    // ------------------------------------------------------------------------
-    // Client & Lab Data Rules
-    // ------------------------------------------------------------------------
-
+    
     /**
-     * @description Controls access to top-level client records. Access is determined by a
-     *              `members` map on the document.
-     * @path /clients/{clientId}
-     * @allow (get) A user who is listed in the client's `members` map reading the document.
-     * @deny (delete) A non-admin member trying to delete the client document.
-     * @principle Enforces collaborative access via a denormalized membership list.
+     * @description Controls access to a user's private samples.
+     * @path /users/{userId}/samples/{sampleId}
+     * @allow (create) An authenticated user creating a sample for themselves, ensuring data integrity.
+     * @deny (get) An authenticated user trying to read another user's sample.
+     * @principle Restricts access to a user's own data tree and validates data on write.
      */
-    match /clients/{clientId} {
-      allow get: if isClientMember(clientId);
-      // Listing all clients is insecure. The client must query for clients where they are a member.
-      // e.g., db.collection('clients').where(`members.${auth.currentUser.uid}`, '!=', null)
-      allow list: if isSignedIn();
-      // A user can create a new client record, but they must add themselves as the initial admin.
-      allow create: if isSignedIn() && request.resource.data.members[request.auth.uid] == 'admin';
-      // Any member can update the client details, but managing the members list should be an admin function
-      // (handled by application logic, not enforced here for prototyping flexibility).
-      allow update: if isClientMember(clientId) && resource != null;
-      // Only an admin of that client can delete the record.
-      allow delete: if isClientAdmin(clientId) && resource != null;
-    }
-
-    /**
-     * @description Controls access to a client's sample records. Inherits permissions from the parent client.
-     * @path /clients/{clientId}/samples/{sampleId}
-     * @allow (create) A member of the client creating a new sample record for that client.
-     * @deny (get) A user who is not a member of the client trying to read a sample.
-     * @principle Validates relational integrity between documents and enforces inherited permissions.
-     */
-    match /clients/{clientId}/samples/{sampleId} {
-      allow get: if isClientMember(clientId);
-      allow list: if isClientMember(clientId);
-      allow create: if isClientMember(clientId) && request.resource.data.clientId == clientId;
-      allow update: if isClientMember(clientId) && resource != null && request.resource.data.clientId == resource.data.clientId;
-      allow delete: if isClientMember(clientId) && resource != null;
-    }
-
-    /**
-     * @description Controls access to tests for a specific sample. Inherits permissions from the grandparent client.
-     * @path /clients/{clientId}/samples/{sampleId}/tests/{testId}
-     * @allow (get) A member of the client reading a test associated with one of their samples.
-     * @deny (create) A member of the client trying to create a test with a mismatched `sampleId`.
-     * @principle Enforces deep hierarchical security and relational path consistency.
-     */
-    match /clients/{clientId}/samples/{sampleId}/tests/{testId} {
-      allow get: if isClientMember(clientId);
-      allow list: if isClientMember(clientId);
-      allow create: if isClientMember(clientId) && request.resource.data.sampleId == sampleId;
-      allow update: if isClientMember(clientId) && resource != null && request.resource.data.sampleId == resource.data.sampleId;
-      allow delete: if isClientMember(clientId) && resource != null;
-    }
-
-    /**
-     * @description Controls access to reports for a specific test. Inherits permissions from the client.
-     * @path /clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId}
-     * @allow (update) A member of the client updating a report associated with one of their tests.
-     * @deny (get) A user who is not a member of the parent client reading a report.
-     * @principle Ensures consistent, inherited permissions even in deeply nested data structures.
-     */
-    match /clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId} {
-      allow get: if isClientMember(clientId);
-      allow list: if isClientMember(clientId);
-      allow create: if isClientMember(clientId) && request.resource.data.testId == testId;
-      allow update: if isClientMember(clientId) && resource != null && request.resource.data.testId == resource.data.testId;
-      allow delete: if isClientMember(clientId) && resource != null;
+    match /users/{userId}/samples/{sampleId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
   }
 }
