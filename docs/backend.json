@@ -1,46 +1,318 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "Perfil de Usuario",
-      "description": "Representa el perfil de un usuario en el sistema.",
+    "Document": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Document",
       "type": "object",
+      "description": "Represents a lab document, such as SOPs, calibration records, and training materials.",
       "properties": {
-        "displayName": {
+        "id": {
           "type": "string",
-          "description": "El nombre para mostrar del usuario."
+          "description": "Unique identifier for the Document entity."
         },
-        "email": {
+        "title": {
           "type": "string",
-          "format": "email",
-          "description": "La dirección de correo electrónico del usuario."
+          "description": "Title of the document."
         },
-        "role": {
+        "description": {
           "type": "string",
-          "description": "El rol del usuario en el sistema.",
-          "enum": [
-            "admin",
-            "technician"
-          ]
+          "description": "Detailed description of the document."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "URL or path to the document file.",
+          "format": "uri"
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time when the document was uploaded.",
+          "format": "date-time"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category or type of the document (e.g., SOP, Calibration Record)."
         }
       },
       "required": [
-        "displayName",
-        "email",
-        "role"
+        "id",
+        "title",
+        "fileUrl",
+        "uploadDate",
+        "category"
+      ]
+    },
+    "Sample": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Sample",
+      "type": "object",
+      "description": "Represents a lab sample with its registration details.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Sample entity."
+        },
+        "sampleId": {
+          "type": "string",
+          "description": "Identifier assigned to the sample by the lab."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to Client. (Relationship: Client 1:N Sample)"
+        },
+        "registrationDate": {
+          "type": "string",
+          "description": "Date and time when the sample was registered.",
+          "format": "date-time"
+        },
+        "storageLocation": {
+          "type": "string",
+          "description": "Location where the sample is stored."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description or notes about the sample."
+        }
+      },
+      "required": [
+        "id",
+        "sampleId",
+        "clientId",
+        "registrationDate",
+        "storageLocation"
+      ]
+    },
+    "Test": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Test",
+      "type": "object",
+      "description": "Represents a test assigned to a sample.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Test entity."
+        },
+        "sampleId": {
+          "type": "string",
+          "description": "Reference to Sample. (Relationship: Sample 1:N Test)"
+        },
+        "testName": {
+          "type": "string",
+          "description": "Name of the test being performed."
+        },
+        "assignedDate": {
+          "type": "string",
+          "description": "Date when the test was assigned.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the test (e.g., 'Pending', 'In Progress', 'Completed')."
+        },
+        "reportId": {
+          "type": "string",
+          "description": "Reference to Report. (Relationship: Report 1:1 Test).  ID of the report associated with this test, null if no report has been generated yet."
+        }
+      },
+      "required": [
+        "id",
+        "sampleId",
+        "testName",
+        "assignedDate",
+        "status"
+      ]
+    },
+    "Report": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Report",
+      "type": "object",
+      "description": "Represents a test report generated for a sample.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Report entity."
+        },
+        "testId": {
+          "type": "string",
+          "description": "Reference to Test. (Relationship: Test 1:1 Report)"
+        },
+        "generationDate": {
+          "type": "string",
+          "description": "Date and time when the report was generated.",
+          "format": "date-time"
+        },
+        "results": {
+          "type": "string",
+          "description": "Detailed results of the test."
+        },
+        "deviations": {
+          "type": "string",
+          "description": "Any deviations observed during the test and their descriptions."
+        },
+        "referenceLink": {
+          "type": "string",
+          "description": "Link to any reference information used during the test (e.g., from online sources).",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "testId",
+        "generationDate",
+        "results"
+      ]
+    },
+    "Client": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Client",
+      "type": "object",
+      "description": "Represents a client who submits samples for testing.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Client entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the client."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "Email address of the client contact person.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "Phone number of the client contact person."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the client."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "contactEmail"
       ]
     }
   },
   "auth": {
     "providers": [
-      "google.com"
+      "password",
+      "anonymous"
     ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/UserProfile"
+    "structure": [
+      {
+        "path": "/users/{userId}/documents/{documentId}",
+        "definition": {
+          "entityName": "Document",
+          "schema": {
+            "$ref": "#/backend/entities/Document"
+          },
+          "description": "Stores documents (SOPs, records) owned by a specific user. Access is restricted to the owning user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The ID of the user who owns the document."
+            },
+            {
+              "name": "documentId",
+              "description": "The ID of the document."
+            }
+          ]
+        }
       },
-      "description": "Almacena la información del perfil del usuario."
-    }
+      {
+        "path": "/clients/{clientId}",
+        "definition": {
+          "entityName": "Client",
+          "schema": {
+            "$ref": "#/backend/entities/Client"
+          },
+          "description": "Stores client information. Accessible to lab administrators and client users with appropriate permissions.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "The ID of the client."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/clients/{clientId}/samples/{sampleId}",
+        "definition": {
+          "entityName": "Sample",
+          "schema": {
+            "$ref": "#/backend/entities/Sample"
+          },
+          "description": "Stores sample registration information. Accessible to lab administrators and the owning client.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "The ID of the client who owns the sample."
+            },
+            {
+              "name": "sampleId",
+              "description": "The ID of the sample."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/clients/{clientId}/samples/{sampleId}/tests/{testId}",
+        "definition": {
+          "entityName": "Test",
+          "schema": {
+            "$ref": "#/backend/entities/Test"
+          },
+          "description": "Stores test assignments for a given sample. Accessible to lab administrators and the owning client.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "The ID of the client who owns the sample."
+            },
+            {
+              "name": "sampleId",
+              "description": "The ID of the sample."
+            },
+            {
+              "name": "testId",
+              "description": "The ID of the test."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId}",
+        "definition": {
+          "entityName": "Report",
+          "schema": {
+            "$ref": "#/backend/entities/Report"
+          },
+          "description": "Stores test reports. Accessible to lab administrators and the owning client.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "The ID of the client who owns the sample."
+            },
+            {
+              "name": "sampleId",
+              "description": "The ID of the sample."
+            },
+            {
+              "name": "testId",
+              "description": "The ID of the test."
+            },
+            {
+              "name": "reportId",
+              "description": "The ID of the report."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the LabTrack application's requirements for document management, sample registration, test assignment, and report generation. The structure prioritizes authorization independence by avoiding hierarchical `get()` calls in security rules. This is achieved by leveraging path-based ownership for user-specific data and membership maps for collaborative data, ensuring atomic operations and simplified debugging.\n\n**Authorization Independence (Denormalization):** Access control for samples, tests, and reports is implicitly linked to client ownership. Client ID is stored with samples to avoid rules requiring `get()` calls to other collections. Tests inherit the sample's client ID. Reports inherit the test's client ID.\n\n**Structural Segregation:** Each collection houses data with a homogeneous security posture. User-specific documents are stored under `/users/{userId}/documents/{documentId}` to apply simple ownership-based rules.\n\n**Access Modeling:** Path-based ownership is used for user documents. The `/clients/{clientId}/samples/{sampleId}` structure establishes clear ownership. Tests associated with samples reside under `/clients/{clientId}/samples/{sampleId}/tests/{testId}`, Reports associated with tests reside under `/clients/{clientId}/samples/{sampleId}/tests/{testId}/reports/{reportId}`.\n\n**QAPs (Rules are not Filters):**  The data structure allows secure `list` operations by clearly defining ownership and access rights at each level.  Path-based rules can efficiently filter collections based on the requesting user's ID or client ID, without needing complex filtering logic within the rules themselves."
   }
 }
