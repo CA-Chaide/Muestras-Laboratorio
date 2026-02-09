@@ -15,6 +15,7 @@ import type { Sample } from '@/lib/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Skeleton } from '../ui/skeleton';
+import { EditSampleDialog } from './edit-sample-dialog';
 
 interface SamplesTableProps {
   filters: {
@@ -82,6 +83,7 @@ export function SamplesTable({ filters }: SamplesTableProps) {
         <TableHead>N° Solicitud</TableHead>
         <TableHead>N° Informe</TableHead>
         <TableHead>Estado</TableHead>
+        <TableHead className="text-right">Acciones</TableHead>
       </TableRow>
     </TableHeader>
   );
@@ -103,6 +105,7 @@ export function SamplesTable({ filters }: SamplesTableProps) {
               <TableCell><Skeleton className="h-6 w-20" /></TableCell>
               <TableCell><Skeleton className="h-6 w-20" /></TableCell>
               <TableCell><Skeleton className="h-6 w-28" /></TableCell>
+              <TableCell><Skeleton className="h-8 w-8" /></TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -124,7 +127,7 @@ export function SamplesTable({ filters }: SamplesTableProps) {
         {tableHeader}
         <TableBody>
           <TableRow>
-            <TableCell colSpan={10} className="text-center h-24">
+            <TableCell colSpan={11} className="text-center h-24">
               No hay muestras que coincidan con los filtros seleccionados.
             </TableCell>
           </TableRow>
@@ -150,6 +153,9 @@ export function SamplesTable({ filters }: SamplesTableProps) {
             <TableCell>{sample.informeNumero}</TableCell>
             <TableCell>
               <Badge variant={sample.status === 'Registrado' ? 'default' : 'secondary'}>{sample.status}</Badge>
+            </TableCell>
+            <TableCell className="text-right">
+              <EditSampleDialog sample={sample} />
             </TableCell>
           </TableRow>
         ))}

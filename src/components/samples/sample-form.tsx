@@ -54,9 +54,10 @@ interface SampleFormProps {
   form: UseFormReturn<SampleFormValues>;
   onSubmit: (values: SampleFormValues) => void;
   isSubmitting?: boolean;
+  submitButtonText?: string;
 }
 
-export function SampleForm({ form, onSubmit, isSubmitting }: SampleFormProps) {
+export function SampleForm({ form, onSubmit, isSubmitting, submitButtonText = 'Registrar Muestra' }: SampleFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -228,7 +229,7 @@ export function SampleForm({ form, onSubmit, isSubmitting }: SampleFormProps) {
             />
         </div>
         <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Registrando...' : 'Registrar Muestra'}
+            {isSubmitting ? 'Guardando...' : submitButtonText}
         </Button>
       </form>
     </Form>
