@@ -1,7 +1,7 @@
 'use client';
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Armchair, BedDouble, Layers, Puzzle, Rectangle, Square } from 'lucide-react';
+import { Armchair, BedDouble, Layers, Puzzle, RectangleVertical, Square } from 'lucide-react';
 import Link from 'next/link';
 
 const sampleTypes = [
@@ -26,7 +26,7 @@ const sampleTypes = [
   {
     title: 'Registro de Almohadas',
     href: '/samples/pillow',
-    icon: Rectangle,
+    icon: RectangleVertical,
     description: 'Registrar nuevas muestras de almohada.',
   },
   {
