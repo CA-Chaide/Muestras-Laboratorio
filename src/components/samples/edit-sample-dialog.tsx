@@ -66,7 +66,13 @@ export function EditSampleDialog({ sample }: EditSampleDialogProps) {
       });
       setIsOpen(false); 
     } catch(e) {
-        // The global error handler will display a toast for permission errors
+      if (e instanceof Error) {
+        toast({
+          variant: "destructive",
+          title: "Error al actualizar la muestra",
+          description: e.message,
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -48,7 +48,13 @@ export default function PillowSamplePage() {
       });
       form.reset();
     } catch(e) {
-      // The global error handler will display a toast for permission errors
+      if (e instanceof Error) {
+        toast({
+          variant: "destructive",
+          title: "Error al registrar la muestra",
+          description: e.message,
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
