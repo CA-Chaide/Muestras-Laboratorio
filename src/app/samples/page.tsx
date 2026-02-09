@@ -1,7 +1,7 @@
 'use client';
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Armchair, BedDouble, Layers, Puzzle, RectangleVertical, Square } from 'lucide-react';
+import { Armchair, BedDouble, Layers, Puzzle, RectangleVertical, Square, Factory } from 'lucide-react';
 import Link from 'next/link';
 
 const sampleTypes = [
@@ -40,6 +40,12 @@ const sampleTypes = [
     href: '/samples/accessory',
     icon: Puzzle,
     description: 'Registrar nuevas muestras de complementos.',
+  },
+  {
+    title: 'Ensayos Espuma en línea de producción',
+    href: '/samples/production-line-foam-test',
+    icon: Factory,
+    description: 'Registrar ensayos de espuma en la línea de producción.',
   },
 ];
 
