@@ -37,3 +37,10 @@ export type NavItem = {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 };
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Administrador' | 'Técnico';
+};
