@@ -41,7 +41,7 @@ export default function FurnitureSamplePage() {
     setIsSubmitting(true);
 
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Mueble');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Mueble ha sido registrada exitosamente.",

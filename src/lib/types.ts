@@ -15,6 +15,7 @@ export type Sample = {
   registrationDateTime: string; // ISO String
   descripcion: string;
   fechaFabricacionLote: string;
+  categoria: string;
   tipoMuestra: 'Producción Normal' | 'Prueba de Producción' | 'Prueba de Calidad' | 'Ensayo Rápido';
   ensayosSolicitados: string;
   solicitudNumero: string;

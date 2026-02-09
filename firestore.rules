@@ -76,7 +76,7 @@ service cloud.firestore {
      */
     match /users/{userId}/samples/{sampleId} {
       allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow create: if isOwner(userId) && request.resource.data.userId == userId && request.resource.data.categoria is string && request.resource.data.categoria.size() > 0;
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }

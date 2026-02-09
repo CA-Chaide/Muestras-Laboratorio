@@ -63,6 +63,10 @@
           "type": "string",
           "description": "Manufacturing date or lot number of the sample."
         },
+        "categoria": {
+          "type": "string",
+          "description": "The category of the sample (e.g., Espuma, Tela, Colchón)."
+        },
         "tipoMuestra": {
           "type": "string",
           "description": "The type of the sample.",
@@ -100,6 +104,7 @@
         "registrationDateTime",
         "descripcion",
         "fechaFabricacionLote",
+        "categoria",
         "tipoMuestra",
         "ensayosSolicitados",
         "solicitudNumero",

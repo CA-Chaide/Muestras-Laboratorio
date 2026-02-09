@@ -41,7 +41,7 @@ export default function PillowSamplePage() {
     setIsSubmitting(true);
 
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Almohada');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Almohada ha sido registrada exitosamente.",

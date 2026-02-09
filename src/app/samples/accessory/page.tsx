@@ -41,7 +41,7 @@ export default function AccessorySamplePage() {
     setIsSubmitting(true);
     
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Complemento');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Complemento ha sido registrada exitosamente.",

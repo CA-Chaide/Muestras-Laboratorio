@@ -41,7 +41,7 @@ export default function FabricSamplePage() {
     setIsSubmitting(true);
 
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Tela');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Tela ha sido registrada exitosamente.",

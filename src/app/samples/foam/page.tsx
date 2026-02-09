@@ -41,7 +41,7 @@ export default function FoamSamplePage() {
     setIsSubmitting(true);
     
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Espuma');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Espuma ha sido registrada exitosamente.",

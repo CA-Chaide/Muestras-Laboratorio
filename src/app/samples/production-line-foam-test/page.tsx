@@ -41,7 +41,7 @@ export default function ProductionLineFoamTestPage() {
     setIsSubmitting(true);
 
     try {
-      await saveSample(firestore, user.uid, values);
+      await saveSample(firestore, user.uid, values, 'Ensayos Espuma en Línea de Producción');
       toast({
         title: "Ensayo registrado",
         description: "El ensayo de espuma en línea de producción ha sido registrado exitosamente.",
