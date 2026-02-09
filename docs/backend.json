@@ -189,6 +189,33 @@
         "generationDate",
         "results"
       ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User Profile",
+      "description": "Stores details about a user, including their role.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user in the system.",
+          "enum": ["Administrador", "Técnico"]
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "role"
+      ]
     }
   },
   "auth": {
@@ -199,6 +226,22 @@
   },
   "firestore": {
     "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. The document ID is the same as the Firebase Auth UID. This collection is managed by administrators.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The user's Auth UID."
+            }
+          ]
+        }
+      },
       {
         "path": "/users/{userId}/documents/{documentId}",
         "definition": {

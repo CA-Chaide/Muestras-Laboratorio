@@ -51,6 +51,16 @@ service cloud.firestore {
     // ------------------------------------------------------------------------
     // User Data Rules
     // ------------------------------------------------------------------------
+    
+    /**
+     * @description Controls access to user profiles.
+     * @path /users/{userId}
+     * @principle For prototyping, allows any authenticated user to manage profiles.
+     * This will be replaced with role-based access control where only admins can manage users.
+     */
+    match /users/{userId} {
+      allow read, write: if isSignedIn();
+    }
 
     /**
      * @description Controls access to a user's private documents.
