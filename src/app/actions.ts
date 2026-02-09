@@ -13,6 +13,6 @@ export async function getDeviationAnalysis(input: DeviationAnalysisInput) {
     return result;
   } catch (error) {
     console.error('Error in getDeviationAnalysis:', error);
-    return { error: 'An unexpected error occurred while analyzing the deviation.' };
+    return { error: 'Ocurrió un error inesperado al analizar la desviación.' };
   }
 }

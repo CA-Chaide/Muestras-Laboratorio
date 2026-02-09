@@ -59,7 +59,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       </Avatar>
                       <div className="flex flex-col items-start text-sm">
                         <span className="font-medium">Alex Doe</span>
-                        <span className="text-muted-foreground text-xs">Technician</span>
+                        <span className="text-muted-foreground text-xs">Técnico</span>
                       </div>
                     </div>
                     <MoreHorizontal className="w-4 h-4 ml-2" />
@@ -67,14 +67,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Perfil</DropdownMenuItem>
+                <DropdownMenuItem>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

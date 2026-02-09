@@ -6,21 +6,21 @@ import {
 } from '@/components/ui/chart';
 
 const chartData = [
-  { month: 'January', received: 186, completed: 80 },
-  { month: 'February', received: 305, completed: 200 },
-  { month: 'March', received: 237, completed: 120 },
-  { month: 'April', received: 273, completed: 190 },
-  { month: 'May', received: 209, completed: 130 },
-  { month: 'June', received: 214, completed: 140 },
+  { month: 'Enero', received: 186, completed: 80 },
+  { month: 'Febrero', received: 305, completed: 200 },
+  { month: 'Marzo', received: 237, completed: 120 },
+  { month: 'Abril', received: 273, completed: 190 },
+  { month: 'Mayo', received: 209, completed: 130 },
+  { month: 'Junio', received: 214, completed: 140 },
 ];
 
 const chartConfig = {
   received: {
-    label: 'Received',
+    label: 'Recibidas',
     color: 'hsl(var(--primary))',
   },
   completed: {
-    label: 'Completed',
+    label: 'Completadas',
     color: 'hsl(var(--accent))',
   },
 };

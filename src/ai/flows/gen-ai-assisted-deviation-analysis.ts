@@ -1,46 +1,46 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for AI-assisted deviation analysis in lab test results.
+ * @fileOverview Este archivo define un flujo de Genkit para el análisis de desviaciones asistido por IA en los resultados de pruebas de laboratorio.
  *
- * - analyzeDeviation - Analyzes potential deviations in test results using GenAI.
- * - DeviationAnalysisInput - The input type for the analyzeDeviation function.
- * - DeviationAnalysisOutput - The return type for the analyzeDeviation function.
+ * - analyzeDeviation - Analiza posibles desviaciones en los resultados de las pruebas usando GenAI.
+ * - DeviationAnalysisInput - El tipo de entrada para la función analyzeDeviation.
+ * - DeviationAnalysisOutput - El tipo de retorno para la función analyzeDeviation.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const DeviationAnalysisInputSchema = z.object({
-  testName: z.string().describe('The name of the test performed.'),
-  testResult: z.string().describe('The result obtained from the test.'),
-  expectedValue: z.string().describe('The expected value for the test.'),
+  testName: z.string().describe('El nombre de la prueba realizada.'),
+  testResult: z.string().describe('El resultado obtenido de la prueba.'),
+  expectedValue: z.string().describe('El valor esperado para la prueba.'),
 });
 export type DeviationAnalysisInput = z.infer<typeof DeviationAnalysisInputSchema>;
 
 const DeviationAnalysisOutputSchema = z.object({
-  deviationDetected: z.boolean().describe('Whether a deviation from the expected value is detected.'),
-  referenceInformation: z.string().describe('Relevant information extracted from online sources.'),
-  sourceLink: z.string().describe('The link to the source of the reference information.'),
+  deviationDetected: z.boolean().describe('Si se detecta una desviación del valor esperado.'),
+  referenceInformation: z.string().describe('Información relevante extraída de fuentes en línea.'),
+  sourceLink: z.string().describe('El enlace a la fuente de la información de referencia.'),
 });
 export type DeviationAnalysisOutput = z.infer<typeof DeviationAnalysisOutputSchema>;
 
 const extractReferenceInformation = ai.defineTool({
   name: 'extractReferenceInformation',
-  description: 'Extracts relevant reference information from online sources about a specific test and its expected values, providing a source link.',
+  description: 'Extrae información de referencia relevante de fuentes en línea sobre una prueba específica y sus valores esperados, proporcionando un enlace de origen.',
   inputSchema: z.object({
-    testName: z.string().describe('The name of the test.'),
-    expectedValue: z.string().describe('The expected value for the test.'),
+    testName: z.string().describe('El nombre de la prueba.'),
+    expectedValue: z.string().describe('El valor esperado para la prueba.'),
   }),
   outputSchema: z.object({
-    information: z.string().describe('The extracted reference information.'),
-    sourceUrl: z.string().describe('The URL of the source.'),
+    information: z.string().describe('La información de referencia extraída.'),
+    sourceUrl: z.string().describe('La URL de la fuente.'),
   }),
 },
 async (input) => {
-    // Placeholder implementation:  In a real application, this would use an external API or web scraping to fetch information.
-    // For now, return a canned response.
+    // Implementación de marcador de posición: en una aplicación real, esto usaría una API externa o web scraping para obtener información.
+    // Por ahora, devuelve una respuesta predefinida.
     return {
-      information: `Reference information for ${input.testName} with expected value ${input.expectedValue} extracted from a sample source.`, // Replace with actual extracted info
+      information: `Información de referencia para ${input.testName} con valor esperado ${input.expectedValue} extraída de una fuente de muestra.`, // Reemplazar con información extraída real
       sourceUrl: 'https://example.com/reference',
     };
   }
@@ -51,15 +51,15 @@ const analyzeDeviationPrompt = ai.definePrompt({
   input: {schema: DeviationAnalysisInputSchema},
   output: {schema: DeviationAnalysisOutputSchema},
   tools: [extractReferenceInformation],
-  prompt: `You are an expert lab technician assistant. Given a test result and its expected value, determine if there's a deviation. If a deviation is suspected, use the extractReferenceInformation tool to gather supporting context from reliable online sources.
+  prompt: `Eres un asistente experto de técnico de laboratorio. Dado un resultado de prueba y su valor esperado, determina si hay una desviación. Si se sospecha una desviación, usa la herramienta extractReferenceInformation para recopilar contexto de apoyo de fuentes en línea confiables.
 
-Test Name: {{{testName}}}
-Test Result: {{{testResult}}}
-Expected Value: {{{expectedValue}}}
+Nombre de la Prueba: {{{testName}}}
+Resultado de la Prueba: {{{testResult}}}
+Valor Esperado: {{{expectedValue}}}
 
-Based on the test result and expected value, is there a deviation?  If so, use the extractReferenceInformation tool to find more information.
-`, // Updated to use tool for information extraction
-  system: `You are assisting in the analysis of lab test results. If the test result deviates significantly from the expected value, use the extractReferenceInformation tool to provide context and a source link.`, // Added system prompt
+Basado en el resultado de la prueba y el valor esperado, ¿hay una desviación? Si es así, usa la herramienta extractReferenceInformation para encontrar más información.
+`, // Actualizado para usar la herramienta para la extracción de información
+  system: `Estás ayudando en el análisis de los resultados de las pruebas de laboratorio. Si el resultado de la prueba se desvía significativamente del valor esperado, usa la herramienta extractReferenceInformation para proporcionar contexto y un enlace de origen.`, // Se agregó un prompt del sistema
 });
 
 export async function analyzeDeviation(input: DeviationAnalysisInput): Promise<DeviationAnalysisOutput> {
@@ -74,7 +74,7 @@ const analyzeDeviationFlow = ai.defineFlow(
   },
   async input => {
     const deviationPromptResult = await analyzeDeviationPrompt(input);
-    const deviationDetected = input.testResult !== input.expectedValue; // Simple deviation detection logic
+    const deviationDetected = input.testResult !== input.expectedValue; // Lógica simple de detección de desviación
 
     let referenceInformation = '';
     let sourceLink = '';

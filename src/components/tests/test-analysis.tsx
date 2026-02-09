@@ -38,13 +38,13 @@ export default function TestAnalysis({ tests }: { tests: Test[] }) {
   
   const getStatusVariant = (status: Test['status']) => {
     switch (status) {
-      case 'Completed':
+      case 'Completado':
         return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
-      case 'In Progress':
+      case 'En Progreso':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
-      case 'Requires Review':
+      case 'Requiere Revisión':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
-      case 'Pending':
+      case 'Pendiente':
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
@@ -65,14 +65,14 @@ export default function TestAnalysis({ tests }: { tests: Test[] }) {
                       {test.status}
                   </Badge>
               </div>
-              <CardDescription>Sample ID: {test.sampleId}</CardDescription>
+              <CardDescription>ID de Muestra: {test.sampleId}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
               <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2"><User className="size-4 text-muted-foreground" /> <strong>Assigned To:</strong> {test.assignedTo}</div>
-                <div className="flex items-center gap-2"><Calendar className="size-4 text-muted-foreground" /> <strong>Due Date:</strong> {test.dueDate}</div>
-                <div className="flex items-center gap-2"><FlaskConical className="size-4 text-muted-foreground" /> <strong>Expected:</strong> <code className="bg-muted px-2 py-1 rounded-md">{test.expectedValue}</code></div>
-                <div className="flex items-center gap-2"><ClipboardCheck className="size-4 text-muted-foreground" /> <strong>Result:</strong> <code className="bg-muted px-2 py-1 rounded-md">{test.result}</code></div>
+                <div className="flex items-center gap-2"><User className="size-4 text-muted-foreground" /> <strong>Asignado a:</strong> {test.assignedTo}</div>
+                <div className="flex items-center gap-2"><Calendar className="size-4 text-muted-foreground" /> <strong>Fecha de Vencimiento:</strong> {test.dueDate}</div>
+                <div className="flex items-center gap-2"><FlaskConical className="size-4 text-muted-foreground" /> <strong>Esperado:</strong> <code className="bg-muted px-2 py-1 rounded-md">{test.expectedValue}</code></div>
+                <div className="flex items-center gap-2"><ClipboardCheck className="size-4 text-muted-foreground" /> <strong>Resultado:</strong> <code className="bg-muted px-2 py-1 rounded-md">{test.result}</code></div>
               </div>
 
               {isLoading && (
@@ -87,26 +87,26 @@ export default function TestAnalysis({ tests }: { tests: Test[] }) {
                   {result.error ? (
                     <Alert variant="destructive">
                       <CircleAlert className="h-4 w-4" />
-                      <AlertTitle>Analysis Error</AlertTitle>
+                      <AlertTitle>Error de Análisis</AlertTitle>
                       <AlertDescription>{result.error}</AlertDescription>
                     </Alert>
                   ) : result.deviationDetected ? (
                     <Alert variant="destructive">
                       <CircleAlert className="h-4 w-4" />
-                      <AlertTitle>Potential Deviation Detected</AlertTitle>
+                      <AlertTitle>Posible Desviación Detectada</AlertTitle>
                       <AlertDescription>
                         <p className="mb-2">{result.referenceInformation}</p>
                         <a href={result.sourceLink} target="_blank" rel="noopener noreferrer" className="text-destructive-foreground underline font-medium flex items-center gap-1">
-                           <LinkIcon className="size-3" /> Source
+                           <LinkIcon className="size-3" /> Fuente
                         </a>
                       </AlertDescription>
                     </Alert>
                   ) : (
                     <Alert>
                         <FileText className="h-4 w-4" />
-                        <AlertTitle>No Deviation Detected</AlertTitle>
+                        <AlertTitle>No se Detectó Desviación</AlertTitle>
                         <AlertDescription>
-                            The test result is within the expected range. No further action is required.
+                            El resultado de la prueba está dentro del rango esperado. No se requiere ninguna acción adicional.
                         </AlertDescription>
                     </Alert>
                   )}
@@ -120,7 +120,7 @@ export default function TestAnalysis({ tests }: { tests: Test[] }) {
                 className="w-full"
               >
                 {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin spinner" />}
-                {isLoading ? 'Analyzing...' : result ? 'Re-analyze Deviation' : 'Analyze Deviation'}
+                {isLoading ? 'Analizando...' : result ? 'Re-analizar Desviación' : 'Analizar Desviación'}
               </Button>
             </CardFooter>
           </Card>

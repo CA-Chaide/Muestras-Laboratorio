@@ -13,45 +13,45 @@ import { FileText, FlaskConical, Beaker, CheckCircle, Clock } from 'lucide-react
 import { tests } from '@/lib/data';
 
 export default function DashboardPage() {
-  const completedTests = tests.filter(t => t.status === 'Completed').length;
-  const pendingTests = tests.filter(t => t.status !== 'Completed').length;
+  const completedTests = tests.filter(t => t.status === 'Completado').length;
+  const pendingTests = tests.filter(t => t.status !== 'Completado').length;
   
   return (
     <div className="flex flex-col w-full">
-      <Header title="Dashboard" />
+      <Header title="Panel de Control" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
-            title="Total Samples"
+            title="Muestras Totales"
             value="1,254"
             icon={Beaker}
-            description="+20.1% from last month"
+            description="+20.1% desde el mes pasado"
           />
           <StatsCard
-            title="Tests Completed"
+            title="Pruebas Completadas"
             value={completedTests.toString()}
             icon={CheckCircle}
-            description="All completed analyses"
+            description="Todos los análisis completados"
           />
           <StatsCard
-            title="Pending Tests"
+            title="Pruebas Pendientes"
             value={pendingTests.toString()}
             icon={Clock}
-            description="Tests currently in progress"
+            description="Pruebas actualmente en curso"
           />
           <StatsCard
-            title="Reports Generated"
+            title="Informes Generados"
             value="312"
             icon={FileText}
-            description="Total reports issued"
+            description="Total de informes emitidos"
           />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
           <Card className="lg:col-span-4">
             <CardHeader>
-              <CardTitle>Sample Status Overview</CardTitle>
+              <CardTitle>Resumen del Estado de las Muestras</CardTitle>
               <CardDescription>
-                A visual representation of sample statuses in the lab.
+                Una representación visual de los estados de las muestras en el laboratorio.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -60,9 +60,9 @@ export default function DashboardPage() {
           </Card>
           <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Recent Tests</CardTitle>
+              <CardTitle>Pruebas Recientes</CardTitle>
               <CardDescription>
-                An overview of the most recently assigned tests.
+                Un resumen de las pruebas asignadas más recientemente.
               </CardDescription>
             </CardHeader>
             <CardContent>

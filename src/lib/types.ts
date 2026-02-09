@@ -2,7 +2,7 @@ export type Test = {
   id: string;
   name: string;
   sampleId: string;
-  status: 'Pending' | 'In Progress' | 'Completed' | 'Requires Review';
+  status: 'Pendiente' | 'En Progreso' | 'Completado' | 'Requiere Revisión';
   assignedTo: string;
   dueDate: string;
   result: string;
@@ -14,13 +14,13 @@ export type Sample = {
   name: string;
   client: string;
   receivedDate: string;
-  status: 'Received' | 'In-Testing' | 'Completed' | 'Archived';
+  status: 'Recibido' | 'En Prueba' | 'Completado' | 'Archivado';
 };
 
 export type Document = {
   id: string;
   title: string;
-  type: 'SOP' | 'Calibration Record' | 'Training Material' | 'Report';
+  type: 'POE' | 'Registro de Calibración' | 'Material de Capacitación' | 'Informe';
   version: string;
   lastUpdated: string;
 };

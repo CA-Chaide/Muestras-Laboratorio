@@ -3,27 +3,27 @@ import { LayoutDashboard, FileText, Beaker, FlaskConical, ClipboardList } from '
 
 export const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Panel de Control',
     href: '/',
     icon: LayoutDashboard,
   },
   {
-    title: 'Document Management',
+    title: 'Gestión de Documentos',
     href: '/documents',
     icon: FileText,
   },
   {
-    title: 'Sample Registration',
+    title: 'Registro de Muestras',
     href: '/samples',
     icon: Beaker,
   },
   {
-    title: 'Assigned Tests',
+    title: 'Pruebas Asignadas',
     href: '/tests',
     icon: FlaskConical,
   },
   {
-    title: 'Report Generation',
+    title: 'Generación de Informes',
     href: '/reports',
     icon: ClipboardList,
   },
@@ -32,19 +32,19 @@ export const navItems: NavItem[] = [
 export const tests: Test[] = [
   {
     id: 'T001',
-    name: 'Viscosity Test',
+    name: 'Prueba de Viscosidad',
     sampleId: 'S001',
-    status: 'Completed',
-    assignedTo: 'Dr. Evelyn Reed',
+    status: 'Completado',
+    assignedTo: 'Dra. Evelyn Reed',
     dueDate: '2024-08-15',
     result: '45 cP',
     expectedValue: '40 cP',
   },
   {
     id: 'T002',
-    name: 'pH Level Analysis',
+    name: 'Análisis de Nivel de pH',
     sampleId: 'S002',
-    status: 'In Progress',
+    status: 'En Progreso',
     assignedTo: 'Dr. Marcus Chen',
     dueDate: '2024-08-20',
     result: '6.8',
@@ -52,19 +52,19 @@ export const tests: Test[] = [
   },
   {
     id: 'T003',
-    name: 'Particle Size Distribution',
+    name: 'Distribución de Tamaño de Partícula',
     sampleId: 'S003',
-    status: 'Pending',
-    assignedTo: 'Dr. Evelyn Reed',
+    status: 'Pendiente',
+    assignedTo: 'Dra. Evelyn Reed',
     dueDate: '2024-08-22',
-    result: 'N/A',
-    expectedValue: '10-20 microns',
+    result: 'No Aplica',
+    expectedValue: '10-20 micras',
   },
   {
     id: 'T004',
-    name: 'Tensile Strength',
+    name: 'Resistencia a la Tracción',
     sampleId: 'S004',
-    status: 'Completed',
+    status: 'Completado',
     assignedTo: 'Dr. Ben Carter',
     dueDate: '2024-08-18',
     result: '350 MPa',
@@ -72,9 +72,9 @@ export const tests: Test[] = [
   },
     {
     id: 'T005',
-    name: 'Moisture Content',
+    name: 'Contenido de Humedad',
     sampleId: 'S005',
-    status: 'Requires Review',
+    status: 'Requiere Revisión',
     assignedTo: 'Dr. Marcus Chen',
     dueDate: '2024-08-19',
     result: '5.5%',
@@ -82,10 +82,10 @@ export const tests: Test[] = [
   },
   {
     id: 'T006',
-    name: 'Chemical Purity',
+    name: 'Pureza Química',
     sampleId: 'S006',
-    status: 'In Progress',
-    assignedTo: 'Dr. Evelyn Reed',
+    status: 'En Progreso',
+    assignedTo: 'Dra. Evelyn Reed',
     dueDate: '2024-08-25',
     result: '98.5%',
     expectedValue: '99.5%',
@@ -93,16 +93,16 @@ export const tests: Test[] = [
 ];
 
 export const samples: Sample[] = [
-  { id: 'S001', name: 'Polymer Batch A', client: 'InnovateChem', receivedDate: '2024-08-01', status: 'Completed' },
-  { id: 'S002', name: 'Water Sample W2', client: 'PureLife', receivedDate: '2024-08-05', status: 'In-Testing' },
-  { id: 'S003', name: 'Pharmaceutical Powder P1', client: 'HealthCorp', receivedDate: '2024-08-06', status: 'In-Testing' },
-  { id: 'S004', name: 'Metal Alloy M5', client: 'BuildRight', receivedDate: '2024-08-02', status: 'Completed' },
-  { id: 'S005', name: 'Food Product F8', client: 'GourmetFoods', receivedDate: '2024-08-07', status: 'In-Testing' },
-  { id: 'S006', name: 'Cosmetic Cream C3', client: 'BeautyGlow', receivedDate: '2024-08-10', status: 'Received' },
+  { id: 'S001', name: 'Lote de Polímero A', client: 'InnovateChem', receivedDate: '2024-08-01', status: 'Completado' },
+  { id: 'S002', name: 'Muestra de Agua W2', client: 'PureLife', receivedDate: '2024-08-05', status: 'En Prueba' },
+  { id: 'S003', name: 'Polvo Farmacéutico P1', client: 'HealthCorp', receivedDate: '2024-08-06', status: 'En Prueba' },
+  { id: 'S004', name: 'Aleación de Metal M5', client: 'BuildRight', receivedDate: '2024-08-02', status: 'Completado' },
+  { id: 'S005', name: 'Producto Alimenticio F8', client: 'GourmetFoods', receivedDate: '2024-08-07', status: 'En Prueba' },
+  { id: 'S006', name: 'Crema Cosmética C3', client: 'BeautyGlow', receivedDate: '2024-08-10', status: 'Recibido' },
 ];
 
 export const documents: Document[] = [
-    { id: 'DOC001', title: 'SOP for Viscosity Measurement', type: 'SOP', version: 'v3.1', lastUpdated: '2024-07-15' },
-    { id: 'DOC002', title: 'Spectrometer Calibration Record', type: 'Calibration Record', version: 'v1.0', lastUpdated: '2024-08-01' },
-    { id: 'DOC003', title: 'Lab Safety Training', type: 'Training Material', version: 'v2.5', lastUpdated: '2024-06-20' },
+    { id: 'DOC001', title: 'POE para Medición de Viscosidad', type: 'POE', version: 'v3.1', lastUpdated: '2024-07-15' },
+    { id: 'DOC002', title: 'Registro de Calibración del Espectrómetro', type: 'Registro de Calibración', version: 'v1.0', lastUpdated: '2024-08-01' },
+    { id: 'DOC003', title: 'Capacitación en Seguridad de Laboratorio', type: 'Material de Capacitación', version: 'v2.5', lastUpdated: '2024-06-20' },
 ];
