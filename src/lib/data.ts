@@ -1,5 +1,5 @@
 import type { Test, Sample, Document, NavItem } from './types';
-import { LayoutDashboard, FileText, Beaker, FlaskConical, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, FileText, Beaker, FlaskConical, ClipboardList, Archive } from 'lucide-react';
 
 export const navItems: NavItem[] = [
   {
@@ -16,6 +16,11 @@ export const navItems: NavItem[] = [
     title: 'Registro de Muestras',
     href: '/samples',
     icon: Beaker,
+  },
+  {
+    title: 'Ver Muestras',
+    href: '/samples/all',
+    icon: Archive,
   },
   {
     title: 'Pruebas Asignadas',
