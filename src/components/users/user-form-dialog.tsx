@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -93,7 +93,7 @@ export function UserFormDialog({ user, children }: UserFormDialogProps) {
     }
   };
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       form.reset({
         name: user?.name || '',
