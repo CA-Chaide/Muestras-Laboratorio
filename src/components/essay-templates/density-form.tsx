@@ -71,23 +71,23 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
 
     return (
         <TableRow>
-            <TableCell className="text-center font-medium align-middle">{index + 1}</TableCell>
-            <TableCell>
-                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-24" />} />
+            <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
+            <TableCell className="p-1">
+                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} />
             </TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.largo.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.largo.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.largo.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell className="text-center align-middle">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.ancho.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.ancho.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.ancho.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell className="text-center align-middle">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.espesor.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.espesor.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell><FormField control={control} name={`samples.${index}.espesor.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} /></TableCell>
-            <TableCell className="text-center align-middle">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
-            <TableCell className="text-center align-middle font-bold bg-secondary">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
+            <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
         </TableRow>
     )
 }
@@ -112,9 +112,9 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
 
     return (
         <TableRow>
-            <TableCell colSpan={14} className="text-right font-bold align-middle">Promedio / Desviación</TableCell>
-            <TableCell className="text-center align-middle font-bold bg-secondary">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
-            <TableCell className="text-center align-middle font-bold bg-destructive/20">{desviacion > 0 ? desviacion.toFixed(2) : ''}</TableCell>
+            <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio / Desviación</TableCell>
+            <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
+            <TableCell className="text-center align-middle font-bold bg-destructive/20 p-2">{desviacion > 0 ? desviacion.toFixed(2) : ''}</TableCell>
         </TableRow>
     )
 }
@@ -139,7 +139,7 @@ export function DensityForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="overflow-x-auto rounded-lg border">
-          <Table className="min-w-max">
+          <Table>
             <TableHeader>
               <TableRow>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
