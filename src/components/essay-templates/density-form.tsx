@@ -50,14 +50,6 @@ function calculateDensity(peso: number | string, largo: number, ancho: number, e
   return (numPeso / volumen) * 1000000;
 }
 
-function calculateStdDev(values: number[]) {
-  const n = values.length;
-  if (n < 2) return 0;
-  const mean = values.reduce((a, b) => a + b, 0) / n;
-  const variance = values.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) / (n - 1);
-  return Math.sqrt(variance);
-}
-
 const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, index: number }) => {
     const values = useWatch({
       control,
@@ -95,8 +87,8 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
 const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) => {
     const samples = useWatch({ control, name: 'samples' });
 
-    const { promedioDensidad, desviacion } = useMemo(() => {
-        if (!samples) return { promedioDensidad: 0, desviacion: 0 };
+    const { promedioDensidad } = useMemo(() => {
+        if (!samples) return { promedioDensidad: 0 };
         const densidades = samples.map((sample) => {
             const promedioLargo = calculateAverage([sample.largo.med1, sample.largo.med2, sample.largo.med3]);
             const promedioAncho = calculateAverage([sample.ancho.med1, sample.ancho.med2, sample.ancho.med3]);
@@ -104,17 +96,15 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
             return calculateDensity(sample.peso, promedioLargo, promedioAncho, promedioEspesor);
         }).filter((d: number) => d > 0);
         
-        const desviacion = calculateStdDev(densidades);
         const promedioDensidad = calculateAverage(densidades);
 
-        return { promedioDensidad, desviacion };
+        return { promedioDensidad };
     }, [samples]);
 
     return (
         <TableRow>
-            <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio / Desviación</TableCell>
+            <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio</TableCell>
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
-            <TableCell className="text-center align-middle font-bold bg-destructive/20 p-2">{desviacion > 0 ? desviacion.toFixed(2) : ''}</TableCell>
         </TableRow>
     )
 }
@@ -148,7 +138,6 @@ export function DensityForm() {
                 <TableHead colSpan={4} className="text-center border-l border-r p-1">Ancho (mm)</TableHead>
                 <TableHead colSpan={4} className="text-center border-l border-r p-1">Espesor (mm)</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2 border-l">Densidad (kg/m³)</TableHead>
-                <TableHead rowSpan={2} className="text-center align-middle p-2 border-l">Desv</TableHead>
               </TableRow>
               <TableRow>
                 <TableHead className="text-center p-1">Med1</TableHead>
