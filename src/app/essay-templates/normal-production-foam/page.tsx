@@ -3,6 +3,7 @@
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DensityForm } from '@/components/essay-templates/density-form';
 
 const tests = [
   'Densidad',
@@ -38,7 +39,17 @@ export default function NormalProductionFoamPage() {
                   </TabsTrigger>
                 ))}
               </TabsList>
-              {tests.map((test) => (
+              <TabsContent value="densidad">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Densidad</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <DensityForm />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              {tests.slice(1).map((test) => (
                 <TabsContent key={test} value={toValue(test)}>
                   <Card>
                     <CardHeader>
