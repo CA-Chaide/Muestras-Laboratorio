@@ -87,8 +87,8 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
 const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) => {
     const samples = useWatch({ control, name: 'samples' });
 
-    const { promedioDensidad } = useMemo(() => {
-        if (!samples) return { promedioDensidad: 0 };
+    const { promedioDensidad, desviacionEstandar } = useMemo(() => {
+        if (!samples) return { promedioDensidad: 0, desviacionEstandar: 0 };
         const densidades = samples.map((sample) => {
             const promedioLargo = calculateAverage([sample.largo.med1, sample.largo.med2, sample.largo.med3]);
             const promedioAncho = calculateAverage([sample.ancho.med1, sample.ancho.med2, sample.ancho.med3]);
@@ -97,15 +97,29 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
         }).filter((d: number) => d > 0);
         
         const promedioDensidad = calculateAverage(densidades);
+        
+        const n = densidades.length;
+        if (n < 2) {
+            return { promedioDensidad, desviacionEstandar: 0 };
+        }
+        const mean = promedioDensidad;
+        const sumOfSquaredDiffs = densidades.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+        const desviacionEstandar = Math.sqrt(sumOfSquaredDiffs / (n - 1));
 
-        return { promedioDensidad };
+        return { promedioDensidad, desviacionEstandar };
     }, [samples]);
 
     return (
-        <TableRow>
-            <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio</TableCell>
-            <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
-        </TableRow>
+        <>
+            <TableRow>
+                <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio</TableCell>
+                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Desviación Estándar</TableCell>
+                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? desviacionEstandar.toFixed(2) : ''}</TableCell>
+            </TableRow>
+        </>
     )
 }
 
