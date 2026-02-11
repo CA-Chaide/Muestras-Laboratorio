@@ -28,6 +28,8 @@ type SpecimenData = {
     t1: number | string;
     t2: number | string;
     t3: number | string;
+    t4: number | string;
+    t5: number | string;
   };
 };
 
@@ -43,17 +45,13 @@ export type TearFormValues = {
 };
 
 const initialSpecimenValues: SpecimenData = {
-  thickness: { t1: '', t2: '', t3: '' },
+  thickness: { t1: '', t2: '', t3: '', t4: '', t5: '' },
 };
 
 function calculateMedian(values: (number | string)[]) {
   const sortedValues = values.map(Number).filter(v => !isNaN(v) && v > 0).sort((a, b) => a - b);
   if (sortedValues.length === 0) return 0;
   
-  if (sortedValues.length === 3) {
-      return sortedValues[1];
-  }
-
   const mid = Math.floor(sortedValues.length / 2);
   return sortedValues.length % 2 !== 0 ? sortedValues[mid] : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
 }
@@ -99,6 +97,16 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
           <FormField
             control={control}
             name={`specimens.${index}.thickness.t3`}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+          />
+           <FormField
+            control={control}
+            name={`specimens.${index}.thickness.t4`}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+          />
+           <FormField
+            control={control}
+            name={`specimens.${index}.thickness.t5`}
             render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
           />
         </div>
