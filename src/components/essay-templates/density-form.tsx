@@ -34,6 +34,7 @@ export type DensityFormValues = {
   juegoEquipo: string;
   temperatura: string;
   humedadRelativa: string;
+  metodo: string;
   samples: SampleData[];
 };
 
@@ -143,6 +144,7 @@ export function DensityForm() {
       juegoEquipo: '1',
       temperatura: '',
       humedadRelativa: '',
+      metodo: 'INEN-ISO 845:2014',
       samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
     },
   });
@@ -254,10 +256,18 @@ export function DensityForm() {
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
-                <FormLabel>Método</FormLabel>
-                <p className="text-sm pt-2 text-muted-foreground">INEN-ISO 845:2014</p>
-            </div>
+            <FormField
+              control={form.control}
+              name="metodo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Método</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: INEN-ISO 845:2014" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <div className="space-y-2 md:col-span-2">
                 <FormLabel>Acondicionamiento de muestra</FormLabel>
                 <p className="text-sm pt-2 text-muted-foreground">16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%</p>
