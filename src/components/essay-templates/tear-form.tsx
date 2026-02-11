@@ -150,7 +150,7 @@ export function TearForm() {
       horaInicio: format(new Date(), 'HH:mm'),
       temperatura: '',
       humedadRelativa: '',
-      metodo: 'INEN-ISO 34-1:2016',
+      metodo: 'INEN ISO 8067:2014',
       acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
       specimens: Array(5).fill(null).map(() => ({ ...initialSpecimenValues })),
       observacionesDesviaciones: '',
