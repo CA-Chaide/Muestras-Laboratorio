@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn, FieldPath } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -72,11 +72,31 @@ function calculateDensity(peso: number | string, largo: number, ancho: number, e
   return (numPeso / volumen) * 1000000;
 }
 
-const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, index: number }) => {
+const DensityRow = ({ control, index, totalSamples, setFocus }: { 
+  control: Control<DensityFormValues>, 
+  index: number,
+  totalSamples: number,
+  setFocus: UseFormReturn<DensityFormValues>['setFocus']
+}) => {
     const values = useWatch({
       control,
       name: `samples.${index}`,
     });
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const { name } = e.currentTarget;
+        const nameParts = name.split('.');
+        const nextIndex = index + 1;
+        
+        if (nextIndex < totalSamples) {
+          nameParts[1] = nextIndex.toString();
+          const nextFieldName = nameParts.join('.');
+          setFocus(nextFieldName as FieldPath<DensityFormValues>);
+        }
+      }
+    };
 
     const promedioLargo = useMemo(() => calculateAverage(Object.values(values.largo)), [values.largo]);
     const promedioAncho = useMemo(() => calculateAverage(Object.values(values.ancho)), [values.ancho]);
@@ -90,7 +110,7 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
                     key={fieldName}
                     control={control}
                     name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
-                    render={({ field }) => <Input type="number" step="any" {...field} className="h-8" />}
+                    render={({ field }) => <Input type="number" step="any" {...field} className="h-8" onKeyDown={handleKeyDown} />}
                 />
             ))}
         </div>
@@ -100,16 +120,16 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
         <TableRow>
             <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
             <TableCell className="p-2 align-middle min-w-24">
-                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} />} />
+                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} onKeyDown={handleKeyDown} />} />
             </TableCell>
             
-            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('largo')}</TableCell>
+            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('largo')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
             
-            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('ancho')}</TableCell>
+            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('ancho')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
             
-            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('espesor')}</TableCell>
+            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
             
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
@@ -325,7 +345,7 @@ export function DensityForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <DensityRow key={field.id} control={form.control} index={index} />
+                <DensityRow key={field.id} control={form.control} index={index} totalSamples={fields.length} setFocus={form.setFocus} />
               ))}
                 <DensityFooter control={form.control} />
             </TableBody>
