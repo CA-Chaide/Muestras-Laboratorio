@@ -32,6 +32,8 @@ export type DensityFormValues = {
   fechaInicio: Date;
   horaInicio: string;
   juegoEquipo: string;
+  temperatura: string;
+  humedadRelativa: string;
   samples: SampleData[];
 };
 
@@ -139,6 +141,8 @@ export function DensityForm() {
       fechaInicio: new Date(),
       horaInicio: format(new Date(), 'HH:mm'),
       juegoEquipo: '1',
+      temperatura: '',
+      humedadRelativa: '',
       samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
     },
   });
@@ -223,6 +227,30 @@ export function DensityForm() {
                       <SelectItem value="3">3</SelectItem>
                     </SelectContent>
                   </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="temperatura"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Temperatura °C</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="any" placeholder="Ej: 23" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="humedadRelativa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Humedad Relativa %H</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="any" placeholder="Ej: 50" {...field} />
+                  </FormControl>
                 </FormItem>
               )}
             />
