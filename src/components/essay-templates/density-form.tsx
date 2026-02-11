@@ -77,19 +77,19 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
         <TableRow>
             <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
             <TableCell className="p-1">
-                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} />
+                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} />
             </TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.med3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
         </TableRow>
