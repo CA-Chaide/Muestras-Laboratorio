@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control, UseFormReturn, FieldPath } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -102,34 +102,34 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
         const measurementNumber = parseInt(measurement.substring(1)); // 1
         const measurementRow = Math.ceil(measurementNumber / 3); // 1, 2, or 3
         const measurementCol = ((measurementNumber - 1) % 3) + 1; // 1, 2, or 3
+        const nextMeasurementNumberInColumn = measurementNumber + 3;
 
-        const dimensionsOrder: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
-        const currentDimensionIndex = dimensionsOrder.indexOf(dimension as 'largo' | 'ancho' | 'espesor');
+        // Move down within the same 3x3 grid
+        if (nextMeasurementNumberInColumn <= 9) {
+          setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumberInColumn}`);
+        } else {
+          // Move to the top of the next dimension's grid in the same column
+          const dimensionsOrder: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
+          const currentDimensionIndex = dimensionsOrder.indexOf(dimension as 'largo' | 'ancho' | 'espesor');
+          const nextDimensionIndex = currentDimensionIndex + 1;
 
-        // If not in the last row of the 3x3 grid for the current dimension
-        if (measurementRow < 3) {
-            const nextMeasurementNumber = measurementNumber + 3;
-            setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumber}`);
-        } else { // In the last row (m7, m8, m9)
-            const nextDimensionIndex = currentDimensionIndex + 1;
-            // If there is a next dimension
-            if (nextDimensionIndex < dimensionsOrder.length) {
-                const nextDimension = dimensionsOrder[nextDimensionIndex];
-                const nextMeasurementNumber = measurementCol; // Move to the top of the next grid, keeping the column
-                setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumber}`);
-            } else {
-                // Last dimension, last row. Go to the next sample's 'peso'
-                const nextSampleIndex = currentSampleIndex + 1;
-                if (nextSampleIndex < totalSamples) {
-                    setFocus(`samples.${nextSampleIndex}.peso`);
-                }
-            }
+          if (nextDimensionIndex < dimensionsOrder.length) {
+            const nextDimension = dimensionsOrder[nextDimensionIndex];
+            const nextMeasurementNumberInGrid = measurementCol;
+            setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumberInGrid}`);
+          } else {
+             // Last dimension, go to next sample's peso
+             const nextSampleIndex = currentSampleIndex + 1;
+             if (nextSampleIndex < totalSamples) {
+                 setFocus(`samples.${nextSampleIndex}.peso`);
+             }
+          }
         }
       }
     };
 
-    const promedioLargo = useMemo(() => calculateAverage(Object.values(values.largo)), [values.largo]);
-    const promedioAncho = useMemo(() => calculateAverage(Object.values(values.ancho)), [values.ancho]);
+    const promedioLargo = useMemo(() => Math.round(calculateAverage(Object.values(values.largo))), [values.largo]);
+    const promedioAncho = useMemo(() => Math.round(calculateAverage(Object.values(values.ancho))), [values.ancho]);
     const promedioEspesor = useMemo(() => calculateAverage(Object.values(values.espesor)), [values.espesor]);
     const densidad = useMemo(() => calculateDensity(values.peso, promedioLargo, promedioAncho, promedioEspesor), [values.peso, promedioLargo, promedioAncho, promedioEspesor]);
 
@@ -154,10 +154,10 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
             </TableCell>
             
             <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('largo')}</TableCell>
-            <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
+            <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo : ''}</TableCell>
             
             <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('ancho')}</TableCell>
-            <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
+            <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho : ''}</TableCell>
             
             <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
@@ -173,8 +173,8 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
     const { promedioDensidad, desviacionEstandar } = useMemo(() => {
         if (!samples) return { promedioDensidad: 0, desviacionEstandar: 0 };
         const densidades = samples.map((sample) => {
-            const promedioLargo = calculateAverage(Object.values(sample.largo));
-            const promedioAncho = calculateAverage(Object.values(sample.ancho));
+            const promedioLargo = Math.round(calculateAverage(Object.values(sample.largo)));
+            const promedioAncho = Math.round(calculateAverage(Object.values(sample.ancho)));
             const promedioEspesor = calculateAverage(Object.values(sample.espesor));
             return calculateDensity(sample.peso, promedioLargo, promedioAncho, promedioEspesor);
         }).filter((d: number) => d > 0);
