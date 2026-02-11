@@ -61,6 +61,14 @@ function calculateStdDev(values: (number | string)[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
+function roundHardness(value: number): number {
+    if (value <= 0) return 0;
+    if (value <= 100) {
+        return Math.round(value);
+    }
+    return Math.round(value / 5) * 5;
+}
+
 const HardnessRow = ({ control, index }: { 
   control: Control<HardnessFormValues>, 
   index: number 
@@ -99,11 +107,13 @@ const HardnessFooter = ({ control }: { control: Control<HardnessFormValues> }) =
     
     const espesores = samples.map(s => s.espesor);
     const durezas = samples.map(s => s.dureza);
+    
+    const avgDureza = calculateAverage(durezas);
 
     return {
       promedioEspesor: calculateAverage(espesores),
       desviacionEspesor: calculateStdDev(espesores),
-      promedioDureza: calculateAverage(durezas),
+      promedioDureza: roundHardness(avgDureza),
       desviacionDureza: calculateStdDev(durezas),
     };
   }, [samples]);
@@ -116,7 +126,7 @@ const HardnessFooter = ({ control }: { control: Control<HardnessFormValues> }) =
           {promedioEspesor > 0 ? promedioEspesor.toFixed(1) : ''}
         </TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioDureza > 0 ? promedioDureza.toFixed(1) : ''}
+          {promedioDureza > 0 ? promedioDureza : ''}
         </TableCell>
       </TableRow>
       <TableRow>
