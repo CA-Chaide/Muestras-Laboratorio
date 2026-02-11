@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
   peso: number | string;
@@ -37,6 +38,7 @@ export type DensityFormValues = {
   metodo: string;
   acondicionamiento: string;
   samples: SampleData[];
+  observacionesDesviaciones: string;
 };
 
 const initialSampleValues: SampleData = {
@@ -148,6 +150,7 @@ export function DensityForm() {
       metodo: 'INEN-ISO 845:2014',
       acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
       samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
+      observacionesDesviaciones: '',
     },
   });
 
@@ -317,6 +320,22 @@ export function DensityForm() {
             </TableBody>
           </Table>
         </div>
+        <FormField
+          control={form.control}
+          name="observacionesDesviaciones"
+          render={({ field }) => (
+            <FormItem className="mt-6">
+              <FormLabel>Observaciones/Desviaciones</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Anota cualquier observación o desviación del método estándar..."
+                  className="resize-y"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <div className="flex justify-end">
             <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
         </div>
