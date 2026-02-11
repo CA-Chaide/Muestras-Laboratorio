@@ -31,6 +31,7 @@ type SpecimenData = {
     t4: number | string;
     t5: number | string;
   };
+  tearResistance: number | string;
 };
 
 export type TearFormValues = {
@@ -46,6 +47,7 @@ export type TearFormValues = {
 
 const initialSpecimenValues: SpecimenData = {
   thickness: { t1: '', t2: '', t3: '', t4: '', t5: '' },
+  tearResistance: '',
 };
 
 function calculateMedian(values: (number | string)[]) {
@@ -114,6 +116,13 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
       <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
         {median > 0 ? median.toFixed(2) : ''}
       </TableCell>
+      <TableCell className="p-2 align-middle">
+        <FormField
+            control={control}
+            name={`specimens.${index}.tearResistance`}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
     </TableRow>
   );
 };
@@ -121,14 +130,17 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
 const TearFooter = ({ control }: { control: Control<TearFormValues> }) => {
   const specimens = useWatch({ control, name: 'specimens' });
 
-  const { averageMedian, stdDevMedian } = useMemo(() => {
-    if (!specimens) return { averageMedian: 0, stdDevMedian: 0 };
+  const { averageMedian, stdDevMedian, averageTearResistance, stdDevTearResistance } = useMemo(() => {
+    if (!specimens) return { averageMedian: 0, stdDevMedian: 0, averageTearResistance: 0, stdDevTearResistance: 0 };
     
     const medians = specimens.map(s => calculateMedian(Object.values(s.thickness))).filter(m => m > 0);
+    const tearResistances = specimens.map(s => Number(s.tearResistance)).filter(r => r > 0);
     
     return {
       averageMedian: calculateAverage(medians),
       stdDevMedian: calculateStdDev(medians),
+      averageTearResistance: calculateAverage(tearResistances),
+      stdDevTearResistance: calculateStdDev(tearResistances),
     };
   }, [specimens]);
 
@@ -139,11 +151,17 @@ const TearFooter = ({ control }: { control: Control<TearFormValues> }) => {
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {averageMedian > 0 ? averageMedian.toFixed(2) : ''}
         </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+            {averageTearResistance > 0 ? averageTearResistance.toFixed(2) : ''}
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Desviación</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {stdDevMedian > 0 ? stdDevMedian.toFixed(2) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {stdDevTearResistance > 0 ? stdDevTearResistance.toFixed(2) : ''}
         </TableCell>
       </TableRow>
     </TableFooter>
@@ -276,13 +294,14 @@ export function TearForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-lg mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-2xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
                 <TableHead className="text-center">Mediana (mm)</TableHead>
+                <TableHead className="text-center">Resistencia al desgarro (N/mm)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
