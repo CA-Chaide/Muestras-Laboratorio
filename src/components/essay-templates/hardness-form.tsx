@@ -31,7 +31,6 @@ type SampleData = {
 export type HardnessFormValues = {
   fechaInicio: Date;
   horaInicio: string;
-  juegoEquipo: string;
   temperatura: string;
   humedadRelativa: string;
   metodo: string;
@@ -147,7 +146,6 @@ export function HardnessForm() {
     defaultValues: {
       fechaInicio: new Date(),
       horaInicio: format(new Date(), 'HH:mm'),
-      juegoEquipo: '1',
       temperatura: '',
       humedadRelativa: '',
       metodo: 'INEN-ISO 2439:2014',
@@ -216,27 +214,6 @@ export function HardnessForm() {
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="juegoEquipo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Juego de equipo</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un juego" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="2">2</SelectItem>
-                      <SelectItem value="3">3</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </FormItem>
               )}
             />
