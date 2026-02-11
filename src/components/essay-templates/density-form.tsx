@@ -100,9 +100,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
 
       if (measurement) {
         const measurementNumber = parseInt(measurement.substring(1)); // 1
-        const measurementRow = Math.ceil(measurementNumber / 3); // 1, 2, or 3
-        const measurementCol = ((measurementNumber - 1) % 3) + 1; // 1, 2, or 3
-        const nextMeasurementNumberInColumn = measurementNumber + 3;
+        const nextMeasurementNumberInColumn = measurementNumber + 1;
 
         // Move down within the same 3x3 grid
         if (nextMeasurementNumberInColumn <= 9) {
@@ -115,7 +113,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
 
           if (nextDimensionIndex < dimensionsOrder.length) {
             const nextDimension = dimensionsOrder[nextDimensionIndex];
-            const nextMeasurementNumberInGrid = measurementCol;
+            const nextMeasurementNumberInGrid = 1;
             setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumberInGrid}`);
           } else {
              // Last dimension, go to next sample's peso
@@ -200,7 +198,7 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
             </TableRow>
             <TableRow>
                 <TableCell colSpan={8} className="text-right font-bold align-middle p-2">Desviación Estándar</TableCell>
-                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? desviacionEstandar.toFixed(1) : ''}</TableCell>
+                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? Number(desviacionEstandar.toPrecision(2)).toString() : ''}</TableCell>
             </TableRow>
         </>
     )
