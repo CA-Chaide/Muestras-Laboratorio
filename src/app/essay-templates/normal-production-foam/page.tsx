@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DensityForm } from '@/components/essay-templates/density-form';
+import { HardnessForm } from '@/components/essay-templates/hardness-form';
 
 const tests = [
   'Densidad',
@@ -56,10 +57,14 @@ export default function NormalProductionFoamPage() {
                       <CardTitle>{test}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                       <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
-                          <h3 className="text-xl font-semibold">Formulario de {test}</h3>
-                          <p className="text-muted-foreground">Este formulario está listo para ser construido.</p>
-                        </div>
+                       {toValue(test) === 'dureza' ? (
+                          <HardnessForm />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
+                            <h3 className="text-xl font-semibold">Formulario de {test}</h3>
+                            <p className="text-muted-foreground">Este formulario está listo para ser construido.</p>
+                          </div>
+                        )}
                     </CardContent>
                   </Card>
                 </TabsContent>
