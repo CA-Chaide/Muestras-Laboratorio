@@ -11,8 +11,15 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { useMemo } from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 type SampleData = {
   peso: number | string;
@@ -22,6 +29,9 @@ type SampleData = {
 };
 
 export type DensityFormValues = {
+  fechaInicio: Date;
+  horaInicio: string;
+  juegoEquipo: string;
   samples: SampleData[];
 };
 
@@ -126,6 +136,9 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
 export function DensityForm() {
   const form = useForm<DensityFormValues>({
     defaultValues: {
+      fechaInicio: new Date(),
+      horaInicio: format(new Date(), 'HH:mm'),
+      juegoEquipo: '1',
       samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
     },
   });
@@ -142,6 +155,86 @@ export function DensityForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 p-4 border rounded-lg">
+            <FormField
+              control={form.control}
+              name="fechaInicio"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Fecha inicio de ensayo</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, 'PPP', { locale: es })
+                          ) : (
+                            <span>Selecciona una fecha</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="horaInicio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hora de inicio de ensayo</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="juegoEquipo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Juego de equipo</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un juego" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <div className="space-y-2">
+                <FormLabel>Método</FormLabel>
+                <p className="text-sm pt-2 text-muted-foreground">INEN-ISO 845:2014</p>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+                <FormLabel>Acondicionamiento de muestra</FormLabel>
+                <p className="text-sm pt-2 text-muted-foreground">16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%</p>
+            </div>
+        </div>
         <div className="overflow-x-auto rounded-lg border">
           <Table>
             <TableHeader>
