@@ -84,16 +84,46 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
     });
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const { name } = e.currentTarget;
-        const nameParts = name.split('.');
-        const nextIndex = index + 1;
-        
-        if (nextIndex < totalSamples) {
-          nameParts[1] = nextIndex.toString();
-          const nextFieldName = nameParts.join('.');
-          setFocus(nextFieldName as FieldPath<DensityFormValues>);
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      const { name } = e.currentTarget;
+      const nameParts = name.split('.'); // e.g., ['samples', '0', 'largo', 'm1'] or ['samples', '0', 'peso']
+      const currentSampleIndex = parseInt(nameParts[1], 10);
+
+      // If it's the 'peso' field
+      if (nameParts.length === 3 && nameParts[2] === 'peso') {
+        setFocus(`samples.${currentSampleIndex}.largo.m1` as FieldPath<DensityFormValues>);
+        return;
+      }
+
+      // If it's a measurement field
+      if (nameParts.length === 4) {
+        const dimension = nameParts[2]; // 'largo'
+        const measurement = nameParts[3]; // 'm1'
+        const measurementNumber = parseInt(measurement.substring(1)); // 1
+
+        const dimensionsOrder = ['largo', 'ancho', 'espesor'];
+        const currentDimensionIndex = dimensionsOrder.indexOf(dimension);
+
+        // If not in the last row of the 3x3 grid for the current dimension
+        if (measurementNumber <= 6) {
+          const nextMeasurementNumber = measurementNumber + 3;
+          setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumber}` as FieldPath<DensityFormValues>);
+        } else { // In the last row (m7, m8, m9)
+          const nextDimensionIndex = currentDimensionIndex + 1;
+          // If there is a next dimension
+          if (nextDimensionIndex < dimensionsOrder.length) {
+            const nextDimension = dimensionsOrder[nextDimensionIndex];
+            const nextMeasurementNumber = measurementNumber - 6; // Move to the top of the next grid, keeping the column
+            setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumber}` as FieldPath<DensityFormValues>);
+          } else {
+            // Last dimension, last row. Go to the next sample's 'peso'
+            const nextSampleIndex = currentSampleIndex + 1;
+            if (nextSampleIndex < totalSamples) {
+              setFocus(`samples.${nextSampleIndex}.peso` as FieldPath<DensityFormValues>);
+            }
+          }
         }
       }
     };
@@ -110,7 +140,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
                     key={fieldName}
                     control={control}
                     name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
-                    render={({ field }) => <Input type="number" step="any" {...field} className="h-8" onKeyDown={handleKeyDown} />}
+                    render={({ field }) => <Input type="number" step="any" {...field} onKeyDown={handleKeyDown} />}
                 />
             ))}
         </div>
