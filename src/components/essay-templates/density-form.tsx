@@ -22,17 +22,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-type DimensionData = {
-  pos1: number | string;
-  pos2: number | string;
-  pos3: number | string;
+type NineMeasurements = {
+  m1: number | string; m2: number | string; m3: number | string;
+  m4: number | string; m5: number | string; m6: number | string;
+  m7: number | string; m8: number | string; m9: number | string;
 };
 
 type SampleData = {
   peso: number | string;
-  largo: DimensionData;
-  ancho: DimensionData;
-  espesor: DimensionData;
+  largo: NineMeasurements;
+  ancho: NineMeasurements;
+  espesor: NineMeasurements;
 };
 
 export type DensityFormValues = {
@@ -49,9 +49,9 @@ export type DensityFormValues = {
 
 const initialSampleValues: SampleData = {
   peso: '',
-  largo: { pos1: '', pos2: '', pos3: '' },
-  ancho: { pos1: '', pos2: '', pos3: '' },
-  espesor: { pos1: '', pos2: '', pos3: '' },
+  largo: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
+  ancho: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
+  espesor: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
 };
 
 function calculateAverage(values: (number | string)[]) {
@@ -78,32 +78,40 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
       name: `samples.${index}`,
     });
 
-    const promedioLargo = useMemo(() => calculateAverage([values.largo.pos1, values.largo.pos2, values.largo.pos3]), [values.largo]);
-    const promedioAncho = useMemo(() => calculateAverage([values.ancho.pos1, values.ancho.pos2, values.ancho.pos3]), [values.ancho]);
-    const promedioEspesor = useMemo(() => calculateAverage([values.espesor.pos1, values.espesor.pos2, values.espesor.pos3]), [values.espesor]);
+    const promedioLargo = useMemo(() => calculateAverage(Object.values(values.largo)), [values.largo]);
+    const promedioAncho = useMemo(() => calculateAverage(Object.values(values.ancho)), [values.ancho]);
+    const promedioEspesor = useMemo(() => calculateAverage(Object.values(values.espesor)), [values.espesor]);
     const densidad = useMemo(() => calculateDensity(values.peso, promedioLargo, promedioAncho, promedioEspesor), [values.peso, promedioLargo, promedioAncho, promedioEspesor]);
+
+    const renderMeasurementInputs = (dimension: 'largo' | 'ancho' | 'espesor') => (
+        <div className="grid grid-cols-3 gap-1">
+            {Array.from({ length: 9 }, (_, i) => `m${i + 1}`).map((fieldName) => (
+                <FormField
+                    key={fieldName}
+                    control={control}
+                    name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
+                    render={({ field }) => <Input type="number" step="any" {...field} className="w-14 h-8 p-1" />}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <TableRow>
             <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
-            <TableCell className="p-1">
-                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} />
+            <TableCell className="p-1 align-middle">
+                <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-20" />} />
             </TableCell>
-            {/* Largo */}
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            
+            <TableCell className="p-1">{renderMeasurementInputs('largo')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
-            {/* Ancho */}
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            
+            <TableCell className="p-1">{renderMeasurementInputs('ancho')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
-            {/* Espesor */}
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
-            <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
+            
+            <TableCell className="p-1">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
+            
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
         </TableRow>
     )
@@ -115,9 +123,9 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
     const { promedioDensidad, desviacionEstandar } = useMemo(() => {
         if (!samples) return { promedioDensidad: 0, desviacionEstandar: 0 };
         const densidades = samples.map((sample) => {
-            const promedioLargo = calculateAverage([sample.largo.pos1, sample.largo.pos2, sample.largo.pos3]);
-            const promedioAncho = calculateAverage([sample.ancho.pos1, sample.ancho.pos2, sample.ancho.pos3]);
-            const promedioEspesor = calculateAverage([sample.espesor.pos1, sample.espesor.pos2, sample.espesor.pos3]);
+            const promedioLargo = calculateAverage(Object.values(sample.largo));
+            const promedioAncho = calculateAverage(Object.values(sample.ancho));
+            const promedioEspesor = calculateAverage(Object.values(sample.espesor));
             return calculateDensity(sample.peso, promedioLargo, promedioAncho, promedioEspesor);
         }).filter((d: number) => d > 0);
         
@@ -137,11 +145,11 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
     return (
         <>
             <TableRow>
-                <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Promedio</TableCell>
+                <TableCell colSpan={8} className="text-right font-bold align-middle p-2">Promedio</TableCell>
                 <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
             </TableRow>
             <TableRow>
-                <TableCell colSpan={14} className="text-right font-bold align-middle p-2">Desviación Estándar</TableCell>
+                <TableCell colSpan={8} className="text-right font-bold align-middle p-2">Desviación Estándar</TableCell>
                 <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? desviacionEstandar.toFixed(2) : ''}</TableCell>
             </TableRow>
         </>
@@ -301,24 +309,18 @@ export function DensityForm() {
               <TableRow>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Peso (g)</TableHead>
-                <TableHead colSpan={4} className="text-center border-l border-r p-1">Largo (mm)</TableHead>
-                <TableHead colSpan={4} className="text-center border-l border-r p-1">Ancho (mm)</TableHead>
-                <TableHead colSpan={4} className="text-center border-l border-r p-1">Espesor (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-1">Largo (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-1">Ancho (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l border-r p-1">Espesor (mm)</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2 border-l">Densidad (kg/m³)</TableHead>
               </TableRow>
               <TableRow>
-                <TableHead className="text-center p-1">Pos1</TableHead>
-                <TableHead className="text-center p-1">Pos2</TableHead>
-                <TableHead className="text-center p-1">Pos3</TableHead>
-                <TableHead className="text-center border-r p-1">Promedio</TableHead>
-                <TableHead className="text-center p-1">Pos1</TableHead>
-                <TableHead className="text-center p-1">Pos2</TableHead>
-                <TableHead className="text-center p-1">Pos3</TableHead>
-                <TableHead className="text-center border-r p-1">Promedio</TableHead>
-                <TableHead className="text-center p-1">Pos1</TableHead>
-                <TableHead className="text-center p-1">Pos2</TableHead>
-                <TableHead className="text-center p-1">Pos3</TableHead>
-                <TableHead className="text-center border-r p-1">Promedio</TableHead>
+                <TableHead className="text-center p-1 border-l">Mediciones</TableHead>
+                <TableHead className="text-center p-1">Promedio</TableHead>
+                <TableHead className="text-center p-1 border-l">Mediciones</TableHead>
+                <TableHead className="text-center p-1">Promedio</TableHead>
+                <TableHead className="text-center p-1 border-l">Mediciones</TableHead>
+                <TableHead className="text-center p-1 border-r">Promedio</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
