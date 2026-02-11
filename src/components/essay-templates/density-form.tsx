@@ -22,11 +22,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
+type DimensionData = {
+  pos1: number | string;
+  pos2: number | string;
+  pos3: number | string;
+};
+
 type SampleData = {
   peso: number | string;
-  largo: { pos1: number | string; pos2: number | string; pos3: number | string; };
-  ancho: { pos1: number | string; pos2: number | string; pos3: number | string; };
-  espesor: { pos1: number | string; pos2: number | string; pos3: number | string; };
+  largo: DimensionData;
+  ancho: DimensionData;
+  espesor: DimensionData;
 };
 
 export type DensityFormValues = {
@@ -83,14 +89,17 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
             <TableCell className="p-1">
                 <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} className="w-16" />} />
             </TableCell>
+            {/* Largo */}
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.largo.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
+            {/* Ancho */}
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.ancho.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
+            {/* Espesor */}
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos1`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos2`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
             <TableCell className="p-1"><FormField control={control} name={`samples.${index}.espesor.pos3`} render={({ field }) => <Input type="number" step="any" {...field} className="w-14" />} /></TableCell>
