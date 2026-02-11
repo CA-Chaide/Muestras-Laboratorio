@@ -78,7 +78,8 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
 
   const median = useMemo(() => {
     if (!specimen) return 0;
-    return calculateMedian(Object.values(specimen.thickness));
+    const calculatedMedian = calculateMedian(Object.values(specimen.thickness));
+    return Math.round(calculatedMedian / 0.2) * 0.2;
   }, [specimen]);
 
   return (
@@ -133,7 +134,10 @@ const TearFooter = ({ control }: { control: Control<TearFormValues> }) => {
   const { averageMedian, stdDevMedian, averageTearResistance, stdDevTearResistance } = useMemo(() => {
     if (!specimens) return { averageMedian: 0, stdDevMedian: 0, averageTearResistance: 0, stdDevTearResistance: 0 };
     
-    const medians = specimens.map(s => calculateMedian(Object.values(s.thickness))).filter(m => m > 0);
+    const medians = specimens.map(s => {
+        const median = calculateMedian(Object.values(s.thickness));
+        return Math.round(median / 0.2) * 0.2;
+    }).filter(m => m > 0);
     const tearResistances = specimens.map(s => Number(s.tearResistance)).filter(r => r > 0);
     
     return {
