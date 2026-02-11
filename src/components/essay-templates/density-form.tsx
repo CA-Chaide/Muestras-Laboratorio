@@ -162,7 +162,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
             <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
             
-            <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
+            <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(1) : ''}</TableCell>
         </TableRow>
     )
 }
@@ -196,11 +196,11 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
         <>
             <TableRow>
                 <TableCell colSpan={8} className="text-right font-bold align-middle p-2">Promedio</TableCell>
-                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{promedioDensidad > 0 ? promedioDensidad.toFixed(1) : ''}</TableCell>
             </TableRow>
             <TableRow>
                 <TableCell colSpan={8} className="text-right font-bold align-middle p-2">Desviación Estándar</TableCell>
-                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? desviacionEstandar.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-center align-middle font-bold bg-secondary p-2">{desviacionEstandar > 0 ? desviacionEstandar.toFixed(1) : ''}</TableCell>
             </TableRow>
         </>
     )
