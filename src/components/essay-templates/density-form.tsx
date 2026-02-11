@@ -72,10 +72,9 @@ function calculateDensity(peso: number | string, largo: number, ancho: number, e
   return (numPeso / volumen) * 1000000;
 }
 
-const DensityRow = ({ control, index, totalSamples, setFocus }: { 
+const DensityRow = ({ control, index, setFocus }: { 
   control: Control<DensityFormValues>, 
   index: number,
-  totalSamples: number,
   setFocus: UseFormReturn<DensityFormValues>['setFocus']
 }) => {
     const values = useWatch({
@@ -97,32 +96,36 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
         setFocus(`samples.${currentSampleIndex}.largo.m1`);
         return;
       }
+      
+      const measurementNumber = parseInt(measurement.substring(1)); // 1 from 'm1'
+      
+      const isColumn1 = [1, 4, 7].includes(measurementNumber);
+      const isColumn2 = [2, 5, 8].includes(measurementNumber);
+      const isColumn3 = [3, 6, 9].includes(measurementNumber);
 
-      if (measurement) {
-        const measurementNumber = parseInt(measurement.substring(1)); // 1
-        const nextMeasurementNumberInColumn = measurementNumber + 1;
+      const isRow3 = [7, 8, 9].includes(measurementNumber);
+      
+      if (isRow3) {
+        // Last row of a grid, move to next dimension
+        const dimensionsOrder: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
+        const currentDimensionIndex = dimensionsOrder.indexOf(dimension as 'largo' | 'ancho' | 'espesor');
+        const nextDimensionIndex = currentDimensionIndex + 1;
 
-        // Move down within the same 3x3 grid
-        if (nextMeasurementNumberInColumn <= 9) {
-          setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumberInColumn}`);
-        } else {
-          // Move to the top of the next dimension's grid in the same column
-          const dimensionsOrder: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
-          const currentDimensionIndex = dimensionsOrder.indexOf(dimension as 'largo' | 'ancho' | 'espesor');
-          const nextDimensionIndex = currentDimensionIndex + 1;
+        if (nextDimensionIndex < dimensionsOrder.length) {
+          const nextDimension = dimensionsOrder[nextDimensionIndex];
+          
+          let nextMeasurementNumber;
+          if (isColumn1) nextMeasurementNumber = 1;
+          if (isColumn2) nextMeasurementNumber = 2;
+          if (isColumn3) nextMeasurementNumber = 3;
 
-          if (nextDimensionIndex < dimensionsOrder.length) {
-            const nextDimension = dimensionsOrder[nextDimensionIndex];
-            const nextMeasurementNumberInGrid = 1;
-            setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumberInGrid}`);
-          } else {
-             // Last dimension, go to next sample's peso
-             const nextSampleIndex = currentSampleIndex + 1;
-             if (nextSampleIndex < totalSamples) {
-                 setFocus(`samples.${nextSampleIndex}.peso`);
-             }
-          }
+          setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumber!}`);
         }
+        // If it's the last dimension of the last measurement, do nothing.
+      } else {
+        // Move to the cell below in the same grid
+        const nextMeasurementNumberInColumn = measurementNumber + 3;
+        setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumberInColumn}`);
       }
     };
 
@@ -151,13 +154,13 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
                 <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />} />
             </TableCell>
             
-            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('largo')}</TableCell>
+            <TableCell className="p-2 min-w-[280px]">{renderMeasurementInputs('largo')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo : ''}</TableCell>
             
-            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('ancho')}</TableCell>
+            <TableCell className="p-2 min-w-[280px]">{renderMeasurementInputs('ancho')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho : ''}</TableCell>
             
-            <TableCell className="p-2 min-w-[260px]">{renderMeasurementInputs('espesor')}</TableCell>
+            <TableCell className="p-2 min-w-[280px]">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
             
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(1) : ''}</TableCell>
@@ -357,9 +360,9 @@ export function DensityForm() {
               <TableRow>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2 min-w-[120px]">Peso (g)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[260px]">Largo (mm)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[260px]">Ancho (mm)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l border-r p-2 min-w-[260px]">Espesor (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[280px]">Largo (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[280px]">Ancho (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l border-r p-2 min-w-[280px]">Espesor (mm)</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2 border-l">Densidad (kg/m³)</TableHead>
               </TableRow>
               <TableRow>
@@ -373,7 +376,7 @@ export function DensityForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <DensityRow key={field.id} control={form.control} index={index} totalSamples={fields.length} setFocus={form.setFocus} />
+                <DensityRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} />
               ))}
                 <DensityFooter control={form.control} />
             </TableBody>
