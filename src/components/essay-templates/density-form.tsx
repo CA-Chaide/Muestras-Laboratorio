@@ -99,17 +99,17 @@ const DensityRow = ({ control, index }: { control: Control<DensityFormValues>, i
     return (
         <TableRow>
             <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
-            <TableCell className="p-2 align-middle">
+            <TableCell className="p-2 align-middle min-w-24">
                 <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} />} />
             </TableCell>
             
-            <TableCell className="p-2">{renderMeasurementInputs('largo')}</TableCell>
+            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('largo')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioLargo > 0 ? promedioLargo.toFixed(2) : ''}</TableCell>
             
-            <TableCell className="p-2">{renderMeasurementInputs('ancho')}</TableCell>
+            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('ancho')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioAncho > 0 ? promedioAncho.toFixed(2) : ''}</TableCell>
             
-            <TableCell className="p-2">{renderMeasurementInputs('espesor')}</TableCell>
+            <TableCell className="p-2 min-w-52">{renderMeasurementInputs('espesor')}</TableCell>
             <TableCell className="text-center align-middle p-2">{promedioEspesor > 0 ? promedioEspesor.toFixed(2) : ''}</TableCell>
             
             <TableCell className="text-center align-middle font-bold bg-secondary p-2">{densidad > 0 ? densidad.toFixed(2) : ''}</TableCell>
