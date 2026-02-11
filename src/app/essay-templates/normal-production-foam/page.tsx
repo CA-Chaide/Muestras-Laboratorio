@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DensityForm } from '@/components/essay-templates/density-form';
 import { HardnessForm } from '@/components/essay-templates/hardness-form';
 import { TearForm } from '@/components/essay-templates/tear-form';
+import { PermeabilityForm } from '@/components/essay-templates/permeability-form';
 
 const tests = [
   'Densidad',
@@ -62,6 +63,8 @@ export default function NormalProductionFoamPage() {
                           <HardnessForm />
                         ) : toValue(test) === 'desgarro' ? (
                           <TearForm />
+                        ) : toValue(test) === 'permeabilidad' ? (
+                          <PermeabilityForm />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
                             <h3 className="text-xl font-semibold">Formulario de {test}</h3>
