@@ -119,7 +119,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
     return (
         <TableRow>
             <TableCell className="text-center font-medium align-middle p-2">{index + 1}</TableCell>
-            <TableCell className="p-2 align-middle min-w-24">
+            <TableCell className="p-2 align-middle min-w-[120px]">
                 <FormField control={control} name={`samples.${index}.peso`} render={({ field }) => <Input type="number" step="any" {...field} onKeyDown={handleKeyDown} />} />
             </TableCell>
             
@@ -328,10 +328,10 @@ export function DensityForm() {
             <TableHeader>
               <TableRow>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
-                <TableHead rowSpan={2} className="text-center align-middle p-2">Peso (g)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2">Largo (mm)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2">Ancho (mm)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l border-r p-2">Espesor (mm)</TableHead>
+                <TableHead rowSpan={2} className="text-center align-middle p-2 min-w-[120px]">Peso (g)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[260px]">Largo (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2 min-w-[260px]">Ancho (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l border-r p-2 min-w-[260px]">Espesor (mm)</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle p-2 border-l">Densidad (kg/m³)</TableHead>
               </TableRow>
               <TableRow>
