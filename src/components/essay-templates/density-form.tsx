@@ -130,7 +130,7 @@ const DensityRow = ({ control, index, totalSamples, setFocus }: {
 
     const promedioLargo = useMemo(() => Math.round(calculateAverage(Object.values(values.largo))), [values.largo]);
     const promedioAncho = useMemo(() => Math.round(calculateAverage(Object.values(values.ancho))), [values.ancho]);
-    const promedioEspesor = useMemo(() => calculateAverage(Object.values(values.espesor)), [values.espesor]);
+    const promedioEspesor = useMemo(() => Math.round(calculateAverage(Object.values(values.espesor)) / 0.2) * 0.2, [values.espesor]);
     const densidad = useMemo(() => calculateDensity(values.peso, promedioLargo, promedioAncho, promedioEspesor), [values.peso, promedioLargo, promedioAncho, promedioEspesor]);
 
     const renderMeasurementInputs = (dimension: 'largo' | 'ancho' | 'espesor') => (
@@ -175,7 +175,7 @@ const DensityFooter = ({ control } : { control: Control<DensityFormValues> }) =>
         const densidades = samples.map((sample) => {
             const promedioLargo = Math.round(calculateAverage(Object.values(sample.largo)));
             const promedioAncho = Math.round(calculateAverage(Object.values(sample.ancho)));
-            const promedioEspesor = calculateAverage(Object.values(sample.espesor));
+            const promedioEspesor = Math.round(calculateAverage(Object.values(sample.espesor)) / 0.2) * 0.2;
             return calculateDensity(sample.peso, promedioLargo, promedioAncho, promedioEspesor);
         }).filter((d: number) => d > 0);
         
