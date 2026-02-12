@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { useMemo, useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -209,6 +209,14 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
     name: 'samples',
   });
 
+  const fechaInicio = form.watch('fechaInicio');
+  const fechaFinalizacion = useMemo(() => {
+    if (fechaInicio) {
+      return addDays(fechaInicio, 1);
+    }
+    return null;
+  }, [fechaInicio]);
+
   useEffect(() => {
     if (initialHardnessValues) {
       const currentSamples = form.getValues('samples');
@@ -237,7 +245,7 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 p-4 border rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 p-4 border rounded-lg">
            <FormField
               control={form.control}
               name="fechaInicio"
@@ -275,6 +283,15 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
                 </FormItem>
               )}
             />
+            <FormItem className="flex flex-col pt-2">
+                <FormLabel>Fecha de finalización</FormLabel>
+                <FormControl>
+                    <Input
+                        readOnly
+                        value={fechaFinalizacion ? format(fechaFinalizacion, 'PPP', { locale: es }) : ''}
+                    />
+                </FormControl>
+            </FormItem>
             <FormField
               control={form.control}
               name="horaInicio"
@@ -327,7 +344,7 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
               control={form.control}
               name="acondicionamiento"
               render={({ field }) => (
-                <FormItem className="md:col-span-2 lg:col-span-3">
+                <FormItem className="md:col-span-2 lg:col-span-4">
                   <FormLabel>Acondicionamiento de muestra</FormLabel>
                   <FormControl>
                     <Input placeholder="16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%" {...field} />
