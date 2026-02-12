@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
-  flujoMms: number | string; // Flujo volumétrico (mm³/s)
+  flujoMms: number | string; // Velocidad de Flujo (mm/s)
 };
 
 export type PermeabilityFormValues = {
@@ -57,11 +57,11 @@ function calculateStdDev(values: (number | string)[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
-// Convert mm³/s to dm³/s
-function convertToDms(flujoMms: number | string): number {
-    const numFlujo = Number(flujoMms);
-    if (isNaN(numFlujo) || numFlujo <= 0) return 0;
-    return numFlujo / 1000000;
+// Calculate Volumetric Flow (dm³/s) = 0.0025 * Velocidad de Flujo (mm/s)
+function calculateVolumetricFlow(velocidadFlujo: number | string): number {
+    const numVelocidad = Number(velocidadFlujo);
+    if (isNaN(numVelocidad) || numVelocidad <= 0) return 0;
+    return 0.0025 * numVelocidad;
 }
 
 const PermeabilityRow = ({ control, index }: { 
@@ -73,7 +73,7 @@ const PermeabilityRow = ({ control, index }: {
       name: `samples.${index}`,
   });
 
-  const flujoDms = useMemo(() => convertToDms(values.flujoMms), [values.flujoMms]);
+  const flujoVolumetrico = useMemo(() => calculateVolumetricFlow(values.flujoMms), [values.flujoMms]);
 
   return (
     <TableRow>
@@ -86,7 +86,7 @@ const PermeabilityRow = ({ control, index }: {
         />
       </TableCell>
       <TableCell className="text-center bg-secondary p-2 align-middle">
-        {flujoDms > 0 ? flujoDms.toExponential(2) : ''}
+        {flujoVolumetrico > 0 ? flujoVolumetrico.toFixed(2) : ''}
       </TableCell>
     </TableRow>
   );
@@ -96,16 +96,16 @@ const PermeabilityFooter = ({ control }: { control: Control<PermeabilityFormValu
   const samples = useWatch({ control, name: 'samples' });
 
   const {
-    promedioFlujoDms,
-    desviacionFlujoDms
+    promedioFlujoVolumetrico,
+    desviacionFlujoVolumetrico
   } = useMemo(() => {
-    if (!samples) return { promedioFlujoDms: 0, desviacionFlujoDms: 0 };
+    if (!samples) return { promedioFlujoVolumetrico: 0, desviacionFlujoVolumetrico: 0 };
     
-    const flujosDms = samples.map(s => convertToDms(s.flujoMms)).filter(f => f > 0);
+    const flujosVolumetricos = samples.map(s => calculateVolumetricFlow(s.flujoMms)).filter(f => f > 0);
     
     return {
-      promedioFlujoDms: calculateAverage(flujosDms),
-      desviacionFlujoDms: calculateStdDev(flujosDms),
+      promedioFlujoVolumetrico: calculateAverage(flujosVolumetricos),
+      desviacionFlujoVolumetrico: calculateStdDev(flujosVolumetricos),
     };
   }, [samples]);
 
@@ -114,13 +114,13 @@ const PermeabilityFooter = ({ control }: { control: Control<PermeabilityFormValu
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioFlujoDms > 0 ? promedioFlujoDms.toExponential(2) : ''}
+          {promedioFlujoVolumetrico > 0 ? promedioFlujoVolumetrico.toFixed(2) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Desv. Est.</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionFlujoDms > 0 ? desviacionFlujoDms.toExponential(2) : ''}
+          {desviacionFlujoVolumetrico > 0 ? desviacionFlujoVolumetrico.toExponential(2) : ''}
         </TableCell>
       </TableRow>
     </TableFooter>
