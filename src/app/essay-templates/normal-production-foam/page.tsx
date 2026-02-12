@@ -7,6 +7,7 @@ import { DensityForm } from '@/components/essay-templates/density-form';
 import { HardnessForm } from '@/components/essay-templates/hardness-form';
 import { TearForm } from '@/components/essay-templates/tear-form';
 import { PermeabilityForm } from '@/components/essay-templates/permeability-form';
+import { TractionForm } from '@/components/essay-templates/traction-form';
 
 const tests = [
   'Densidad',
@@ -61,6 +62,8 @@ export default function NormalProductionFoamPage() {
                     <CardContent className="space-y-2">
                        {toValue(test) === 'dureza' ? (
                           <HardnessForm />
+                        ) : toValue(test) === 'traccion' ? (
+                          <TractionForm />
                         ) : toValue(test) === 'desgarro' ? (
                           <TearForm />
                         ) : toValue(test) === 'permeabilidad' ? (
