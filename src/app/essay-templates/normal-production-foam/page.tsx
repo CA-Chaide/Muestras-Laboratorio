@@ -4,11 +4,13 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DensityForm } from '@/components/essay-templates/density-form';
-import { HardnessForm } from '@/components/essay-templates/hardness-form';
+import { HardnessForm, type HardnessFormValues } from '@/components/essay-templates/hardness-form';
 import { TearForm } from '@/components/essay-templates/tear-form';
 import { PermeabilityForm } from '@/components/essay-templates/permeability-form';
 import { TractionForm } from '@/components/essay-templates/traction-form';
 import { FatigueForm } from '@/components/essay-templates/fatigue-form';
+import { useForm } from 'react-hook-form';
+import { format } from 'date-fns';
 
 const tests = [
   'Densidad',
@@ -21,8 +23,25 @@ const tests = [
   'Tiempo de Recuperación',
 ];
 
+const initialHardnessSampleValues = { espesor: '', dureza: '' };
+
 export default function NormalProductionFoamPage() {
   const toValue = (str: string) => str.toLowerCase().replace(/ /g, '-');
+
+  const hardnessForm = useForm<HardnessFormValues>({
+    defaultValues: {
+      fechaInicio: new Date(),
+      horaInicio: format(new Date(), 'HH:mm'),
+      temperatura: '',
+      humedadRelativa: '',
+      metodo: 'INEN-ISO 2439:2014',
+      acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
+      samples: Array(5).fill(null).map(() => ({ ...initialHardnessSampleValues })),
+      observacionesDesviaciones: '',
+    },
+  });
+
+  const hardnessSamples = hardnessForm.watch('samples');
 
   return (
     <div className="flex flex-col w-full">
@@ -62,7 +81,7 @@ export default function NormalProductionFoamPage() {
                     </CardHeader>
                     <CardContent className="space-y-2">
                        {toValue(test) === 'dureza' ? (
-                          <HardnessForm />
+                          <HardnessForm form={hardnessForm} />
                         ) : toValue(test) === 'traccion' ? (
                           <TractionForm />
                         ) : toValue(test) === 'desgarro' ? (
@@ -70,7 +89,7 @@ export default function NormalProductionFoamPage() {
                         ) : toValue(test) === 'permeabilidad' ? (
                           <PermeabilityForm />
                         ) : toValue(test) === 'fatiga' ? (
-                          <FatigueForm />
+                          <FatigueForm initialHardnessValues={hardnessSamples?.slice(0,3)} />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
                             <h3 className="text-xl font-semibold">Formulario de {test}</h3>

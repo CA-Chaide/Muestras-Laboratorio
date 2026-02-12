@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -186,7 +186,11 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
   );
 };
 
-export function FatigueForm() {
+interface FatigueFormProps {
+    initialHardnessValues?: { espesor: number | string; dureza: number | string; }[];
+}
+
+export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
   const form = useForm<FatigueFormValues>({
     defaultValues: {
       fechaInicio: new Date(),
@@ -204,6 +208,27 @@ export function FatigueForm() {
     control: form.control,
     name: 'samples',
   });
+
+  useEffect(() => {
+    if (initialHardnessValues) {
+      const currentSamples = form.getValues('samples');
+      const updatedSamples = currentSamples.map((sample, index) => {
+        if (index < initialHardnessValues.length) {
+          const hardnessSample = initialHardnessValues[index];
+          return {
+            ...sample,
+            espesorInicial: sample.espesorInicial || hardnessSample.espesor,
+            durezaInicial: sample.durezaInicial || hardnessSample.dureza,
+          };
+        }
+        return sample;
+      });
+      
+      if (JSON.stringify(updatedSamples) !== JSON.stringify(currentSamples)) {
+        form.setValue('samples', updatedSamples);
+      }
+    }
+  }, [initialHardnessValues, form]);
 
   const onSubmit = (data: FatigueFormValues) => {
     console.log("Datos del formulario de Fatiga:", data);

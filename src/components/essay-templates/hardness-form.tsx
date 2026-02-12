@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -37,11 +37,6 @@ export type HardnessFormValues = {
   acondicionamiento: string;
   samples: SampleData[];
   observacionesDesviaciones: string;
-};
-
-const initialSampleValues: SampleData = {
-  espesor: '',
-  dureza: '',
 };
 
 function calculateAverage(values: (number | string)[]) {
@@ -141,20 +136,11 @@ const HardnessFooter = ({ control }: { control: Control<HardnessFormValues> }) =
   );
 };
 
-export function HardnessForm() {
-  const form = useForm<HardnessFormValues>({
-    defaultValues: {
-      fechaInicio: new Date(),
-      horaInicio: format(new Date(), 'HH:mm'),
-      temperatura: '',
-      humedadRelativa: '',
-      metodo: 'INEN-ISO 2439:2014',
-      acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
-      samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
-      observacionesDesviaciones: '',
-    },
-  });
+interface HardnessFormProps {
+    form: UseFormReturn<HardnessFormValues>;
+}
 
+export function HardnessForm({ form }: HardnessFormProps) {
   const { fields } = useFieldArray({
     control: form.control,
     name: 'samples',
