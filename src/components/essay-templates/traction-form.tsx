@@ -87,14 +87,31 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
 
   const medianAncho = useMemo(() => {
     if (!specimen) return 0;
-    return calculateMedian(Object.values(specimen.ancho));
+    const values = Object.values(specimen.ancho);
+    const medians: number[] = [];
+    for (let i = 0; i < values.length; i += 3) {
+      const group = values.slice(i, i + 3);
+      if (group.some(v => Number(v) > 0)) {
+        medians.push(calculateMedian(group));
+      }
+    }
+    return calculateMedian(medians);
   }, [specimen.ancho]);
 
   const medianEspesor = useMemo(() => {
     if (!specimen) return 0;
-    const calculatedMedian = calculateMedian(Object.values(specimen.espesor));
-    return Math.round(calculatedMedian / 0.2) * 0.2; // Rounding logic
+    const values = Object.values(specimen.espesor);
+    const medians: number[] = [];
+    for (let i = 0; i < values.length; i += 3) {
+      const group = values.slice(i, i + 3);
+      if (group.some(v => Number(v) > 0)) {
+        medians.push(calculateMedian(group));
+      }
+    }
+    const finalMedian = calculateMedian(medians);
+    return Math.round(finalMedian / 0.2) * 0.2; // Rounding logic
   }, [specimen.espesor]);
+
 
   const renderMeasurementInputs = (dimension: 'ancho' | 'espesor') => (
     <div className="flex flex-col gap-1">
