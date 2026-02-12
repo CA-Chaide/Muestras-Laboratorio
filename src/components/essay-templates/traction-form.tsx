@@ -143,33 +143,19 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
-        averageMedianAncho,
-        stdDevMedianAncho,
-        averageMedianEspesor,
-        stdDevMedianEspesor,
         averageTraccion,
         stdDevTraccion,
         averageElongacion,
         stdDevElongacion
     } = useMemo(() => {
         if (!specimens) return { 
-            averageMedianAncho: 0, stdDevMedianAncho: 0, averageMedianEspesor: 0, stdDevMedianEspesor: 0,
             averageTraccion: 0, stdDevTraccion: 0, averageElongacion: 0, stdDevElongacion: 0
         };
         
-        const medianasAncho = specimens.map(s => calculateMedian(Object.values(s.ancho))).filter(m => m > 0);
-        const medianasEspesor = specimens.map(s => {
-            const median = calculateMedian(Object.values(s.espesor));
-            return Math.round(median / 0.2) * 0.2;
-        }).filter(m => m > 0);
         const tracciones = specimens.map(s => Number(s.traccion)).filter(r => r > 0);
         const elongaciones = specimens.map(s => Number(s.elongacion)).filter(r => r > 0);
         
         return {
-            averageMedianAncho: calculateAverage(medianasAncho),
-            stdDevMedianAncho: calculateStdDev(medianasAncho),
-            averageMedianEspesor: calculateAverage(medianasEspesor),
-            stdDevMedianEspesor: calculateStdDev(medianasEspesor),
             averageTraccion: calculateAverage(tracciones),
             stdDevTraccion: calculateStdDev(tracciones),
             averageElongacion: calculateAverage(elongaciones),
@@ -180,15 +166,7 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     return (
         <TableFooter>
             <TableRow>
-                <TableCell className="text-right font-bold text-destructive p-2 align-middle">Promedio</TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
-                    {averageMedianAncho > 0 ? averageMedianAncho.toFixed(2) : ''}
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
-                    {averageMedianEspesor > 0 ? averageMedianEspesor.toFixed(2) : ''}
-                </TableCell>
+                <TableCell className="text-right font-bold text-destructive p-2 align-middle" colSpan={5}>Promedio</TableCell>
                  <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
                     {averageTraccion > 0 ? averageTraccion.toFixed(2) : ''}
                 </TableCell>
@@ -197,15 +175,7 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 </TableCell>
             </TableRow>
             <TableRow>
-                <TableCell className="text-right font-bold text-destructive p-2 align-middle">Desviación</TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
-                    {stdDevMedianAncho > 0 ? stdDevMedianAncho.toFixed(2) : ''}
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
-                    {stdDevMedianEspesor > 0 ? stdDevMedianEspesor.toFixed(2) : ''}
-                </TableCell>
+                <TableCell className="text-right font-bold text-destructive p-2 align-middle" colSpan={5}>Desviación</TableCell>
                  <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
                     {stdDevTraccion > 0 ? stdDevTraccion.toFixed(2) : ''}
                 </TableCell>
