@@ -23,11 +23,6 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
-  espesorInicial: number | string;
-  t0: number | string;
-  t30: number | string;
-  t60: number | string;
-  t180: number | string;
   tiempoRecuperacion: number | string;
 };
 
@@ -43,11 +38,6 @@ export type RecoveryTimeFormValues = {
 };
 
 const initialSampleValues: SampleData = {
-  espesorInicial: '',
-  t0: '',
-  t30: '',
-  t60: '',
-  t180: '',
   tiempoRecuperacion: '',
 };
 
@@ -74,41 +64,6 @@ const RecoveryTimeRow = ({ control, index }: {
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.espesorInicial`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.t0`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.t30`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-       <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.t60`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-       <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.t180`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
@@ -296,16 +251,11 @@ export function RecoveryTimeForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-5xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-md mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">Muestra</TableHead>
-                <TableHead className="text-center">Espesor inicial (mm)</TableHead>
-                <TableHead className="text-center">T=0 (s)</TableHead>
-                <TableHead className="text-center">T=30 (s)</TableHead>
-                <TableHead className="text-center">T=60 (s)</TableHead>
-                <TableHead className="text-center">T=180 (s)</TableHead>
                 <TableHead className="text-center">Tiempo de recuperación (s)</TableHead>
               </TableRow>
             </TableHeader>
