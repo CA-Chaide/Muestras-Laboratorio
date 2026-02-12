@@ -46,6 +46,14 @@ const initialSampleValues: SampleData = {
   rebote3: '',
 };
 
+function calculateMedian(values: (number | string)[]) {
+    const sortedValues = values.map(Number).filter(v => !isNaN(v) && v > 0).sort((a, b) => a - b);
+    if (sortedValues.length === 0) return 0;
+
+    const mid = Math.floor(sortedValues.length / 2);
+    return sortedValues.length % 2 !== 0 ? sortedValues[mid] : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+}
+
 function calculateAverage(values: number[]) {
   const validValues = values.filter((v) => !isNaN(v) && v > 0);
   if (validValues.length === 0) return 0;
@@ -72,14 +80,9 @@ const ResilienceRow = ({ control, index }: {
   });
 
   const resiliencia = useMemo(() => {
-    const rebotes = [values.rebote1, values.rebote2, values.rebote3]
-        .map(Number)
-        .filter(r => !isNaN(r) && r > 0);
-    
-    if (rebotes.length === 0) return 0;
-    
-    const avgResiliencia = rebotes.reduce((a, b) => a + b, 0) / rebotes.length;
-    return Math.round(avgResiliencia);
+    const rebotes = [values.rebote1, values.rebote2, values.rebote3];
+    const medianResilience = calculateMedian(rebotes);
+    return Math.round(medianResilience);
   }, [values.rebote1, values.rebote2, values.rebote3]);
 
   return (
@@ -119,42 +122,37 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
     name: ["samples", "correctionFactor"],
   });
 
-  const { average, stdDev, correctedAverage } = useMemo(() => {
-    if (!samples) return { average: 0, stdDev: 0, correctedAverage: 0 };
+  const { medianOfMedians, stdDev, correctedMedian } = useMemo(() => {
+    if (!samples) return { medianOfMedians: 0, stdDev: 0, correctedMedian: 0 };
 
-    const averageResiliences = samples.map(s => {
-      const rebotes = [s.rebote1, s.rebote2, s.rebote3]
-        .map(Number)
-        .filter(r => !isNaN(r) && r > 0);
-      
-      if (rebotes.length === 0) return 0;
-      
-      return rebotes.reduce((a, b) => a + b, 0) / rebotes.length;
+    const medianResiliences = samples.map(s => {
+      const rebotes = [s.rebote1, s.rebote2, s.rebote3];
+      return calculateMedian(rebotes);
     }).filter(r => r > 0);
 
-    const initialAverage = calculateAverage(averageResiliences);
+    const initialMedian = calculateMedian(medianResiliences);
     const numCorrectionFactor = Number(correctionFactor) || 0;
-    const finalCorrectedAverage = initialAverage + numCorrectionFactor;
+    const finalCorrectedMedian = initialMedian + numCorrectionFactor;
 
     return {
-      average: initialAverage,
-      stdDev: calculateStdDev(averageResiliences),
-      correctedAverage: finalCorrectedAverage,
+      medianOfMedians: initialMedian,
+      stdDev: calculateStdDev(medianResiliences),
+      correctedMedian: finalCorrectedMedian,
     };
   }, [samples, correctionFactor]);
 
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={4}>Promedio</TableCell>
+        <TableCell className="text-right font-bold" colSpan={4}>Mediana</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
-          {average > 0 ? Math.round(average) : ''}
+          {medianOfMedians > 0 ? Math.round(medianOfMedians) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={4}>Promedio Corregido</TableCell>
+        <TableCell className="text-right font-bold" colSpan={4}>Mediana Corregida</TableCell>
         <TableCell className="text-center font-bold bg-accent text-accent-foreground">
-          {average > 0 ? Math.round(correctedAverage) : ''}
+          {medianOfMedians > 0 ? Math.round(correctedMedian) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
