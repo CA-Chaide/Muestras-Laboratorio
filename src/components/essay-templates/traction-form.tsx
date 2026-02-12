@@ -167,7 +167,7 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
             <TableRow>
                 <TableCell colSpan={2} className="text-right font-bold p-2 align-middle">Promedio</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgMedianAncho > 0 ? avgMedianAncho.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle"></TableCell>
+                <TableCell></TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgMedianEspesor > 0 ? avgMedianEspesor.toFixed(2) : ''}</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgResistencia > 0 ? avgResistencia.toFixed(2) : ''}</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgElongacion > 0 ? avgElongacion.toFixed(2) : ''}</TableCell>
@@ -175,7 +175,7 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
             <TableRow>
                 <TableCell colSpan={2} className="text-right font-bold p-2 align-middle">Desviación</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevMedianAncho > 0 ? stdDevMedianAncho.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle"></TableCell>
+                <TableCell></TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevMedianEspesor > 0 ? stdDevMedianEspesor.toFixed(2) : ''}</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevResistencia > 0 ? stdDevResistencia.toFixed(2) : ''}</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}</TableCell>
