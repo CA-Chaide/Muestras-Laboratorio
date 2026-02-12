@@ -8,6 +8,7 @@ import { HardnessForm } from '@/components/essay-templates/hardness-form';
 import { TearForm } from '@/components/essay-templates/tear-form';
 import { PermeabilityForm } from '@/components/essay-templates/permeability-form';
 import { TractionForm } from '@/components/essay-templates/traction-form';
+import { FatigueForm } from '@/components/essay-templates/fatigue-form';
 
 const tests = [
   'Densidad',
@@ -68,6 +69,8 @@ export default function NormalProductionFoamPage() {
                           <TearForm />
                         ) : toValue(test) === 'permeabilidad' ? (
                           <PermeabilityForm />
+                        ) : toValue(test) === 'fatiga' ? (
+                          <FatigueForm />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
                             <h3 className="text-xl font-semibold">Formulario de {test}</h3>
