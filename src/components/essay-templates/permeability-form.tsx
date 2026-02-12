@@ -267,7 +267,7 @@ export function PermeabilityForm() {
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
-                <TableHead className="text-center">Flujo volumétrico (mm³/s)</TableHead>
+                <TableHead className="text-center">Velocidad de Flujo (mm/s)</TableHead>
                 <TableHead className="text-center">Flujo volumétrico (dm³/s)</TableHead>
               </TableRow>
             </TableHeader>
