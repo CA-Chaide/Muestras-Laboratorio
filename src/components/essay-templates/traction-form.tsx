@@ -68,9 +68,10 @@ function calculateMedian(values: (number | string)[]) {
 }
 
 function calculateAverage(values: number[]) {
-  if (values.length === 0) return 0;
-  const sum = values.reduce((a, b) => a + b, 0);
-  return sum / values.length;
+  const validValues = values.filter(v => !isNaN(v) && v > 0);
+  if (validValues.length === 0) return 0;
+  const sum = validValues.reduce((a, b) => a + b, 0);
+  return sum / validValues.length;
 }
 
 function calculateStdDev(values: number[]) {
@@ -96,8 +97,8 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
     return medians;
   }, [specimen.ancho]);
 
-  const finalMedianAncho = useMemo(() => {
-    return calculateMedian(intermediateMediansAncho);
+  const finalAverageAncho = useMemo(() => {
+    return calculateAverage(intermediateMediansAncho);
   }, [intermediateMediansAncho]);
 
 
@@ -112,9 +113,9 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
     return medians;
   }, [specimen.espesor]);
 
-  const finalMedianEspesor = useMemo(() => {
-    const finalMedian = calculateMedian(intermediateMediansEspesor);
-    return Math.round(finalMedian / 0.2) * 0.2; // Rounding logic
+  const finalAverageEspesor = useMemo(() => {
+    const finalAverage = calculateAverage(intermediateMediansEspesor);
+    return Math.round(finalAverage / 0.2) * 0.2; // Rounding logic
   }, [intermediateMediansEspesor]);
 
 
@@ -143,7 +144,7 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
         </div>
       </TableCell>
       <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-        {finalMedianAncho > 0 ? finalMedianAncho.toFixed(2) : ''}
+        {finalAverageAncho > 0 ? finalAverageAncho.toFixed(2) : ''}
       </TableCell>
       <TableCell className="p-2 align-middle min-w-[120px]">{renderMeasurementInputs('espesor')}</TableCell>
       <TableCell className="p-2 align-middle min-w-[120px]">
@@ -154,7 +155,7 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
         </div>
       </TableCell>
       <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-        {finalMedianEspesor > 0 ? finalMedianEspesor.toFixed(2) : ''}
+        {finalAverageEspesor > 0 ? finalAverageEspesor.toFixed(2) : ''}
       </TableCell>
       <TableCell className="p-2 align-middle min-w-[120px]">
         <FormField
@@ -178,24 +179,24 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
-        averageMedianAncho,
-        averageMedianEspesor,
+        averageFinalAncho,
+        averageFinalEspesor,
         averageTraccion,
         stdDevTraccion,
         averageElongacion,
         stdDevElongacion
     } = useMemo(() => {
         if (!specimens) return { 
-            averageMedianAncho: 0,
-            averageMedianEspesor: 0,
+            averageFinalAncho: 0,
+            averageFinalEspesor: 0,
             averageTraccion: 0, 
             stdDevTraccion: 0, 
             averageElongacion: 0, 
             stdDevElongacion: 0
         };
         
-        const finalMediansAncho: number[] = [];
-        const finalMediansEspesor: number[] = [];
+        const finalAveragesAncho: number[] = [];
+        const finalAveragesEspesor: number[] = [];
         const tracciones: number[] = [];
         const elongaciones: number[] = [];
 
@@ -206,9 +207,9 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 const group = anchoValues.slice(i, i + 3);
                 intermediateMediansAncho.push(calculateMedian(group));
             }
-            const finalMedianAncho = calculateMedian(intermediateMediansAncho);
-            if (finalMedianAncho > 0) {
-                finalMediansAncho.push(finalMedianAncho);
+            const finalAverageAncho = calculateAverage(intermediateMediansAncho);
+            if (finalAverageAncho > 0) {
+                finalAveragesAncho.push(finalAverageAncho);
             }
 
             const espesorValues = Object.values(specimen.espesor);
@@ -217,10 +218,10 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 const group = espesorValues.slice(i, i + 3);
                 intermediateMediansEspesor.push(calculateMedian(group));
             }
-            const finalMedianEspesor = calculateMedian(intermediateMediansEspesor);
-            const roundedFinalMedianEspesor = Math.round(finalMedianEspesor / 0.2) * 0.2;
-            if (roundedFinalMedianEspesor > 0) {
-                finalMediansEspesor.push(roundedFinalMedianEspesor);
+            const finalAverageEspesor = calculateAverage(intermediateMediansEspesor);
+            const roundedFinalAverageEspesor = Math.round(finalAverageEspesor / 0.2) * 0.2;
+            if (roundedFinalAverageEspesor > 0) {
+                finalAveragesEspesor.push(roundedFinalAverageEspesor);
             }
             
             const numTraccion = Number(specimen.traccion);
@@ -231,8 +232,8 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
         });
 
         return {
-            averageMedianAncho: calculateAverage(finalMediansAncho),
-            averageMedianEspesor: calculateAverage(finalMediansEspesor),
+            averageFinalAncho: calculateAverage(finalAveragesAncho),
+            averageFinalEspesor: calculateAverage(finalAveragesEspesor),
             averageTraccion: calculateAverage(tracciones),
             stdDevTraccion: calculateStdDev(tracciones),
             averageElongacion: calculateAverage(elongaciones),
@@ -263,11 +264,11 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
             <TableRow>
                 <TableCell className="text-right font-bold p-2 align-middle" colSpan={3}>Promedio Ancho (mm)</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-                    {averageMedianAncho > 0 ? averageMedianAncho.toFixed(2) : ''}
+                    {averageFinalAncho > 0 ? averageFinalAncho.toFixed(2) : ''}
                 </TableCell>
                 <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Promedio Espesor (mm)</TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-                    {averageMedianEspesor > 0 ? averageMedianEspesor.toFixed(2) : ''}
+                    {averageFinalEspesor > 0 ? averageFinalEspesor.toFixed(2) : ''}
                 </TableCell>
                 <TableCell colSpan={2} />
             </TableRow>
@@ -407,10 +408,10 @@ export function TractionForm() {
                 <TableHead className="text-center w-[80px]">Muestra</TableHead>
                 <TableHead className="text-center">Ancho (mm)</TableHead>
                 <TableHead className="text-center">Medianas Ancho (mm)</TableHead>
-                <TableHead className="text-center">Mediana Final Ancho (mm)</TableHead>
+                <TableHead className="text-center">Promedio Ancho (mm)</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
                 <TableHead className="text-center">Medianas Espesor (mm)</TableHead>
-                <TableHead className="text-center">Mediana Final Espesor (mm)</TableHead>
+                <TableHead className="text-center">Promedio Espesor (mm)</TableHead>
                 <TableHead className="text-center">Tracción (kPa)</TableHead>
                 <TableHead className="text-center">Elongación (%)</TableHead>
               </TableRow>
