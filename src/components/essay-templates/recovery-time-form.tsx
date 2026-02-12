@@ -75,7 +75,7 @@ const RecoveryTimeRow = ({ control, index }: {
   );
 };
 
-const RecoveryTimeResults = ({ control }: { control: Control<RecoveryTimeFormValues> }) => {
+const RecoveryTimeFooter = ({ control }: { control: Control<RecoveryTimeFormValues> }) => {
   const samples = useWatch({ control, name: 'samples' });
 
   const { average, stdDev } = useMemo(() => {
@@ -90,38 +90,20 @@ const RecoveryTimeResults = ({ control }: { control: Control<RecoveryTimeFormVal
   }, [samples]);
 
   return (
-    <div className="mt-8 overflow-x-auto rounded-lg border max-w-sm mx-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center w-1/2">Muestra</TableHead>
-            <TableHead className="text-center w-1/2">TR (s)</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {samples.map((sample, index) => (
-            <TableRow key={index}>
-              <TableCell className="text-center">{index + 1}</TableCell>
-              <TableCell className="text-center">{sample.tiempoRecuperacion || ''}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell className="text-left font-bold">Promedio</TableCell>
-            <TableCell className="text-center font-bold">
-              {average > 0 ? average.toFixed(2) : ''}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="text-left font-bold">Desv. Est.</TableCell>
-            <TableCell className="text-center font-bold">
-              {stdDev > 0 ? stdDev.toFixed(2) : ''}
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </div>
+    <TableFooter>
+      <TableRow>
+        <TableCell className="text-right font-bold">Promedio</TableCell>
+        <TableCell className="text-center font-bold bg-secondary">
+          {average > 0 ? average.toFixed(2) : ''}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className="text-right font-bold">Desv. Est.</TableCell>
+        <TableCell className="text-center font-bold bg-secondary">
+          {stdDev > 0 ? stdDev.toFixed(2) : ''}
+        </TableCell>
+      </TableRow>
+    </TableFooter>
   );
 };
 
@@ -264,10 +246,9 @@ export function RecoveryTimeForm() {
                 <RecoveryTimeRow key={field.id} control={form.control} index={index} />
               ))}
             </TableBody>
+            <RecoveryTimeFooter control={form.control} />
           </Table>
         </div>
-        
-        <RecoveryTimeResults control={form.control} />
 
         <FormField
           control={form.control}
