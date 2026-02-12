@@ -115,7 +115,7 @@ export function RecoveryTimeForm() {
       horaInicio: format(new Date(), 'HH:mm'),
       temperatura: '',
       humedadRelativa: '',
-      metodo: 'INEN-ISO 3386-1:2014',
+      metodo: 'ASTM D3574-16:2001',
       acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
       samples: Array(3).fill(null).map(() => ({ ...initialSampleValues })),
       observacionesDesviaciones: '',
@@ -215,7 +215,7 @@ export function RecoveryTimeForm() {
                 <FormItem>
                   <FormLabel>Método</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: INEN-ISO 3386-1:2014" {...field} />
+                    <Input placeholder="Ej: ASTM D3574-16:2001" {...field} />
                   </FormControl>
                 </FormItem>
               )}
