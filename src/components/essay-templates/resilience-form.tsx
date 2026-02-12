@@ -35,6 +35,7 @@ export type ResilienceFormValues = {
   humedadRelativa: string;
   metodo: string;
   acondicionamiento: string;
+  correctionFactor: number | string;
   samples: SampleData[];
   observacionesDesviaciones: string;
 };
@@ -113,10 +114,13 @@ const ResilienceRow = ({ control, index }: {
 };
 
 const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> }) => {
-  const samples = useWatch({ control, name: 'samples' });
+  const [samples, correctionFactor] = useWatch({
+    control,
+    name: ["samples", "correctionFactor"],
+  });
 
-  const { average, stdDev } = useMemo(() => {
-    if (!samples) return { average: 0, stdDev: 0 };
+  const { average, stdDev, correctedAverage } = useMemo(() => {
+    if (!samples) return { average: 0, stdDev: 0, correctedAverage: 0 };
 
     const averageResiliences = samples.map(s => {
       const rebotes = [s.rebote1, s.rebote2, s.rebote3]
@@ -128,11 +132,16 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
       return rebotes.reduce((a, b) => a + b, 0) / rebotes.length;
     }).filter(r => r > 0);
 
+    const initialAverage = calculateAverage(averageResiliences);
+    const numCorrectionFactor = Number(correctionFactor) || 0;
+    const finalCorrectedAverage = initialAverage + numCorrectionFactor;
+
     return {
-      average: calculateAverage(averageResiliences),
+      average: initialAverage,
       stdDev: calculateStdDev(averageResiliences),
+      correctedAverage: finalCorrectedAverage,
     };
-  }, [samples]);
+  }, [samples, correctionFactor]);
 
   return (
     <TableFooter>
@@ -140,6 +149,12 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
         <TableCell className="text-right font-bold" colSpan={4}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {average > 0 ? Math.round(average) : ''}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className="text-right font-bold" colSpan={4}>Promedio Corregido</TableCell>
+        <TableCell className="text-center font-bold bg-accent text-accent-foreground">
+          {average > 0 ? Math.round(correctedAverage) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -161,6 +176,7 @@ export function ResilienceForm() {
       humedadRelativa: '',
       metodo: 'ASTM D3574 - Test H',
       acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
+      correctionFactor: '',
       samples: Array(3).fill(null).map(() => ({ ...initialSampleValues })),
       observacionesDesviaciones: '',
     },
@@ -263,6 +279,18 @@ export function ResilienceForm() {
                   </FormControl>
                 </FormItem>
               )}
+            />
+             <FormField
+                control={form.control}
+                name="correctionFactor"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Factor de Corrección Anual</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="any" placeholder="Ej: 1.5 o -0.5" {...field} />
+                    </FormControl>
+                    </FormItem>
+                )}
             />
             <FormField
               control={form.control}
