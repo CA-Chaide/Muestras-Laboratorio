@@ -25,6 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 type SampleData = {
   espesorInicial: number | string;
   durezaInicial: number | string;
+  espesorFinal: number | string;
+  durezaFinal: number | string;
 };
 
 export type FatigueFormValues = {
@@ -41,6 +43,8 @@ export type FatigueFormValues = {
 const initialSampleValues: SampleData = {
   espesorInicial: '',
   durezaInicial: '',
+  espesorFinal: '',
+  durezaFinal: '',
 };
 
 function calculateAverage(values: (number | string)[]) {
@@ -80,6 +84,20 @@ const FatigueRow = ({ control, index }: {
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
+      <TableCell className="p-2 align-middle">
+        <FormField
+          control={control}
+          name={`samples.${index}.espesorFinal`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
+      <TableCell className="p-2 align-middle">
+        <FormField
+          control={control}
+          name={`samples.${index}.durezaFinal`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
     </TableRow>
   );
 };
@@ -88,21 +106,34 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
   const samples = useWatch({ control, name: 'samples' });
 
   const {
-    promedioEspesor,
-    desviacionEspesor,
-    promedioDureza,
-    desviacionDureza
+    promedioEspesorInicial,
+    desviacionEspesorInicial,
+    promedioDurezaInicial,
+    desviacionDurezaInicial,
+    promedioEspesorFinal,
+    desviacionEspesorFinal,
+    promedioDurezaFinal,
+    desviacionDurezaFinal,
   } = useMemo(() => {
-    if (!samples) return { promedioEspesor: 0, desviacionEspesor: 0, promedioDureza: 0, desviacionDureza: 0 };
+    if (!samples) return { 
+        promedioEspesorInicial: 0, desviacionEspesorInicial: 0, promedioDurezaInicial: 0, desviacionDurezaInicial: 0,
+        promedioEspesorFinal: 0, desviacionEspesorFinal: 0, promedioDurezaFinal: 0, desviacionDurezaFinal: 0 
+    };
     
-    const espesores = samples.map(s => s.espesorInicial);
-    const durezas = samples.map(s => s.durezaInicial);
+    const espesoresIniciales = samples.map(s => s.espesorInicial);
+    const durezasIniciales = samples.map(s => s.durezaInicial);
+    const espesoresFinales = samples.map(s => s.espesorFinal);
+    const durezasFinales = samples.map(s => s.durezaFinal);
     
     return {
-      promedioEspesor: calculateAverage(espesores),
-      desviacionEspesor: calculateStdDev(espesores),
-      promedioDureza: calculateAverage(durezas),
-      desviacionDureza: calculateStdDev(durezas),
+      promedioEspesorInicial: calculateAverage(espesoresIniciales),
+      desviacionEspesorInicial: calculateStdDev(espesoresIniciales),
+      promedioDurezaInicial: calculateAverage(durezasIniciales),
+      desviacionDurezaInicial: calculateStdDev(durezasIniciales),
+      promedioEspesorFinal: calculateAverage(espesoresFinales),
+      desviacionEspesorFinal: calculateStdDev(espesoresFinales),
+      promedioDurezaFinal: calculateAverage(durezasFinales),
+      desviacionDurezaFinal: calculateStdDev(durezasFinales),
     };
   }, [samples]);
 
@@ -111,19 +142,31 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle">Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioEspesor > 0 ? promedioEspesor.toFixed(1) : ''}
+          {promedioEspesorInicial > 0 ? promedioEspesorInicial.toFixed(1) : ''}
         </TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioDureza > 0 ? promedioDureza.toFixed(1) : ''}
+          {promedioDurezaInicial > 0 ? promedioDurezaInicial.toFixed(1) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {promedioEspesorFinal > 0 ? promedioEspesorFinal.toFixed(1) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {promedioDurezaFinal > 0 ? promedioDurezaFinal.toFixed(1) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle">Desv. Est.</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionEspesor > 0 ? desviacionEspesor.toFixed(2) : ''}
+          {desviacionEspesorInicial > 0 ? desviacionEspesorInicial.toFixed(2) : ''}
         </TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionDureza > 0 ? desviacionDureza.toFixed(2) : ''}
+          {desviacionDurezaInicial > 0 ? desviacionDurezaInicial.toFixed(2) : ''}
+        </TableCell>
+         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {desviacionEspesorFinal > 0 ? desviacionEspesorFinal.toFixed(2) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {desviacionDurezaFinal > 0 ? desviacionDurezaFinal.toFixed(2) : ''}
         </TableCell>
       </TableRow>
     </TableFooter>
@@ -255,13 +298,15 @@ export function FatigueForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-lg mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-4xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
                 <TableHead className="text-center">Espesor inicial (mm)</TableHead>
                 <TableHead className="text-center">Dureza -40% inicial (N)</TableHead>
+                <TableHead className="text-center">Espesor final (mm)</TableHead>
+                <TableHead className="text-center">Dureza -40% final (N)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
