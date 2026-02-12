@@ -10,6 +10,7 @@ import { PermeabilityForm } from '@/components/essay-templates/permeability-form
 import { TractionForm } from '@/components/essay-templates/traction-form';
 import { FatigueForm } from '@/components/essay-templates/fatigue-form';
 import { RecoveryTimeForm } from '@/components/essay-templates/recovery-time-form';
+import { ResilienceForm } from '@/components/essay-templates/resilience-form';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 
@@ -22,6 +23,7 @@ const tests = [
   'Permeabilidad',
   'Fatiga',
   'Tiempo de Recuperación',
+  'Resiliencia',
 ];
 
 const initialHardnessSampleValues = { espesor: '', dureza: '' };
@@ -93,6 +95,8 @@ export default function NormalProductionFoamPage() {
                           <FatigueForm initialHardnessValues={hardnessSamples?.slice(0,3)} />
                         ) : toValue(test) === 'tiempo-de-recuperación' ? (
                           <RecoveryTimeForm />
+                        ) : toValue(test) === 'resiliencia' ? (
+                          <ResilienceForm />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
                             <h3 className="text-xl font-semibold">Formulario de {test}</h3>
