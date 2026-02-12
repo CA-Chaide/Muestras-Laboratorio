@@ -63,10 +63,45 @@ function calculateStdDev(values: (number | string)[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
+function calculateAverageWithNegatives(values: (number | string)[]) {
+  const validValues = values.map(Number).filter((v) => !isNaN(v));
+  if (validValues.length === 0) return 0;
+  const sum = validValues.reduce((a, b) => a + b, 0);
+  return sum / validValues.length;
+}
+
+function calculateStdDevWithNegatives(values: (number | string)[]) {
+  const validValues = values.map(Number).filter((v) => !isNaN(v));
+  const n = validValues.length;
+  if (n < 2) return 0;
+  const mean = calculateAverageWithNegatives(validValues);
+  const sumOfSquaredDiffs = validValues.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+  return Math.sqrt(sumOfSquaredDiffs / (n - 1));
+}
+
 const FatigueRow = ({ control, index }: { 
   control: Control<FatigueFormValues>, 
   index: number 
 }) => {
+  const values = useWatch({
+    control,
+    name: `samples.${index}`,
+  });
+
+  const perdidaEspesor = useMemo(() => {
+    const inicial = Number(values.espesorInicial);
+    const final = Number(values.espesorFinal);
+    if (!inicial || inicial <= 0 || isNaN(final)) return 0;
+    return ((inicial - final) / inicial) * 100;
+  }, [values.espesorInicial, values.espesorFinal]);
+
+  const perdidaDureza = useMemo(() => {
+    const inicial = Number(values.durezaInicial);
+    const final = Number(values.durezaFinal);
+    if (!inicial || inicial <= 0 || isNaN(final)) return 0;
+    return ((inicial - final) / inicial) * 100;
+  }, [values.durezaInicial, values.durezaFinal]);
+
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
@@ -98,6 +133,12 @@ const FatigueRow = ({ control, index }: {
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
+      <TableCell className="text-center bg-muted p-2 align-middle">
+        {perdidaEspesor ? perdidaEspesor.toFixed(1) : ''}
+      </TableCell>
+      <TableCell className="text-center bg-muted p-2 align-middle">
+        {perdidaDureza ? perdidaDureza.toFixed(1) : ''}
+      </TableCell>
     </TableRow>
   );
 };
@@ -114,16 +155,35 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
     desviacionEspesorFinal,
     promedioDurezaFinal,
     desviacionDurezaFinal,
+    promedioPerdidaEspesor,
+    desviacionPerdidaEspesor,
+    promedioPerdidaDureza,
+    desviacionPerdidaDureza
   } = useMemo(() => {
     if (!samples) return { 
         promedioEspesorInicial: 0, desviacionEspesorInicial: 0, promedioDurezaInicial: 0, desviacionDurezaInicial: 0,
-        promedioEspesorFinal: 0, desviacionEspesorFinal: 0, promedioDurezaFinal: 0, desviacionDurezaFinal: 0 
+        promedioEspesorFinal: 0, desviacionEspesorFinal: 0, promedioDurezaFinal: 0, desviacionDurezaFinal: 0,
+        promedioPerdidaEspesor: 0, desviacionPerdidaEspesor: 0, promedioPerdidaDureza: 0, desviacionPerdidaDureza: 0
     };
     
     const espesoresIniciales = samples.map(s => s.espesorInicial);
     const durezasIniciales = samples.map(s => s.durezaInicial);
     const espesoresFinales = samples.map(s => s.espesorFinal);
     const durezasFinales = samples.map(s => s.durezaFinal);
+
+    const perdidasEspesor = samples.map(s => {
+        const inicial = Number(s.espesorInicial);
+        const final = Number(s.espesorFinal);
+        if (!inicial || inicial <= 0 || isNaN(final)) return NaN;
+        return ((inicial - final) / inicial) * 100;
+    }).filter(v => !isNaN(v));
+
+    const perdidasDureza = samples.map(s => {
+        const inicial = Number(s.durezaInicial);
+        const final = Number(s.durezaFinal);
+        if (!inicial || inicial <= 0 || isNaN(final)) return NaN;
+        return ((inicial - final) / inicial) * 100;
+    }).filter(v => !isNaN(v));
     
     return {
       promedioEspesorInicial: calculateAverage(espesoresIniciales),
@@ -134,6 +194,10 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
       desviacionEspesorFinal: calculateStdDev(espesoresFinales),
       promedioDurezaFinal: calculateAverage(durezasFinales),
       desviacionDurezaFinal: calculateStdDev(durezasFinales),
+      promedioPerdidaEspesor: calculateAverageWithNegatives(perdidasEspesor),
+      desviacionPerdidaEspesor: calculateStdDevWithNegatives(perdidasEspesor),
+      promedioPerdidaDureza: calculateAverageWithNegatives(perdidasDureza),
+      desviacionPerdidaDureza: calculateStdDevWithNegatives(perdidasDureza),
     };
   }, [samples]);
 
@@ -153,6 +217,12 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {promedioDurezaFinal > 0 ? promedioDurezaFinal.toFixed(1) : ''}
         </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {promedioPerdidaEspesor ? promedioPerdidaEspesor.toFixed(1) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {promedioPerdidaDureza ? promedioPerdidaDureza.toFixed(1) : ''}
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle">Desv. Est.</TableCell>
@@ -167,6 +237,12 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
         </TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {desviacionDurezaFinal > 0 ? desviacionDurezaFinal.toFixed(2) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {desviacionPerdidaEspesor ? desviacionPerdidaEspesor.toFixed(2) : ''}
+        </TableCell>
+        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+          {desviacionPerdidaDureza ? desviacionPerdidaDureza.toFixed(2) : ''}
         </TableCell>
       </TableRow>
     </TableFooter>
@@ -298,7 +374,7 @@ export function FatigueForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-4xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-6xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -307,6 +383,8 @@ export function FatigueForm() {
                 <TableHead className="text-center">Dureza -40% inicial (N)</TableHead>
                 <TableHead className="text-center">Espesor final (mm)</TableHead>
                 <TableHead className="text-center">Dureza -40% final (N)</TableHead>
+                <TableHead className="text-center">% Pérdida de Espesor</TableHead>
+                <TableHead className="text-center">% Pérdida de Dureza</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
