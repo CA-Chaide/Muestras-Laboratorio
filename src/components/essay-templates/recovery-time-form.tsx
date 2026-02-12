@@ -140,7 +140,7 @@ const RecoveryTimeResults = ({ control }: { control: Control<RecoveryTimeFormVal
         <TableHeader>
           <TableRow>
             <TableHead className="text-center w-1/2">Muestra</TableHead>
-            <TableHead className="text-center w-1/2">Tiempo de recuperación (s)</TableHead>
+            <TableHead className="text-center w-1/2">TR (s)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
