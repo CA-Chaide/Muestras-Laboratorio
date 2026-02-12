@@ -167,10 +167,10 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
       <TableRow>
         <TableCell className="text-right font-bold p-2 align-middle" colSpan={5}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioPerdidaEspesor ? promedioPerdidaEspesor.toFixed(1) : ''}
+          {promedioPerdidaEspesor ? promedioPerdidaEspesor.toFixed(2) : ''}
         </TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioPerdidaDureza ? promedioPerdidaDureza.toFixed(1) : ''}
+          {promedioPerdidaDureza ? promedioPerdidaDureza.toFixed(2) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
