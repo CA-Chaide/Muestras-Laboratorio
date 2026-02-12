@@ -35,6 +35,8 @@ type Measurements = {
 type SpecimenData = {
   ancho: Measurements;
   espesor: Measurements;
+  traccion: number | string;
+  elongacion: number | string;
 };
 
 // Define the full form's value structure
@@ -53,6 +55,8 @@ export type TractionFormValues = {
 const initialSpecimenValues: SpecimenData = {
   ancho: { m1: '', m2: '', m3: '', m4: '', m5: '' },
   espesor: { m1: '', m2: '', m3: '', m4: '', m5: '' },
+  traccion: '',
+  elongacion: '',
 };
 
 // --- Calculation Helpers ---
@@ -117,6 +121,20 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
       <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
         {medianEspesor > 0 ? medianEspesor.toFixed(2) : ''}
       </TableCell>
+      <TableCell className="p-2 align-middle min-w-[120px]">
+        <FormField
+          control={control}
+          name={`specimens.${index}.traccion`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
+      <TableCell className="p-2 align-middle min-w-[120px]">
+        <FormField
+          control={control}
+          name={`specimens.${index}.elongacion`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
     </TableRow>
   );
 };
@@ -129,20 +147,33 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
         stdDevMedianAncho,
         averageMedianEspesor,
         stdDevMedianEspesor,
+        averageTraccion,
+        stdDevTraccion,
+        averageElongacion,
+        stdDevElongacion
     } = useMemo(() => {
-        if (!specimens) return { averageMedianAncho: 0, stdDevMedianAncho: 0, averageMedianEspesor: 0, stdDevMedianEspesor: 0 };
+        if (!specimens) return { 
+            averageMedianAncho: 0, stdDevMedianAncho: 0, averageMedianEspesor: 0, stdDevMedianEspesor: 0,
+            averageTraccion: 0, stdDevTraccion: 0, averageElongacion: 0, stdDevElongacion: 0
+        };
         
         const medianasAncho = specimens.map(s => calculateMedian(Object.values(s.ancho))).filter(m => m > 0);
         const medianasEspesor = specimens.map(s => {
             const median = calculateMedian(Object.values(s.espesor));
             return Math.round(median / 0.2) * 0.2;
         }).filter(m => m > 0);
+        const tracciones = specimens.map(s => Number(s.traccion)).filter(r => r > 0);
+        const elongaciones = specimens.map(s => Number(s.elongacion)).filter(r => r > 0);
         
         return {
             averageMedianAncho: calculateAverage(medianasAncho),
             stdDevMedianAncho: calculateStdDev(medianasAncho),
             averageMedianEspesor: calculateAverage(medianasEspesor),
             stdDevMedianEspesor: calculateStdDev(medianasEspesor),
+            averageTraccion: calculateAverage(tracciones),
+            stdDevTraccion: calculateStdDev(tracciones),
+            averageElongacion: calculateAverage(elongaciones),
+            stdDevElongacion: calculateStdDev(elongaciones),
         };
     }, [specimens]);
 
@@ -158,6 +189,12 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
                     {averageMedianEspesor > 0 ? averageMedianEspesor.toFixed(2) : ''}
                 </TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {averageTraccion > 0 ? averageTraccion.toFixed(2) : ''}
+                </TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {averageElongacion > 0 ? averageElongacion.toFixed(2) : ''}
+                </TableCell>
             </TableRow>
             <TableRow>
                 <TableCell className="text-right font-bold text-destructive p-2 align-middle">Desviación</TableCell>
@@ -168,6 +205,12 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 <TableCell></TableCell>
                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
                     {stdDevMedianEspesor > 0 ? stdDevMedianEspesor.toFixed(2) : ''}
+                </TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {stdDevTraccion > 0 ? stdDevTraccion.toFixed(2) : ''}
+                </TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}
                 </TableCell>
             </TableRow>
         </TableFooter>
@@ -299,7 +342,7 @@ export function TractionForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-4xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-6xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -308,6 +351,8 @@ export function TractionForm() {
                 <TableHead className="text-center">Mediana Ancho (mm)</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
                 <TableHead className="text-center">Mediana Espesor (mm)</TableHead>
+                <TableHead className="text-center">Tracción (kPa)</TableHead>
+                <TableHead className="text-center">Elongación (%)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
