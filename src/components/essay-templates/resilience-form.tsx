@@ -24,7 +24,9 @@ import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
   alturaCaida: number | string;
-  alturaRebote: number | string;
+  rebote1: number | string;
+  rebote2: number | string;
+  rebote3: number | string;
 };
 
 export type ResilienceFormValues = {
@@ -40,18 +42,20 @@ export type ResilienceFormValues = {
 
 const initialSampleValues: SampleData = {
   alturaCaida: 460, // Standard drop height in mm
-  alturaRebote: '',
+  rebote1: '',
+  rebote2: '',
+  rebote3: '',
 };
 
-function calculateAverage(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+function calculateAverage(values: number[]) {
+  const validValues = values.filter((v) => !isNaN(v) && v > 0);
   if (validValues.length === 0) return 0;
   const sum = validValues.reduce((a, b) => a + b, 0);
   return sum / validValues.length;
 }
 
-function calculateStdDev(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+function calculateStdDev(values: number[]) {
+  const validValues = values.filter((v) => !isNaN(v) && v > 0);
   const n = validValues.length;
   if (n < 2) return 0;
   const mean = calculateAverage(validValues);
@@ -66,7 +70,6 @@ function calculateResilience(alturaCaida: number | string, alturaRebote: number 
     return (numRebote / numCaida) * 100;
 }
 
-
 const ResilienceRow = ({ control, index }: {
   control: Control<ResilienceFormValues>,
   index: number
@@ -76,7 +79,17 @@ const ResilienceRow = ({ control, index }: {
     name: `samples.${index}`,
   });
 
-  const resiliencia = useMemo(() => calculateResilience(values.alturaCaida, values.alturaRebote), [values.alturaCaida, values.alturaRebote]);
+  const resiliencia = useMemo(() => {
+    const rebotes = [values.rebote1, values.rebote2, values.rebote3];
+    const resilienciasValidas = rebotes
+      .map(rebote => calculateResilience(values.alturaCaida, rebote))
+      .filter(r => r > 0);
+    
+    if (resilienciasValidas.length === 0) return 0;
+    
+    const avgResiliencia = resilienciasValidas.reduce((a, b) => a + b, 0) / resilienciasValidas.length;
+    return Math.round(avgResiliencia);
+  }, [values]);
 
   return (
     <TableRow>
@@ -84,19 +97,26 @@ const ResilienceRow = ({ control, index }: {
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
-          name={`samples.${index}.alturaCaida`}
+          name={`samples.${index}.rebote1`}
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
-          name={`samples.${index}.alturaRebote`}
+          name={`samples.${index}.rebote2`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
+      <TableCell className="p-2 align-middle">
+        <FormField
+          control={control}
+          name={`samples.${index}.rebote3`}
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
       <TableCell className="text-center bg-secondary p-2 align-middle">
-        {resiliencia > 0 ? Math.round(resiliencia) : ''}
+        {resiliencia > 0 ? resiliencia : ''}
       </TableCell>
     </TableRow>
   );
@@ -108,7 +128,17 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
   const { average, stdDev } = useMemo(() => {
     if (!samples) return { average: 0, stdDev: 0 };
 
-    const resiliences = samples.map(s => calculateResilience(s.alturaCaida, s.alturaRebote)).filter(r => r > 0);
+    const resiliences = samples.map(s => {
+      const rebotes = [s.rebote1, s.rebote2, s.rebote3];
+      const resilienciasValidas = rebotes
+        .map(rebote => calculateResilience(s.alturaCaida, rebote))
+        .filter(r => r > 0);
+      
+      if (resilienciasValidas.length === 0) return 0;
+      
+      const avgResiliencia = resilienciasValidas.reduce((a, b) => a + b, 0) / resilienciasValidas.length;
+      return avgResiliencia;
+    }).filter(r => r > 0);
 
     return {
       average: calculateAverage(resiliences),
@@ -119,13 +149,13 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={3}>Promedio</TableCell>
+        <TableCell className="text-right font-bold" colSpan={4}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {average > 0 ? Math.round(average) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={3}>Desv. Est.</TableCell>
+        <TableCell className="text-right font-bold" colSpan={4}>Desv. Est.</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {stdDev > 0 ? stdDev.toFixed(1) : ''}
         </TableCell>
@@ -133,7 +163,6 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
     </TableFooter>
   );
 };
-
 
 export function ResilienceForm() {
   const form = useForm<ResilienceFormValues>({
@@ -260,13 +289,14 @@ export function ResilienceForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-2xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-3xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
-                <TableHead className="text-center">Altura de Caída (mm)</TableHead>
-                <TableHead className="text-center">Altura de Rebote (mm)</TableHead>
+                <TableHead className="text-center">Medición 1 (mm)</TableHead>
+                <TableHead className="text-center">Medición 2 (mm)</TableHead>
+                <TableHead className="text-center">Medición 3 (mm)</TableHead>
                 <TableHead className="text-center">Resiliencia (%)</TableHead>
               </TableRow>
             </TableHeader>
