@@ -98,7 +98,8 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
   }, [specimen.ancho]);
 
   const finalAverageAncho = useMemo(() => {
-    return calculateAverage(intermediateMediansAncho);
+    const finalAverage = calculateAverage(intermediateMediansAncho);
+    return Math.round(finalAverage / 0.2) * 0.2;
   }, [intermediateMediansAncho]);
 
 
@@ -208,8 +209,9 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                 intermediateMediansAncho.push(calculateMedian(group));
             }
             const finalAverageAncho = calculateAverage(intermediateMediansAncho);
-            if (finalAverageAncho > 0) {
-                finalAveragesAncho.push(finalAverageAncho);
+            const roundedFinalAverageAncho = Math.round(finalAverageAncho / 0.2) * 0.2;
+            if (roundedFinalAverageAncho > 0) {
+                finalAveragesAncho.push(roundedFinalAverageAncho);
             }
 
             const espesorValues = Object.values(specimen.espesor);
