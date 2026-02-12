@@ -22,17 +22,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-type ThreeMeasurements = {
-  m1: number | string;
-  m2: number | string;
-  m3: number | string;
-};
-
 type SpecimenData = {
-  ancho: ThreeMeasurements;
-  espesor: ThreeMeasurements;
-  resistenciaTraccion: number | string;
-  elongacion: number | string;
+  espesor: number | string;
 };
 
 export type TractionFormValues = {
@@ -47,19 +38,8 @@ export type TractionFormValues = {
 };
 
 const initialSpecimenValues: SpecimenData = {
-  ancho: { m1: '', m2: '', m3: '' },
-  espesor: { m1: '', m2: '', m3: '' },
-  resistenciaTraccion: '',
-  elongacion: '',
+  espesor: '',
 };
-
-function calculateMedian(values: (number | string)[]) {
-  const sortedValues = values.map(Number).filter(v => !isNaN(v) && v > 0).sort((a, b) => a - b);
-  if (sortedValues.length === 0) return 0;
-  
-  const mid = Math.floor(sortedValues.length / 2);
-  return sortedValues.length % 2 !== 0 ? sortedValues[mid] : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
-}
 
 function calculateAverage(values: number[]) {
   if (values.length === 0) return 0;
@@ -76,53 +56,13 @@ function calculateStdDev(values: number[]) {
 }
 
 const TractionRow = ({ control, index }: { control: Control<TractionFormValues>, index: number }) => {
-  const specimen = useWatch({ control, name: `specimens.${index}` });
-
-  const medianAncho = useMemo(() => {
-    if (!specimen) return 0;
-    return calculateMedian(Object.values(specimen.ancho));
-  }, [specimen.ancho]);
-  
-  const medianEspesor = useMemo(() => {
-    if (!specimen) return 0;
-    return calculateMedian(Object.values(specimen.espesor));
-  }, [specimen.espesor]);
-  
-  const renderMeasurementInputs = (dimension: 'ancho' | 'espesor') => (
-    <div className="flex flex-col gap-1">
-      {Array.from({ length: 3 }, (_, i) => `m${i + 1}`).map((fieldName) => (
-        <FormField
-          key={fieldName}
-          control={control}
-          name={`specimens.${index}.${dimension}.${fieldName as keyof ThreeMeasurements}`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
-        />
-      ))}
-    </div>
-  );
-
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
-      <TableCell className="p-2 align-middle min-w-[100px]">{renderMeasurementInputs('ancho')}</TableCell>
-      <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-        {medianAncho > 0 ? medianAncho.toFixed(2) : ''}
-      </TableCell>
-       <TableCell className="p-2 align-middle min-w-[100px]">{renderMeasurementInputs('espesor')}</TableCell>
-      <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-        {medianEspesor > 0 ? medianEspesor.toFixed(2) : ''}
-      </TableCell>
       <TableCell className="p-2 align-middle min-w-[150px]">
         <FormField
             control={control}
-            name={`specimens.${index}.resistenciaTraccion`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-      <TableCell className="p-2 align-middle min-w-[150px]">
-        <FormField
-            control={control}
-            name={`specimens.${index}.elongacion`}
+            name={`specimens.${index}.espesor`}
             render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
@@ -134,51 +74,28 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
-        avgMedianAncho,
-        stdDevMedianAncho,
-        avgMedianEspesor,
-        stdDevMedianEspesor,
-        avgResistencia,
-        stdDevResistencia,
-        avgElongacion,
-        stdDevElongacion
+        avgEspesor,
+        stdDevEspesor,
     } = useMemo(() => {
-        if (!specimens) return { avgMedianAncho: 0, stdDevMedianAncho: 0, avgMedianEspesor: 0, stdDevMedianEspesor: 0, avgResistencia: 0, stdDevResistencia: 0, avgElongacion: 0, stdDevElongacion: 0 };
+        if (!specimens) return { avgEspesor: 0, stdDevEspesor: 0 };
         
-        const medianasAncho = specimens.map(s => calculateMedian(Object.values(s.ancho))).filter(m => m > 0);
-        const medianasEspesor = specimens.map(s => calculateMedian(Object.values(s.espesor))).filter(m => m > 0);
-        const resistencias = specimens.map(s => Number(s.resistenciaTraccion)).filter(r => r > 0);
-        const elongaciones = specimens.map(s => Number(s.elongacion)).filter(e => e > 0);
+        const espesores = specimens.map(s => Number(s.espesor)).filter(m => m > 0);
 
         return {
-            avgMedianAncho: calculateAverage(medianasAncho),
-            stdDevMedianAncho: calculateStdDev(medianasAncho),
-            avgMedianEspesor: calculateAverage(medianasEspesor),
-            stdDevMedianEspesor: calculateStdDev(medianasEspesor),
-            avgResistencia: calculateAverage(resistencias),
-            stdDevResistencia: calculateStdDev(resistencias),
-            avgElongacion: calculateAverage(elongaciones),
-            stdDevElongacion: calculateStdDev(elongaciones),
+            avgEspesor: calculateAverage(espesores),
+            stdDevEspesor: calculateStdDev(espesores),
         };
     }, [specimens]);
 
     return (
         <TableFooter>
             <TableRow>
-                <TableCell colSpan={2} className="text-right font-bold p-2 align-middle">Promedio</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgMedianAncho > 0 ? avgMedianAncho.toFixed(2) : ''}</TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgMedianEspesor > 0 ? avgMedianEspesor.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgResistencia > 0 ? avgResistencia.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgElongacion > 0 ? avgElongacion.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-right font-bold p-2 align-middle">Promedio</TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgEspesor > 0 ? avgEspesor.toFixed(2) : ''}</TableCell>
             </TableRow>
             <TableRow>
-                <TableCell colSpan={2} className="text-right font-bold p-2 align-middle">Desviación</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevMedianAncho > 0 ? stdDevMedianAncho.toFixed(2) : ''}</TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevMedianEspesor > 0 ? stdDevMedianEspesor.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevResistencia > 0 ? stdDevResistencia.toFixed(2) : ''}</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-right font-bold p-2 align-middle">Desviación</TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevEspesor > 0 ? stdDevEspesor.toFixed(2) : ''}</TableCell>
             </TableRow>
         </TableFooter>
     )
@@ -309,17 +226,12 @@ export function TractionForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border max-w-sm mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center w-[80px]">Muestra</TableHead>
-                <TableHead className="text-center">Ancho (mm)</TableHead>
-                <TableHead className="text-center">Mediana Ancho (mm)</TableHead>
+                <TableHead className="text-center w-[100px]">Muestra</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
-                <TableHead className="text-center">Mediana Espesor (mm)</TableHead>
-                <TableHead className="text-center">Resistencia a la tracción (kPa)</TableHead>
-                <TableHead className="text-center">Elongación (%)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
