@@ -172,7 +172,7 @@ export function ResilienceForm() {
       horaInicio: format(new Date(), 'HH:mm'),
       temperatura: '',
       humedadRelativa: '',
-      metodo: 'ASTM D3574 - Test H',
+      metodo: 'INEN ISO 8307:2014',
       acondicionamiento: '16 h, temperatura: 23°C ± 2°C, humedad relativa: 50% ± 5%',
       correctionFactor: '',
       samples: Array(3).fill(null).map(() => ({ ...initialSampleValues })),
@@ -273,7 +273,7 @@ export function ResilienceForm() {
                 <FormItem>
                   <FormLabel>Método</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: ASTM D3574 - Test H" {...field} />
+                    <Input placeholder="Ej: INEN ISO 8307:2014" {...field} />
                   </FormControl>
                 </FormItem>
               )}
