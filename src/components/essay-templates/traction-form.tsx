@@ -24,11 +24,10 @@ import { Textarea } from '@/components/ui/textarea';
 
 // Define the type for multiple measurements
 type Measurements = {
-  m1: number | string;
-  m2: number | string;
-  m3: number | string;
-  m4: number | string;
-  m5: number | string;
+  m1: number | string; m2: number | string; m3: number | string;
+  m4: number | string; m5: number | string; m6: number | string;
+  m7: number | string; m8: number | string; m9: number | string;
+  m10: number | string; m11: number | string; m12: number | string;
 };
 
 // Define the type for a single specimen's data
@@ -53,8 +52,8 @@ export type TractionFormValues = {
 
 // Initial values for a new specimen
 const initialSpecimenValues: SpecimenData = {
-  ancho: { m1: '', m2: '', m3: '', m4: '', m5: '' },
-  espesor: { m1: '', m2: '', m3: '', m4: '', m5: '' },
+  ancho: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '', m10: '', m11: '', m12: '' },
+  espesor: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '', m10: '', m11: '', m12: '' },
   traccion: '',
   elongacion: '',
 };
@@ -99,7 +98,7 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
 
   const renderMeasurementInputs = (dimension: 'ancho' | 'espesor') => (
     <div className="flex flex-col gap-1">
-      {Array.from({ length: 5 }, (_, i) => `m${i + 1}`).map((fieldName) => (
+      {Array.from({ length: 12 }, (_, i) => `m${i + 1}`).map((fieldName) => (
         <FormField
           key={fieldName}
           control={control}
@@ -166,20 +165,20 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     return (
         <TableFooter>
             <TableRow>
-                <TableCell className="text-right font-bold text-destructive p-2 align-middle" colSpan={5}>Promedio</TableCell>
-                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                <TableCell className="text-right font-bold p-2 align-middle" colSpan={5}>Promedio</TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {averageTraccion > 0 ? averageTraccion.toFixed(2) : ''}
                 </TableCell>
-                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {averageElongacion > 0 ? averageElongacion.toFixed(2) : ''}
                 </TableCell>
             </TableRow>
             <TableRow>
-                <TableCell className="text-right font-bold text-destructive p-2 align-middle" colSpan={5}>Desviación</TableCell>
-                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                <TableCell className="text-right font-bold p-2 align-middle" colSpan={5}>Desviación</TableCell>
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {stdDevTraccion > 0 ? stdDevTraccion.toFixed(2) : ''}
                 </TableCell>
-                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                 <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}
                 </TableCell>
             </TableRow>
