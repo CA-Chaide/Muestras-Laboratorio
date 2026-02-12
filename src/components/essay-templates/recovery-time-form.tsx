@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, Control } from 'react-hook-form';
+import { useForm, useFieldArray, Control, useWatch } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -8,10 +8,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -26,6 +28,7 @@ type SampleData = {
   t30: number | string;
   t60: number | string;
   t180: number | string;
+  tiempoRecuperacion: number | string;
 };
 
 export type RecoveryTimeFormValues = {
@@ -45,7 +48,24 @@ const initialSampleValues: SampleData = {
   t30: '',
   t60: '',
   t180: '',
+  tiempoRecuperacion: '',
 };
+
+function calculateAverage(values: (number | string)[]) {
+  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+  if (validValues.length === 0) return 0;
+  const sum = validValues.reduce((a, b) => a + b, 0);
+  return sum / validValues.length;
+}
+
+function calculateStdDev(values: (number | string)[]) {
+  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+  const n = validValues.length;
+  if (n < 2) return 0;
+  const mean = calculateAverage(validValues);
+  const sumOfSquaredDiffs = validValues.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+  return Math.sqrt(sumOfSquaredDiffs / (n - 1));
+}
 
 const RecoveryTimeRow = ({ control, index }: { 
   control: Control<RecoveryTimeFormValues>, 
@@ -89,9 +109,67 @@ const RecoveryTimeRow = ({ control, index }: {
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
       </TableCell>
+      <TableCell className="p-2 align-middle">
+        <FormField
+          control={control}
+          name={`samples.${index}.tiempoRecuperacion`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+        />
+      </TableCell>
     </TableRow>
   );
 };
+
+const RecoveryTimeResults = ({ control }: { control: Control<RecoveryTimeFormValues> }) => {
+  const samples = useWatch({ control, name: 'samples' });
+
+  const { average, stdDev } = useMemo(() => {
+    if (!samples) return { average: 0, stdDev: 0 };
+    
+    const recoveryTimes = samples.map(s => s.tiempoRecuperacion).filter(t => Number(t) > 0);
+    
+    return {
+      average: calculateAverage(recoveryTimes),
+      stdDev: calculateStdDev(recoveryTimes),
+    };
+  }, [samples]);
+
+  return (
+    <div className="mt-8 overflow-x-auto rounded-lg border max-w-sm mx-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-center w-1/2">Muestra</TableHead>
+            <TableHead className="text-center w-1/2">Tiempo de recuperación (s)</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {samples.map((sample, index) => (
+            <TableRow key={index}>
+              <TableCell className="text-center">{index + 1}</TableCell>
+              <TableCell className="text-center">{sample.tiempoRecuperacion || ''}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell className="text-left font-bold">Promedio</TableCell>
+            <TableCell className="text-center font-bold">
+              {average > 0 ? average.toFixed(2) : ''}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-bold">Desv. Est.</TableCell>
+            <TableCell className="text-center font-bold">
+              {stdDev > 0 ? stdDev.toFixed(2) : ''}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
+  );
+};
+
 
 export function RecoveryTimeForm() {
   const form = useForm<RecoveryTimeFormValues>({
@@ -218,7 +296,7 @@ export function RecoveryTimeForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-4xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-5xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -228,6 +306,7 @@ export function RecoveryTimeForm() {
                 <TableHead className="text-center">T=30 (s)</TableHead>
                 <TableHead className="text-center">T=60 (s)</TableHead>
                 <TableHead className="text-center">T=180 (s)</TableHead>
+                <TableHead className="text-center">Tiempo de recuperación (s)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -237,6 +316,9 @@ export function RecoveryTimeForm() {
             </TableBody>
           </Table>
         </div>
+        
+        <RecoveryTimeResults control={form.control} />
+
         <FormField
           control={form.control}
           name="observacionesDesviaciones"
