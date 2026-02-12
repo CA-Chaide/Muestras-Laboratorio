@@ -127,7 +127,8 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
 
     const medianResiliences = samples.map(s => {
       const rebotes = [s.rebote1, s.rebote2, s.rebote3];
-      return calculateMedian(rebotes);
+      const medianResilience = calculateMedian(rebotes);
+      return Math.round(medianResilience);
     }).filter(r => r > 0);
 
     const initialMedian = calculateMedian(medianResiliences);
@@ -144,13 +145,7 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={4}>Mediana</TableCell>
-        <TableCell className="text-center font-bold bg-secondary">
-          {medianOfMedians > 0 ? Math.round(medianOfMedians) : ''}
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell className="text-right font-bold" colSpan={4}>Mediana Corregida</TableCell>
+        <TableCell className="text-right font-bold" colSpan={4}>Resiliencia</TableCell>
         <TableCell className="text-center font-bold bg-accent text-accent-foreground">
           {medianOfMedians > 0 ? Math.round(correctedMedian) : ''}
         </TableCell>
