@@ -47,22 +47,6 @@ const initialSampleValues: SampleData = {
   durezaFinal: '',
 };
 
-function calculateAverage(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
-  if (validValues.length === 0) return 0;
-  const sum = validValues.reduce((a, b) => a + b, 0);
-  return sum / validValues.length;
-}
-
-function calculateStdDev(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
-  const n = validValues.length;
-  if (n < 2) return 0;
-  const mean = calculateAverage(validValues);
-  const sumOfSquaredDiffs = validValues.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
-  return Math.sqrt(sumOfSquaredDiffs / (n - 1));
-}
-
 function calculateAverageWithNegatives(values: (number | string)[]) {
   const validValues = values.map(Number).filter((v) => !isNaN(v));
   if (validValues.length === 0) return 0;
@@ -147,30 +131,15 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
   const samples = useWatch({ control, name: 'samples' });
 
   const {
-    promedioEspesorInicial,
-    desviacionEspesorInicial,
-    promedioDurezaInicial,
-    desviacionDurezaInicial,
-    promedioEspesorFinal,
-    desviacionEspesorFinal,
-    promedioDurezaFinal,
-    desviacionDurezaFinal,
     promedioPerdidaEspesor,
     desviacionPerdidaEspesor,
     promedioPerdidaDureza,
     desviacionPerdidaDureza
   } = useMemo(() => {
     if (!samples) return { 
-        promedioEspesorInicial: 0, desviacionEspesorInicial: 0, promedioDurezaInicial: 0, desviacionDurezaInicial: 0,
-        promedioEspesorFinal: 0, desviacionEspesorFinal: 0, promedioDurezaFinal: 0, desviacionDurezaFinal: 0,
         promedioPerdidaEspesor: 0, desviacionPerdidaEspesor: 0, promedioPerdidaDureza: 0, desviacionPerdidaDureza: 0
     };
     
-    const espesoresIniciales = samples.map(s => s.espesorInicial);
-    const durezasIniciales = samples.map(s => s.durezaInicial);
-    const espesoresFinales = samples.map(s => s.espesorFinal);
-    const durezasFinales = samples.map(s => s.durezaFinal);
-
     const perdidasEspesor = samples.map(s => {
         const inicial = Number(s.espesorInicial);
         const final = Number(s.espesorFinal);
@@ -186,14 +155,6 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
     }).filter(v => !isNaN(v));
     
     return {
-      promedioEspesorInicial: calculateAverage(espesoresIniciales),
-      desviacionEspesorInicial: calculateStdDev(espesoresIniciales),
-      promedioDurezaInicial: calculateAverage(durezasIniciales),
-      desviacionDurezaInicial: calculateStdDev(durezasIniciales),
-      promedioEspesorFinal: calculateAverage(espesoresFinales),
-      desviacionEspesorFinal: calculateStdDev(espesoresFinales),
-      promedioDurezaFinal: calculateAverage(durezasFinales),
-      desviacionDurezaFinal: calculateStdDev(durezasFinales),
       promedioPerdidaEspesor: calculateAverageWithNegatives(perdidasEspesor),
       desviacionPerdidaEspesor: calculateStdDevWithNegatives(perdidasEspesor),
       promedioPerdidaDureza: calculateAverageWithNegatives(perdidasDureza),
@@ -204,19 +165,7 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold p-2 align-middle">Promedio</TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioEspesorInicial > 0 ? promedioEspesorInicial.toFixed(1) : ''}
-        </TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioDurezaInicial > 0 ? promedioDurezaInicial.toFixed(1) : ''}
-        </TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioEspesorFinal > 0 ? promedioEspesorFinal.toFixed(1) : ''}
-        </TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {promedioDurezaFinal > 0 ? promedioDurezaFinal.toFixed(1) : ''}
-        </TableCell>
+        <TableCell className="text-right font-bold p-2 align-middle" colSpan={5}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {promedioPerdidaEspesor ? promedioPerdidaEspesor.toFixed(1) : ''}
         </TableCell>
@@ -225,19 +174,7 @@ const FatigueFooter = ({ control }: { control: Control<FatigueFormValues> }) => 
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold p-2 align-middle">Desv. Est.</TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionEspesorInicial > 0 ? desviacionEspesorInicial.toFixed(2) : ''}
-        </TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionDurezaInicial > 0 ? desviacionDurezaInicial.toFixed(2) : ''}
-        </TableCell>
-         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionEspesorFinal > 0 ? desviacionEspesorFinal.toFixed(2) : ''}
-        </TableCell>
-        <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-          {desviacionDurezaFinal > 0 ? desviacionDurezaFinal.toFixed(2) : ''}
-        </TableCell>
+        <TableCell className="text-right font-bold p-2 align-middle" colSpan={5}>Desv. Est.</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {desviacionPerdidaEspesor ? desviacionPerdidaEspesor.toFixed(2) : ''}
         </TableCell>
