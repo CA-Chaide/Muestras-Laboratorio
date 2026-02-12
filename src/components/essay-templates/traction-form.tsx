@@ -22,10 +22,22 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-type SpecimenData = {
-  espesor: number | string;
+// Define the type for multiple measurements
+type Measurements = {
+  m1: number | string;
+  m2: number | string;
+  m3: number | string;
+  m4: number | string;
+  m5: number | string;
 };
 
+// Define the type for a single specimen's data
+type SpecimenData = {
+  ancho: Measurements;
+  espesor: Measurements;
+};
+
+// Define the full form's value structure
 export type TractionFormValues = {
   fechaInicio: Date;
   horaInicio: string;
@@ -37,9 +49,20 @@ export type TractionFormValues = {
   observacionesDesviaciones: string;
 };
 
+// Initial values for a new specimen
 const initialSpecimenValues: SpecimenData = {
-  espesor: '',
+  ancho: { m1: '', m2: '', m3: '', m4: '', m5: '' },
+  espesor: { m1: '', m2: '', m3: '', m4: '', m5: '' },
 };
+
+// --- Calculation Helpers ---
+function calculateMedian(values: (number | string)[]) {
+  const sortedValues = values.map(Number).filter(v => !isNaN(v) && v > 0).sort((a, b) => a - b);
+  if (sortedValues.length === 0) return 0;
+  
+  const mid = Math.floor(sortedValues.length / 2);
+  return sortedValues.length % 2 !== 0 ? sortedValues[mid] : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+}
 
 function calculateAverage(values: number[]) {
   if (values.length === 0) return 0;
@@ -54,17 +77,45 @@ function calculateStdDev(values: number[]) {
   const sumOfSquaredDiffs = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
+// --- End Calculation Helpers ---
 
 const TractionRow = ({ control, index }: { control: Control<TractionFormValues>, index: number }) => {
+  const specimen = useWatch({ control, name: `specimens.${index}` });
+
+  const medianAncho = useMemo(() => {
+    if (!specimen) return 0;
+    return calculateMedian(Object.values(specimen.ancho));
+  }, [specimen.ancho]);
+
+  const medianEspesor = useMemo(() => {
+    if (!specimen) return 0;
+    const calculatedMedian = calculateMedian(Object.values(specimen.espesor));
+    return Math.round(calculatedMedian / 0.2) * 0.2; // Rounding logic
+  }, [specimen.espesor]);
+
+  const renderMeasurementInputs = (dimension: 'ancho' | 'espesor') => (
+    <div className="flex flex-col gap-1">
+      {Array.from({ length: 5 }, (_, i) => `m${i + 1}`).map((fieldName) => (
+        <FormField
+          key={fieldName}
+          control={control}
+          name={`specimens.${index}.${dimension}.${fieldName as keyof Measurements}`}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
-      <TableCell className="p-2 align-middle min-w-[150px]">
-        <FormField
-            control={control}
-            name={`specimens.${index}.espesor`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
+      <TableCell className="p-2 align-middle min-w-[120px]">{renderMeasurementInputs('ancho')}</TableCell>
+      <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+        {medianAncho > 0 ? medianAncho.toFixed(2) : ''}
+      </TableCell>
+      <TableCell className="p-2 align-middle min-w-[120px]">{renderMeasurementInputs('espesor')}</TableCell>
+      <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+        {medianEspesor > 0 ? medianEspesor.toFixed(2) : ''}
       </TableCell>
     </TableRow>
   );
@@ -74,28 +125,50 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
-        avgEspesor,
-        stdDevEspesor,
+        averageMedianAncho,
+        stdDevMedianAncho,
+        averageMedianEspesor,
+        stdDevMedianEspesor,
     } = useMemo(() => {
-        if (!specimens) return { avgEspesor: 0, stdDevEspesor: 0 };
+        if (!specimens) return { averageMedianAncho: 0, stdDevMedianAncho: 0, averageMedianEspesor: 0, stdDevMedianEspesor: 0 };
         
-        const espesores = specimens.map(s => Number(s.espesor)).filter(m => m > 0);
-
+        const medianasAncho = specimens.map(s => calculateMedian(Object.values(s.ancho))).filter(m => m > 0);
+        const medianasEspesor = specimens.map(s => {
+            const median = calculateMedian(Object.values(s.espesor));
+            return Math.round(median / 0.2) * 0.2;
+        }).filter(m => m > 0);
+        
         return {
-            avgEspesor: calculateAverage(espesores),
-            stdDevEspesor: calculateStdDev(espesores),
+            averageMedianAncho: calculateAverage(medianasAncho),
+            stdDevMedianAncho: calculateStdDev(medianasAncho),
+            averageMedianEspesor: calculateAverage(medianasEspesor),
+            stdDevMedianEspesor: calculateStdDev(medianasEspesor),
         };
     }, [specimens]);
 
     return (
         <TableFooter>
             <TableRow>
-                <TableCell className="text-right font-bold p-2 align-middle">Promedio</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{avgEspesor > 0 ? avgEspesor.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-right font-bold text-destructive p-2 align-middle">Promedio</TableCell>
+                <TableCell></TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {averageMedianAncho > 0 ? averageMedianAncho.toFixed(2) : ''}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {averageMedianEspesor > 0 ? averageMedianEspesor.toFixed(2) : ''}
+                </TableCell>
             </TableRow>
             <TableRow>
-                <TableCell className="text-right font-bold p-2 align-middle">Desviación</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">{stdDevEspesor > 0 ? stdDevEspesor.toFixed(2) : ''}</TableCell>
+                <TableCell className="text-right font-bold text-destructive p-2 align-middle">Desviación</TableCell>
+                <TableCell></TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {stdDevMedianAncho > 0 ? stdDevMedianAncho.toFixed(2) : ''}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle text-destructive">
+                    {stdDevMedianEspesor > 0 ? stdDevMedianEspesor.toFixed(2) : ''}
+                </TableCell>
             </TableRow>
         </TableFooter>
     )
@@ -226,12 +299,15 @@ export function TractionForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-sm mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-4xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
+                <TableHead className="text-center">Ancho (mm)</TableHead>
+                <TableHead className="text-center">Mediana Ancho (mm)</TableHead>
                 <TableHead className="text-center">Espesor (mm)</TableHead>
+                <TableHead className="text-center">Mediana Espesor (mm)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
