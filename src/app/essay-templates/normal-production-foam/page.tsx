@@ -85,7 +85,7 @@ export default function NormalProductionFoamPage() {
                     <CardContent className="space-y-2">
                        {toValue(test) === 'dureza' ? (
                           <HardnessForm form={hardnessForm} />
-                        ) : toValue(test) === 'traccion' ? (
+                        ) : toValue(test) === 'tracción' ? (
                           <TractionForm />
                         ) : toValue(test) === 'desgarro' ? (
                           <TearForm />
