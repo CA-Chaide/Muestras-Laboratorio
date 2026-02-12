@@ -251,6 +251,18 @@ export function PermeabilityForm() {
                 </FormItem>
               )}
             />
+            <FormItem className="md:col-span-2 lg:col-span-3">
+                <FormLabel>Dimensiones de la probeta</FormLabel>
+                <p className="text-sm text-muted-foreground pt-2">(50 ± 0,05) mm × (50 ± 0,05) mm × (25 ± 0,05) mm</p>
+            </FormItem>
+            <FormItem className="md:col-span-2 lg:col-span-3">
+                <FormLabel>Características de la muestra</FormLabel>
+                <p className="text-sm text-muted-foreground pt-2">Sin piel, ausencia de anisotropía en la muestra.</p>
+            </FormItem>
+            <FormItem className="md:col-span-2 lg:col-span-3">
+                <FormLabel>Tipo de aparato y dirección de presión</FormLabel>
+                <p className="text-sm text-muted-foreground pt-2">Aparato de flujo de aire utilizando presión de aire por encima de la atmosférica.</p>
+            </FormItem>
         </div>
         <div className="overflow-x-auto rounded-lg border max-w-xl mx-auto">
           <Table>
