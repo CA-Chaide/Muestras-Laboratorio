@@ -178,19 +178,61 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
+        averageMedianAncho,
+        averageMedianEspesor,
         averageTraccion,
         stdDevTraccion,
         averageElongacion,
         stdDevElongacion
     } = useMemo(() => {
         if (!specimens) return { 
-            averageTraccion: 0, stdDevTraccion: 0, averageElongacion: 0, stdDevElongacion: 0
+            averageMedianAncho: 0,
+            averageMedianEspesor: 0,
+            averageTraccion: 0, 
+            stdDevTraccion: 0, 
+            averageElongacion: 0, 
+            stdDevElongacion: 0
         };
         
-        const tracciones = specimens.map(s => Number(s.traccion)).filter(r => r > 0);
-        const elongaciones = specimens.map(s => Number(s.elongacion)).filter(r => r > 0);
-        
+        const finalMediansAncho: number[] = [];
+        const finalMediansEspesor: number[] = [];
+        const tracciones: number[] = [];
+        const elongaciones: number[] = [];
+
+        specimens.forEach(specimen => {
+            const anchoValues = Object.values(specimen.ancho);
+            const intermediateMediansAncho: number[] = [];
+            for (let i = 0; i < 12; i += 3) {
+                const group = anchoValues.slice(i, i + 3);
+                intermediateMediansAncho.push(calculateMedian(group));
+            }
+            const finalMedianAncho = calculateMedian(intermediateMediansAncho);
+            if (finalMedianAncho > 0) {
+                finalMediansAncho.push(finalMedianAncho);
+            }
+
+            const espesorValues = Object.values(specimen.espesor);
+            const intermediateMediansEspesor: number[] = [];
+            for (let i = 0; i < 12; i += 3) {
+                const group = espesorValues.slice(i, i + 3);
+                intermediateMediansEspesor.push(calculateMedian(group));
+            }
+            const finalMedianEspesor = calculateMedian(intermediateMediansEspesor);
+            const roundedFinalMedianEspesor = Math.round(finalMedianEspesor / 0.2) * 0.2;
+            if (roundedFinalMedianEspesor > 0) {
+                finalMediansEspesor.push(roundedFinalMedianEspesor);
+            }
+            
+            const numTraccion = Number(specimen.traccion);
+            if(numTraccion > 0) tracciones.push(numTraccion);
+
+            const numElongacion = Number(specimen.elongacion);
+            if(numElongacion > 0) elongaciones.push(numElongacion);
+        });
+
         return {
+            averageMedianAncho: calculateAverage(finalMediansAncho),
+            averageMedianEspesor: calculateAverage(finalMediansEspesor),
             averageTraccion: calculateAverage(tracciones),
             stdDevTraccion: calculateStdDev(tracciones),
             averageElongacion: calculateAverage(elongaciones),
@@ -217,6 +259,17 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                  <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}
                 </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell className="text-right font-bold p-2 align-middle" colSpan={3}>Promedio Ancho (mm)</TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+                    {averageMedianAncho > 0 ? averageMedianAncho.toFixed(2) : ''}
+                </TableCell>
+                <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Promedio Espesor (mm)</TableCell>
+                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
+                    {averageMedianEspesor > 0 ? averageMedianEspesor.toFixed(2) : ''}
+                </TableCell>
+                <TableCell colSpan={2} />
             </TableRow>
         </TableFooter>
     )
