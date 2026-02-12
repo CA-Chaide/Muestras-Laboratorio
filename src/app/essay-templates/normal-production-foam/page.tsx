@@ -91,7 +91,7 @@ export default function NormalProductionFoamPage() {
                           <PermeabilityForm />
                         ) : toValue(test) === 'fatiga' ? (
                           <FatigueForm initialHardnessValues={hardnessSamples?.slice(0,3)} />
-                        ) : toValue(test) === 'tiempo-de-recuperacion' ? (
+                        ) : toValue(test) === 'tiempo-de-recuperación' ? (
                           <RecoveryTimeForm />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
