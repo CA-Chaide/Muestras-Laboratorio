@@ -23,7 +23,6 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
-  espesor: number | string;
   flujoMms: number | string; // Flujo volumétrico (mm³/s)
 };
 
@@ -39,7 +38,6 @@ export type PermeabilityFormValues = {
 };
 
 const initialSampleValues: SampleData = {
-  espesor: '',
   flujoMms: '',
 };
 
@@ -83,13 +81,6 @@ const PermeabilityRow = ({ control, index }: {
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
-          name={`samples.${index}.espesor`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
-      </TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
           name={`samples.${index}.flujoMms`}
           render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
         />
@@ -121,13 +112,13 @@ const PermeabilityFooter = ({ control }: { control: Control<PermeabilityFormValu
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold p-2 align-middle" colSpan={3}>Promedio</TableCell>
+        <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {promedioFlujoDms > 0 ? promedioFlujoDms.toExponential(2) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold p-2 align-middle" colSpan={3}>Desv. Est.</TableCell>
+        <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Desv. Est.</TableCell>
         <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
           {desviacionFlujoDms > 0 ? desviacionFlujoDms.toExponential(2) : ''}
         </TableCell>
@@ -261,12 +252,11 @@ export function PermeabilityForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-2xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
-                <TableHead className="text-center">Espesor (mm)</TableHead>
                 <TableHead className="text-center">Velocidad de Flujo (mm/s)</TableHead>
                 <TableHead className="text-center">Flujo volumétrico (dm³/s)</TableHead>
               </TableRow>
