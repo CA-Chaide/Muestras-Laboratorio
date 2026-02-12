@@ -23,7 +23,6 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 type SampleData = {
-  alturaCaida: number | string;
   rebote1: number | string;
   rebote2: number | string;
   rebote3: number | string;
@@ -41,7 +40,6 @@ export type ResilienceFormValues = {
 };
 
 const initialSampleValues: SampleData = {
-  alturaCaida: 460, // Standard drop height in mm
   rebote1: '',
   rebote2: '',
   rebote3: '',
@@ -63,13 +61,6 @@ function calculateStdDev(values: number[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
-function calculateResilience(alturaCaida: number | string, alturaRebote: number | string): number {
-    const numCaida = Number(alturaCaida);
-    const numRebote = Number(alturaRebote);
-    if (!numCaida || numCaida <= 0 || !numRebote || numRebote < 0) return 0;
-    return (numRebote / numCaida) * 100;
-}
-
 const ResilienceRow = ({ control, index }: {
   control: Control<ResilienceFormValues>,
   index: number
@@ -80,16 +71,15 @@ const ResilienceRow = ({ control, index }: {
   });
 
   const resiliencia = useMemo(() => {
-    const rebotes = [values.rebote1, values.rebote2, values.rebote3];
-    const resilienciasValidas = rebotes
-      .map(rebote => calculateResilience(values.alturaCaida, rebote))
-      .filter(r => r > 0);
+    const rebotes = [values.rebote1, values.rebote2, values.rebote3]
+        .map(Number)
+        .filter(r => !isNaN(r) && r > 0);
     
-    if (resilienciasValidas.length === 0) return 0;
+    if (rebotes.length === 0) return 0;
     
-    const avgResiliencia = resilienciasValidas.reduce((a, b) => a + b, 0) / resilienciasValidas.length;
+    const avgResiliencia = rebotes.reduce((a, b) => a + b, 0) / rebotes.length;
     return Math.round(avgResiliencia);
-  }, [values]);
+  }, [values.rebote1, values.rebote2, values.rebote3]);
 
   return (
     <TableRow>
@@ -128,21 +118,19 @@ const ResilienceFooter = ({ control }: { control: Control<ResilienceFormValues> 
   const { average, stdDev } = useMemo(() => {
     if (!samples) return { average: 0, stdDev: 0 };
 
-    const resiliences = samples.map(s => {
-      const rebotes = [s.rebote1, s.rebote2, s.rebote3];
-      const resilienciasValidas = rebotes
-        .map(rebote => calculateResilience(s.alturaCaida, rebote))
-        .filter(r => r > 0);
+    const averageResiliences = samples.map(s => {
+      const rebotes = [s.rebote1, s.rebote2, s.rebote3]
+        .map(Number)
+        .filter(r => !isNaN(r) && r > 0);
       
-      if (resilienciasValidas.length === 0) return 0;
+      if (rebotes.length === 0) return 0;
       
-      const avgResiliencia = resilienciasValidas.reduce((a, b) => a + b, 0) / resilienciasValidas.length;
-      return avgResiliencia;
+      return rebotes.reduce((a, b) => a + b, 0) / rebotes.length;
     }).filter(r => r > 0);
 
     return {
-      average: calculateAverage(resiliences),
-      stdDev: calculateStdDev(resiliences),
+      average: calculateAverage(averageResiliences),
+      stdDev: calculateStdDev(averageResiliences),
     };
   }, [samples]);
 
@@ -294,9 +282,9 @@ export function ResilienceForm() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center w-[100px]">Muestra</TableHead>
-                <TableHead className="text-center">Medición 1 (mm)</TableHead>
-                <TableHead className="text-center">Medición 2 (mm)</TableHead>
-                <TableHead className="text-center">Medición 3 (mm)</TableHead>
+                <TableHead className="text-center">Medición 1 (%)</TableHead>
+                <TableHead className="text-center">Medición 2 (%)</TableHead>
+                <TableHead className="text-center">Medición 3 (%)</TableHead>
                 <TableHead className="text-center">Resiliencia (%)</TableHead>
               </TableRow>
             </TableHeader>
