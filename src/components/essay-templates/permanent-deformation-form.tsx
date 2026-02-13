@@ -107,11 +107,12 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
   const intermediateMediansInicial = useMemo(() => {
     if (!values?.espesorInicial) return [0, 0, 0];
       const allValues = Object.values(values.espesorInicial);
-      return [
+      const medians = [
           calculateMedian(allValues.slice(0, 3)),
           calculateMedian(allValues.slice(3, 6)),
           calculateMedian(allValues.slice(6, 9))
       ];
+      return medians.map(m => Math.round(m / 0.2) * 0.2);
   }, [values.espesorInicial]);
 
   const promedioEspesorInicial = useMemo(() => {
@@ -121,11 +122,12 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
   const intermediateMediansFinal = useMemo(() => {
     if (!values?.espesorFinal) return [0, 0, 0];
     const allValues = Object.values(values.espesorFinal);
-    return [
+    const medians = [
         calculateMedian(allValues.slice(0, 3)),
         calculateMedian(allValues.slice(3, 6)),
         calculateMedian(allValues.slice(6, 9))
     ];
+    return medians.map(m => Math.round(m / 0.2) * 0.2);
   }, [values.espesorFinal]);
 
   const promedioEspesorFinal = useMemo(() => {
@@ -180,7 +182,7 @@ const PermanentDeformationFooter = ({ control }: { control: Control<PermanentDef
             calculateMedian(initialValues.slice(0, 3)),
             calculateMedian(initialValues.slice(3, 6)),
             calculateMedian(initialValues.slice(6, 9))
-        ];
+        ].map(m => Math.round(m / 0.2) * 0.2);
         const promedioInicial = calculateAverage(initialMedians);
 
         const finalValues = Object.values(s.espesorFinal);
@@ -188,7 +190,7 @@ const PermanentDeformationFooter = ({ control }: { control: Control<PermanentDef
             calculateMedian(finalValues.slice(0, 3)),
             calculateMedian(finalValues.slice(3, 6)),
             calculateMedian(finalValues.slice(6, 9))
-        ];
+        ].map(m => Math.round(m / 0.2) * 0.2);
         const promedioFinal = calculateAverage(finalMedians);
 
         return calculateDeformation(promedioInicial, promedioFinal);
