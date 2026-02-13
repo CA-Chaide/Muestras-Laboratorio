@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -85,11 +85,45 @@ function calculateDeformation(initial: number | string, final: number | string) 
     return ((numInitial - numFinal) / numInitial) * 100;
 }
 
-const PermanentDeformationRow = ({ control, index }: { control: Control<PermanentDeformationFormValues>, index: number }) => {
+const PermanentDeformationRow = ({ 
+  control, 
+  index,
+  setFocus,
+  totalSamples
+}: { 
+  control: Control<PermanentDeformationFormValues>, 
+  index: number,
+  setFocus: UseFormReturn<PermanentDeformationFormValues>['setFocus'],
+  totalSamples: number
+}) => {
   const values = useWatch({
     control,
     name: `samples.${index}`,
   });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    
+    const { name } = e.currentTarget;
+    const nameParts = name.split('.');
+    const currentSampleIndex = parseInt(nameParts[1], 10);
+    const dimension = nameParts[2] as 'espesorInicial' | 'espesorFinal';
+    const measurement = nameParts[3];
+    const measurementNumber = parseInt(measurement.substring(1));
+
+    if (measurementNumber < 9) {
+        setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
+    } else {
+        if (dimension === 'espesorInicial') {
+            setFocus(`samples.${currentSampleIndex}.espesorFinal.m1`);
+        } else {
+            if (currentSampleIndex < totalSamples - 1) {
+                setFocus(`samples.${currentSampleIndex + 1}.espesorInicial.m1`);
+            }
+        }
+    }
+  };
 
   const renderMeasurementInputs = (dimension: 'espesorInicial' | 'espesorFinal') => (
     <div className="flex flex-col gap-1">
@@ -98,7 +132,7 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
                 key={fieldName}
                 control={control}
                 name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
-                render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+                render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
             />
         ))}
     </div>
@@ -426,7 +460,13 @@ export function PermanentDeformationForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <PermanentDeformationRow key={field.id} control={form.control} index={index} />
+                <PermanentDeformationRow 
+                  key={field.id} 
+                  control={form.control} 
+                  index={index}
+                  setFocus={form.setFocus}
+                  totalSamples={fields.length} 
+                />
               ))}
             </TableBody>
             <PermanentDeformationFooter control={form.control} />
