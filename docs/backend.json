@@ -116,7 +116,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Test",
       "type": "object",
-      "description": "Represents a test assigned to a sample.",
+      "description": "Represents a test assigned to a sample and a technician.",
       "properties": {
         "id": {
           "type": "string",
@@ -124,11 +124,31 @@
         },
         "sampleId": {
           "type": "string",
-          "description": "Reference to Sample. (Relationship: Sample 1:N Test)"
+          "description": "ID of the sample being tested."
         },
-        "testName": {
+        "sampleIdentificacion": {
           "type": "string",
-          "description": "Name of the test being performed."
+          "description": "Identifier of the sample, for display purposes."
+        },
+        "assignedToId": {
+          "type": "string",
+          "description": "The ID of the user (technician) to whom the test is assigned."
+        },
+        "assignedToName": {
+          "type": "string",
+          "description": "The name of the user (technician) to whom the test is assigned."
+        },
+        "assignedById": {
+          "type": "string",
+          "description": "The ID of the user who assigned the test."
+        },
+        "templateId": {
+          "type": "string",
+          "description": "Identifier for the essay template to be used (e.g., 'normal-production-foam')."
+        },
+        "templateName": {
+          "type": "string",
+          "description": "Display name for the essay template."
         },
         "assignedDate": {
           "type": "string",
@@ -137,16 +157,22 @@
         },
         "status": {
           "type": "string",
-          "description": "Current status of the test (e.g., 'Pending', 'In Progress', 'Completed')."
-        },
-        "reportId": {
-          "type": "string",
-          "description": "Reference to Report. (Relationship: Report 1:1 Test).  ID of the report associated with this test, null if no report has been generated yet."
+          "description": "Current status of the test.",
+          "enum": [
+            "Pendiente",
+            "En Progreso",
+            "Completado"
+          ]
         }
       },
       "required": [
         "sampleId",
-        "testName",
+        "sampleIdentificacion",
+        "assignedToId",
+        "assignedToName",
+        "assignedById",
+        "templateId",
+        "templateName",
         "assignedDate",
         "status"
       ]
@@ -281,8 +307,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "/tests/{testId}",
+        "definition": {
+          "entityName": "Test",
+          "schema": {
+            "$ref": "#/backend/entities/Test"
+          },
+          "description": "Stores all assigned tests. Read access for assigned technicians and all admins. Write access for admins.",
+          "params": [
+            {
+              "name": "testId",
+              "description": "The unique ID of the test."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to be user-centric. Each user has their own collections of documents and samples, ensuring strong data isolation. Authorization is handled through path-based ownership, where security rules check if the requesting user's UID matches the {userId} in the document path. This model is simple, secure, and avoids complex queries or lookups in security rules."
+    "reasoning": "The Firestore data structure is designed to be user-centric. Each user has their own collections of documents and samples, ensuring strong data isolation. Authorization is handled through path-based ownership. A top-level `/tests` collection is added to manage test assignments across different users and roles, allowing for centralized tracking and role-based access."
   }
 }

@@ -90,5 +90,20 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
+
+    /**
+     * @description Controls access to assigned tests.
+     * @path /tests/{testId}
+     * @principle For prototyping, allows any authenticated user to manage tests.
+     * This can be refined later with role-based access control.
+     */
+    match /tests/{testId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Allow collection group queries on 'samples' for signed-in users
+    match /{path=**}/samples/{sampleId} {
+       allow get, list: if isSignedIn();
+    }
   }
 }

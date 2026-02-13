@@ -1,12 +1,14 @@
 export type Test = {
   id: string;
-  name: string;
   sampleId: string;
-  status: 'Pendiente' | 'En Progreso' | 'Completado' | 'Requiere Revisión';
-  assignedTo: string;
-  dueDate: string;
-  result: string;
-  expectedValue: string;
+  sampleIdentificacion: string;
+  assignedToId: string;
+  assignedToName: string;
+  assignedById: string;
+  templateId: string;
+  templateName: string;
+  assignedDate: string; // ISO String
+  status: 'Pendiente' | 'En Progreso' | 'Completado';
 };
 
 export type Sample = {
