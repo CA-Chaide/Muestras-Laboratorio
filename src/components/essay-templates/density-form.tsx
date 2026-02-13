@@ -84,38 +84,58 @@ const DensityRow = ({ control, index, setFocus, totalSamples }: {
     });
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-
       const { name } = e.currentTarget;
-      const nameParts = name.split('.'); 
+      const nameParts = name.split('.');
       const currentSampleIndex = parseInt(nameParts[1], 10);
       const dimension = nameParts[2] as 'peso' | 'largo' | 'ancho' | 'espesor';
-      const measurement = nameParts[3]; // 'm1', 'm2', etc.
-
-      const dimensionsWithMeasurements: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
-
-      if (dimension === 'peso') {
-          setFocus(`samples.${currentSampleIndex}.largo.m1`);
-          return;
+      
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
       }
 
+      if (dimension === 'peso') {
+        if (e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            setFocus(`samples.${currentSampleIndex}.largo.m1`);
+        }
+        return;
+      }
+      
+      const dimensionsWithMeasurements: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
       if (dimensionsWithMeasurements.includes(dimension)) {
+          const measurement = nameParts[3];
           const measurementNumber = parseInt(measurement.substring(1));
-          const currentDimensionIndex = dimensionsWithMeasurements.indexOf(dimension);
           
-          if (measurementNumber < 9) {
-              setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
-          } else { // Last measurement of a grid
-              if (currentDimensionIndex < dimensionsWithMeasurements.length - 1) {
-                  // Move to the next dimension's first measurement
-                  const nextDimension = dimensionsWithMeasurements[currentDimensionIndex + 1];
-                  setFocus(`samples.${currentSampleIndex}.${nextDimension}.m1`);
+          if (e.key === 'Enter') {
+              e.preventDefault();
+              if (measurementNumber < 9) {
+                  setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
               } else {
-                  // Last dimension, move to next sample
-                  if (currentSampleIndex < totalSamples - 1) {
-                      setFocus(`samples.${currentSampleIndex + 1}.peso`);
+                  const currentDimensionIndex = dimensionsWithMeasurements.indexOf(dimension);
+                  if (currentDimensionIndex < dimensionsWithMeasurements.length - 1) {
+                      const nextDimension = dimensionsWithMeasurements[currentDimensionIndex + 1];
+                      setFocus(`samples.${currentSampleIndex}.${nextDimension}.m1`);
+                  } else {
+                      if (currentSampleIndex < totalSamples - 1) {
+                          setFocus(`samples.${currentSampleIndex + 1}.peso`);
+                      }
                   }
+              }
+          } else if (e.key === 'ArrowDown') {
+              if (measurementNumber <= 6) { // Not in the last row
+                  setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 3}`);
+              }
+          } else if (e.key === 'ArrowUp') {
+              if (measurementNumber >= 4) { // Not in the first row
+                  setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber - 3}`);
+              }
+          } else if (e.key === 'ArrowRight') {
+              if (measurementNumber % 3 !== 0) { // Not in the last column
+                  setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
+              }
+          } else if (e.key === 'ArrowLeft') {
+              if (measurementNumber % 3 !== 1) { // Not in the first column
+                  setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber - 1}`);
               }
           }
       }

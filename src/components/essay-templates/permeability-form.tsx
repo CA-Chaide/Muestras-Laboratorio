@@ -76,13 +76,22 @@ const PermeabilityRow = ({ control, index, setFocus, totalSamples }: {
   });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
+      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+      }
       const { name } = e.currentTarget;
       const currentSampleIndex = parseInt(name.split('.')[1], 10);
 
-      if (currentSampleIndex < totalSamples - 1) {
-          setFocus(`samples.${currentSampleIndex + 1}.flujoMms`);
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentSampleIndex < totalSamples - 1) {
+              setFocus(`samples.${currentSampleIndex + 1}.flujoMms`);
+          }
+      } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentSampleIndex > 0) {
+              setFocus(`samples.${currentSampleIndex - 1}.flujoMms`);
+          }
       }
   };
 

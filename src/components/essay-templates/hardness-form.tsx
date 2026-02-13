@@ -70,19 +70,34 @@ const HardnessRow = ({ control, index, setFocus, totalSamples }: {
   totalSamples: number
 }) => {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-
       const { name } = e.currentTarget;
       const nameParts = name.split('.'); // ['samples', '0', 'espesor']
       const currentSampleIndex = parseInt(nameParts[1], 10);
       const fieldName = nameParts[2] as 'espesor' | 'dureza';
 
-      if (fieldName === 'espesor') {
-          setFocus(`samples.${currentSampleIndex}.dureza`);
-      } else { // it's 'dureza'
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          if (fieldName === 'espesor') {
+              setFocus(`samples.${currentSampleIndex}.dureza`);
+          } else { // it's 'dureza'
+              if (currentSampleIndex < totalSamples - 1) {
+                  setFocus(`samples.${currentSampleIndex + 1}.espesor`);
+              }
+          }
+      } else if (e.key === 'ArrowLeft') {
+          if (fieldName === 'dureza') {
+              setFocus(`samples.${currentSampleIndex}.espesor`);
+          }
+      } else if (e.key === 'ArrowDown') {
           if (currentSampleIndex < totalSamples - 1) {
-              setFocus(`samples.${currentSampleIndex + 1}.espesor`);
+              setFocus(`samples.${currentSampleIndex + 1}.${fieldName}`);
+          }
+      } else if (e.key === 'ArrowUp') {
+          if (currentSampleIndex > 0) {
+              setFocus(`samples.${currentSampleIndex - 1}.${fieldName}`);
           }
       }
   };

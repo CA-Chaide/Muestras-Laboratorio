@@ -75,9 +75,6 @@ const FatigueRow = ({ control, index, setFocus, totalSamples }: {
   });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-
     const { name } = e.currentTarget;
     const nameParts = name.split('.');
     const currentSampleIndex = parseInt(nameParts[1], 10);
@@ -85,12 +82,30 @@ const FatigueRow = ({ control, index, setFocus, totalSamples }: {
     
     const order: ('espesorInicial' | 'durezaInicial' | 'espesorFinal' | 'durezaFinal')[] = ['espesorInicial', 'durezaInicial', 'espesorFinal', 'durezaFinal'];
     const currentIndex = order.indexOf(fieldName);
+    
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+    }
 
-    if (currentIndex < order.length - 1) {
-        setFocus(`samples.${currentSampleIndex}.${order[currentIndex + 1]}`);
-    } else { // last field for the sample
+    if (e.key === 'Enter' || e.key === 'ArrowRight') {
+        if (currentIndex < order.length - 1) {
+            setFocus(`samples.${currentSampleIndex}.${order[currentIndex + 1]}`);
+        } else { // last field for the sample
+            if (currentSampleIndex < totalSamples - 1) {
+                setFocus(`samples.${currentSampleIndex + 1}.${order[0]}`);
+            }
+        }
+    } else if (e.key === 'ArrowLeft') {
+        if (currentIndex > 0) {
+            setFocus(`samples.${currentSampleIndex}.${order[currentIndex - 1]}`);
+        }
+    } else if (e.key === 'ArrowDown') {
         if (currentSampleIndex < totalSamples - 1) {
-            setFocus(`samples.${currentSampleIndex + 1}.${order[0]}`);
+            setFocus(`samples.${currentSampleIndex + 1}.${fieldName}`);
+        }
+    } else if (e.key === 'ArrowUp') {
+        if (currentSampleIndex > 0) {
+            setFocus(`samples.${currentSampleIndex - 1}.${fieldName}`);
         }
     }
   };

@@ -82,25 +82,44 @@ const TearRow = ({ control, index, setFocus, totalSamples }: {
   const specimen = useWatch({ control, name: `specimens.${index}` });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-
       const { name } = e.currentTarget;
       const nameParts = name.split('.');
       const currentSampleIndex = parseInt(nameParts[1], 10);
       const dimension = nameParts[2] as 'thickness' | 'tearResistance';
-      const measurement = nameParts[3]; // 't1', 't2' etc.
+      
+      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+      }
 
-      if (dimension === 'thickness') {
-          const measurementNumber = parseInt(measurement.substring(1));
-          if (measurementNumber < 5) {
-              setFocus(`specimens.${currentSampleIndex}.thickness.t${measurementNumber + 1}`);
-          } else {
-              setFocus(`specimens.${currentSampleIndex}.tearResistance`);
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (dimension === 'thickness') {
+              const measurement = nameParts[3]; // 't1', 't2' etc.
+              const measurementNumber = parseInt(measurement.substring(1));
+              if (measurementNumber < 5) {
+                  setFocus(`specimens.${currentSampleIndex}.thickness.t${measurementNumber + 1}`);
+              } else {
+                  setFocus(`specimens.${currentSampleIndex}.tearResistance`);
+              }
+          } else { // tearResistance
+              if (currentSampleIndex < totalSamples - 1) {
+                  setFocus(`specimens.${currentSampleIndex + 1}.thickness.t1`);
+              }
           }
-      } else { // tearResistance
-          if (currentSampleIndex < totalSamples - 1) {
-              setFocus(`specimens.${currentSampleIndex + 1}.thickness.t1`);
+      } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (dimension === 'thickness') {
+              const measurement = nameParts[3]; // 't1', 't2' etc.
+              const measurementNumber = parseInt(measurement.substring(1));
+              if (measurementNumber > 1) {
+                  setFocus(`specimens.${currentSampleIndex}.thickness.t${measurementNumber - 1}`);
+              } else { // t1
+                  if (currentSampleIndex > 0) {
+                      setFocus(`specimens.${currentSampleIndex - 1}.tearResistance`);
+                  }
+              }
+          } else { // tearResistance
+              setFocus(`specimens.${currentSampleIndex}.thickness.t5`);
           }
       }
   };

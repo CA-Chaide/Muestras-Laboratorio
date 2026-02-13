@@ -92,9 +92,6 @@ const TractionRow = ({ control, index, setFocus, totalSamples }: {
   const specimen = useWatch({ control, name: `specimens.${index}` });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-
       const { name } = e.currentTarget;
       const nameParts = name.split('.');
       const currentSampleIndex = parseInt(nameParts[1], 10);
@@ -103,27 +100,51 @@ const TractionRow = ({ control, index, setFocus, totalSamples }: {
 
       const dimensionsWithMeasurements: ('ancho' | 'espesor')[] = ['ancho', 'espesor'];
 
-      if (dimensionsWithMeasurements.includes(dimension)) {
-          const measurementNumber = parseInt(measurement.substring(1));
-          const currentDimensionIndex = dimensionsWithMeasurements.indexOf(dimension);
-          
-          if (measurementNumber < 12) {
-              setFocus(`specimens.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
-          } else { // Last measurement of a grid
-              if (currentDimensionIndex < dimensionsWithMeasurements.length - 1) {
-                  // Move to the next dimension's first measurement
-                  const nextDimension = dimensionsWithMeasurements[currentDimensionIndex + 1];
-                  setFocus(`specimens.${currentSampleIndex}.${nextDimension}.m1`);
+      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+          e.preventDefault();
+
+          if (dimensionsWithMeasurements.includes(dimension)) {
+              const measurementNumber = parseInt(measurement.substring(1));
+              if (measurementNumber < 12) {
+                  setFocus(`specimens.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
               } else {
-                  // Last dimension, move to traccion
-                  setFocus(`specimens.${currentSampleIndex}.traccion`);
+                  if (dimension === 'ancho') {
+                      setFocus(`specimens.${currentSampleIndex}.espesor.m1`);
+                  } else { // espesor
+                      setFocus(`specimens.${currentSampleIndex}.traccion`);
+                  }
+              }
+          } else if (dimension === 'traccion') {
+              setFocus(`specimens.${currentSampleIndex}.elongacion`);
+          } else if (dimension === 'elongacion') {
+              if (currentSampleIndex < totalSamples - 1) {
+                  setFocus(`specimens.${currentSampleIndex + 1}.ancho.m1`);
               }
           }
-      } else if (dimension === 'traccion') {
-          setFocus(`specimens.${currentSampleIndex}.elongacion`);
-      } else if (dimension === 'elongacion') {
-          if (currentSampleIndex < totalSamples - 1) {
-              setFocus(`specimens.${currentSampleIndex + 1}.ancho.m1`);
+      } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+
+          if (dimensionsWithMeasurements.includes(dimension)) {
+              const measurementNumber = parseInt(measurement.substring(1));
+              if (measurementNumber > 1) {
+                  setFocus(`specimens.${currentSampleIndex}.${dimension}.m${measurementNumber - 1}`);
+              } else { // m1
+                  if (dimension === 'espesor') {
+                      setFocus(`specimens.${currentSampleIndex}.ancho.m12`);
+                  } else { // ancho
+                      if (currentSampleIndex > 0) {
+                          setFocus(`specimens.${currentSampleIndex - 1}.elongacion`);
+                      }
+                  }
+              }
+          } else if (dimension === 'elongacion') {
+              setFocus(`specimens.${currentSampleIndex}.traccion`);
+          } else if (dimension === 'traccion') {
+              setFocus(`specimens.${currentSampleIndex}.espesor.m12`);
           }
       }
   };

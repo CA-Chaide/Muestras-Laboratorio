@@ -102,9 +102,6 @@ const PermanentDeformationRow = ({
   });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    
     const { name } = e.currentTarget;
     const nameParts = name.split('.');
     const currentSampleIndex = parseInt(nameParts[1], 10);
@@ -112,14 +109,33 @@ const PermanentDeformationRow = ({
     const measurement = nameParts[3];
     const measurementNumber = parseInt(measurement.substring(1));
 
-    if (measurementNumber < 9) {
-        setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
-    } else {
-        if (dimension === 'espesorInicial') {
-            setFocus(`samples.${currentSampleIndex}.espesorFinal.m1`);
+    if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      e.preventDefault();
+    }
+    
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (measurementNumber < 9) {
+          setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
+      } else {
+          if (dimension === 'espesorInicial') {
+              setFocus(`samples.${currentSampleIndex}.espesorFinal.m1`);
+          } else {
+              if (currentSampleIndex < totalSamples - 1) {
+                  setFocus(`samples.${currentSampleIndex + 1}.espesorInicial.m1`);
+              }
+          }
+      }
+    } else if (e.key === 'ArrowUp') {
+        if (measurementNumber > 1) {
+            setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber - 1}`);
         } else {
-            if (currentSampleIndex < totalSamples - 1) {
-                setFocus(`samples.${currentSampleIndex + 1}.espesorInicial.m1`);
+            if (dimension === 'espesorFinal') {
+                setFocus(`samples.${currentSampleIndex}.espesorInicial.m9`);
+            } else { // espesorInicial
+                if (currentSampleIndex > 0) {
+                    setFocus(`samples.${currentSampleIndex - 1}.espesorFinal.m9`);
+                }
             }
         }
     }
