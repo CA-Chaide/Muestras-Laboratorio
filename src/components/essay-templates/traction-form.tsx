@@ -100,7 +100,7 @@ const TractionRow = ({ control, index, setFocus, totalSamples }: {
 
       const dimensionsWithMeasurements: ('ancho' | 'espesor')[] = ['ancho', 'espesor'];
 
-      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
 
@@ -243,52 +243,22 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
     const specimens = useWatch({ control, name: 'specimens' });
 
     const {
-        averageFinalAncho,
-        averageFinalEspesor,
         averageTraccion,
         stdDevTraccion,
         averageElongacion,
         stdDevElongacion
     } = useMemo(() => {
         if (!specimens) return { 
-            averageFinalAncho: 0,
-            averageFinalEspesor: 0,
             averageTraccion: 0, 
             stdDevTraccion: 0, 
             averageElongacion: 0, 
             stdDevElongacion: 0
         };
         
-        const finalAveragesAncho: number[] = [];
-        const finalAveragesEspesor: number[] = [];
         const tracciones: number[] = [];
         const elongaciones: number[] = [];
 
         specimens.forEach(specimen => {
-            const anchoValues = Object.values(specimen.ancho);
-            const intermediateMediansAncho: number[] = [];
-            for (let i = 0; i < 12; i += 3) {
-                const group = anchoValues.slice(i, i + 3);
-                intermediateMediansAncho.push(calculateMedian(group));
-            }
-            const finalAverageAncho = calculateAverage(intermediateMediansAncho);
-            const roundedFinalAverageAncho = Math.round(finalAverageAncho / 0.2) * 0.2;
-            if (roundedFinalAverageAncho > 0) {
-                finalAveragesAncho.push(roundedFinalAverageAncho);
-            }
-
-            const espesorValues = Object.values(specimen.espesor);
-            const intermediateMediansEspesor: number[] = [];
-            for (let i = 0; i < 12; i += 3) {
-                const group = espesorValues.slice(i, i + 3);
-                intermediateMediansEspesor.push(calculateMedian(group));
-            }
-            const finalAverageEspesor = calculateAverage(intermediateMediansEspesor);
-            const roundedFinalAverageEspesor = Math.round(finalAverageEspesor / 0.2) * 0.2;
-            if (roundedFinalAverageEspesor > 0) {
-                finalAveragesEspesor.push(roundedFinalAverageEspesor);
-            }
-            
             const numTraccion = Number(specimen.traccion);
             if(numTraccion > 0) tracciones.push(numTraccion);
 
@@ -297,8 +267,6 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
         });
 
         return {
-            averageFinalAncho: calculateAverage(finalAveragesAncho),
-            averageFinalEspesor: calculateAverage(finalAveragesEspesor),
             averageTraccion: calculateAverage(tracciones),
             stdDevTraccion: calculateStdDev(tracciones),
             averageElongacion: calculateAverage(elongaciones),
@@ -325,17 +293,6 @@ const TractionFooter = ({ control }: { control: Control<TractionFormValues> }) =
                  <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
                     {stdDevElongacion > 0 ? stdDevElongacion.toFixed(2) : ''}
                 </TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell className="text-right font-bold p-2 align-middle" colSpan={3}>Promedio Ancho (mm)</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-                    {averageFinalAncho > 0 ? averageFinalAncho.toFixed(2) : ''}
-                </TableCell>
-                <TableCell className="text-right font-bold p-2 align-middle" colSpan={2}>Promedio Espesor (mm)</TableCell>
-                <TableCell className="text-center font-bold bg-secondary p-2 align-middle">
-                    {averageFinalEspesor > 0 ? averageFinalEspesor.toFixed(2) : ''}
-                </TableCell>
-                <TableCell colSpan={2} />
             </TableRow>
         </TableFooter>
     )
@@ -512,5 +469,3 @@ export function TractionForm() {
     </Form>
   );
 }
-
-    
