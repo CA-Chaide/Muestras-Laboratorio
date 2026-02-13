@@ -80,6 +80,7 @@ const HardnessRow = ({ control, index, setFocus, totalSamples }: {
       }
 
       if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          e.preventDefault();
           if (fieldName === 'espesor') {
               setFocus(`samples.${currentSampleIndex}.dureza`);
           } else { // it's 'dureza'
@@ -88,14 +89,17 @@ const HardnessRow = ({ control, index, setFocus, totalSamples }: {
               }
           }
       } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
           if (fieldName === 'dureza') {
               setFocus(`samples.${currentSampleIndex}.espesor`);
           }
       } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
           if (currentSampleIndex < totalSamples - 1) {
               setFocus(`samples.${currentSampleIndex + 1}.${fieldName}`);
           }
       } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
           if (currentSampleIndex > 0) {
               setFocus(`samples.${currentSampleIndex - 1}.${fieldName}`);
           }
@@ -320,9 +324,6 @@ export function HardnessForm({ form }: HardnessFormProps) {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

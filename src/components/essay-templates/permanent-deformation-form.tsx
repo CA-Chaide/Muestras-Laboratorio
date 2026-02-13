@@ -109,7 +109,7 @@ const PermanentDeformationRow = ({
     const measurement = nameParts[3];
     const measurementNumber = parseInt(measurement.substring(1));
 
-    if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       e.preventDefault();
     }
     
@@ -127,6 +127,7 @@ const PermanentDeformationRow = ({
           }
       }
     } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
         if (measurementNumber > 1) {
             setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber - 1}`);
         } else {
@@ -504,9 +505,6 @@ export function PermanentDeformationForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

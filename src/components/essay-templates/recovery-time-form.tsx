@@ -64,7 +64,7 @@ const RecoveryTimeRow = ({ control, index, setFocus, totalSamples }: {
   totalSamples: number
 }) => {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
       const { name } = e.currentTarget;
@@ -288,9 +288,6 @@ export function RecoveryTimeForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

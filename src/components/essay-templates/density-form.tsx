@@ -410,9 +410,6 @@ export function DensityForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

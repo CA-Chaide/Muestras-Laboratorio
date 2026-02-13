@@ -14,6 +14,7 @@ import { ResilienceForm } from '@/components/essay-templates/resilience-form';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import { PermanentDeformationForm } from '@/components/essay-templates/permanent-deformation-form';
+import { Button } from '@/components/ui/button';
 
 const tests = [
   'Densidad',
@@ -111,6 +112,9 @@ export default function NormalProductionFoamPage() {
                 </TabsContent>
               ))}
             </Tabs>
+            <div className="flex justify-end mt-6">
+              <Button size="lg">Guardar Plantilla Completa</Button>
+            </div>
           </CardContent>
         </Card>
       </main>

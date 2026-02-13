@@ -76,7 +76,7 @@ const PermeabilityRow = ({ control, index, setFocus, totalSamples }: {
   });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
       const { name } = e.currentTarget;
@@ -319,9 +319,6 @@ export function PermeabilityForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

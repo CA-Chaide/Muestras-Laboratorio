@@ -95,6 +95,7 @@ const ResilienceRow = ({ control, index, setFocus, totalSamples }: {
     }
 
     if (e.key === 'Enter' || e.key === 'ArrowRight') {
+        e.preventDefault();
         if (currentIndex < order.length - 1) {
             setFocus(`samples.${currentSampleIndex}.${order[currentIndex + 1]}`);
         } else { // last field for the sample
@@ -103,14 +104,17 @@ const ResilienceRow = ({ control, index, setFocus, totalSamples }: {
             }
         }
     } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
         if (currentIndex > 0) {
             setFocus(`samples.${currentSampleIndex}.${order[currentIndex - 1]}`);
         }
     } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
         if (currentSampleIndex < totalSamples - 1) {
             setFocus(`samples.${currentSampleIndex + 1}.${fieldName}`);
         }
     } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
         if (currentSampleIndex > 0) {
             setFocus(`samples.${currentSampleIndex - 1}.${fieldName}`);
         }
@@ -372,9 +376,6 @@ export function ResilienceForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );

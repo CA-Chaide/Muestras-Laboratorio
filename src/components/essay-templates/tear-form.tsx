@@ -87,7 +87,7 @@ const TearRow = ({ control, index, setFocus, totalSamples }: {
       const currentSampleIndex = parseInt(nameParts[1], 10);
       const dimension = nameParts[2] as 'thickness' | 'tearResistance';
       
-      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
 
@@ -380,9 +380,6 @@ export function TearForm() {
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
-            <Button type="submit" className="mt-4">Guardar Datos de Ensayo</Button>
-        </div>
       </form>
     </Form>
   );
