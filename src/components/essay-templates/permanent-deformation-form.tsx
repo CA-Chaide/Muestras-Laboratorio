@@ -23,9 +23,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
+type NineMeasurements = {
+  m1: number | string; m2: number | string; m3: number | string;
+  m4: number | string; m5: number | string; m6: number | string;
+  m7: number | string; m8: number | string; m9: number | string;
+};
+
 type SampleData = {
-  espesorInicial: number | string;
-  espesorFinal: number | string;
+  espesorInicial: NineMeasurements;
+  espesorFinal: NineMeasurements;
 };
 
 export type PermanentDeformationFormValues = {
@@ -44,8 +50,8 @@ export type PermanentDeformationFormValues = {
 };
 
 const initialSampleValues: SampleData = {
-  espesorInicial: '',
-  espesorFinal: '',
+  espesorInicial: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
+  espesorFinal: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
 };
 
 function calculateAverage(values: (number | string)[]) {
@@ -67,7 +73,7 @@ function calculateStdDev(values: (number | string)[]) {
 function calculateDeformation(initial: number | string, final: number | string) {
     const numInitial = Number(initial);
     const numFinal = Number(final);
-    if (!numInitial || numInitial <= 0 || isNaN(numFinal)) return 0;
+    if (!numInitial || numInitial <= 0 || isNaN(numFinal) || numFinal <= 0) return 0;
     return ((numInitial - numFinal) / numInitial) * 100;
 }
 
@@ -77,28 +83,38 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
     name: `samples.${index}`,
   });
 
+  const renderMeasurementInputs = (dimension: 'espesorInicial' | 'espesorFinal') => (
+    <div className="grid grid-cols-3 gap-2">
+        {Array.from({ length: 9 }, (_, i) => `m${i + 1}`).map((fieldName) => (
+            <FormField
+                key={fieldName}
+                control={control}
+                name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
+                render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+            />
+        ))}
+    </div>
+  );
+
+  const promedioEspesorInicial = useMemo(() => calculateAverage(Object.values(values.espesorInicial)), [values.espesorInicial]);
+  const promedioEspesorFinal = useMemo(() => calculateAverage(Object.values(values.espesorFinal)), [values.espesorFinal]);
+  
   const deformacion = useMemo(() => {
-    return calculateDeformation(values.espesorInicial, values.espesorFinal);
-  }, [values.espesorInicial, values.espesorFinal]);
+    return calculateDeformation(promedioEspesorInicial, promedioEspesorFinal);
+  }, [promedioEspesorInicial, promedioEspesorFinal]);
 
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.espesorInicial`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
+      <TableCell className="p-2 align-middle min-w-[280px]">
+        {renderMeasurementInputs('espesorInicial')}
       </TableCell>
-      <TableCell className="p-2 align-middle">
-        <FormField
-          control={control}
-          name={`samples.${index}.espesorFinal`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
-        />
+      <TableCell className="text-center align-middle p-2">{promedioEspesorInicial > 0 ? promedioEspesorInicial.toFixed(2) : ''}</TableCell>
+      <TableCell className="p-2 align-middle min-w-[280px]">
+        {renderMeasurementInputs('espesorFinal')}
       </TableCell>
-      <TableCell className="text-center bg-muted p-2 align-middle">
+      <TableCell className="text-center align-middle p-2">{promedioEspesorFinal > 0 ? promedioEspesorFinal.toFixed(2) : ''}</TableCell>
+      <TableCell className="text-center bg-muted p-2 align-middle font-bold">
         {deformacion > 0 ? deformacion.toFixed(1) : ''}
       </TableCell>
     </TableRow>
@@ -111,24 +127,28 @@ const PermanentDeformationFooter = ({ control }: { control: Control<PermanentDef
   const { averageDeformation, stdDevDeformation } = useMemo(() => {
     if (!samples) return { averageDeformation: 0, stdDevDeformation: 0 };
     
-    const deformations = samples.map(s => calculateDeformation(s.espesorInicial, s.espesorFinal)).filter(d => d > 0);
+    const deformations = samples.map(s => {
+        const promedioInicial = calculateAverage(Object.values(s.espesorInicial));
+        const promedioFinal = calculateAverage(Object.values(s.espesorFinal));
+        return calculateDeformation(promedioInicial, promedioFinal);
+    }).filter(d => d > 0);
     
     return {
-      averageDeformation: calculateAverage(deformations),
-      stdDevDeformation: calculateStdDev(deformations),
+      averageDeformation: calculateAverage(deformations as any),
+      stdDevDeformation: calculateStdDev(deformations as any),
     };
   }, [samples]);
 
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={3}>Promedio</TableCell>
+        <TableCell className="text-right font-bold" colSpan={5}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {averageDeformation > 0 ? averageDeformation.toFixed(1) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={3}>Desviación Estándar</TableCell>
+        <TableCell className="text-right font-bold" colSpan={5}>Desviación Estándar</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {stdDevDeformation > 0 ? stdDevDeformation.toFixed(2) : ''}
         </TableCell>
@@ -150,7 +170,7 @@ export function PermanentDeformationForm() {
       tiempoCompresion: '22',
       temperaturaCompresion: '70',
       tiempoRecuperacion: '30',
-      samples: Array(5).fill(null).map(() => ({ ...initialSampleValues })),
+      samples: Array(5).fill(null).map(() => JSON.parse(JSON.stringify(initialSampleValues))),
       observacionesDesviaciones: '',
     },
   });
@@ -323,14 +343,20 @@ export function PermanentDeformationForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-2xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-5xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center w-[100px]">Muestra</TableHead>
-                <TableHead className="text-center">Espesor inicial (mm)</TableHead>
-                <TableHead className="text-center">Espesor final (mm)</TableHead>
-                <TableHead className="text-center">Deformación Remanente (%)</TableHead>
+                <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2">Espesor inicial (mm)</TableHead>
+                <TableHead colSpan={2} className="text-center border-l p-2">Espesor final (mm)</TableHead>
+                <TableHead rowSpan={2} className="text-center align-middle border-l p-2">Deformación Remanente (%)</TableHead>
+              </TableRow>
+              <TableRow>
+                <TableHead className="text-center p-2 border-l">Mediciones</TableHead>
+                <TableHead className="text-center p-2">Promedio</TableHead>
+                <TableHead className="text-center p-2 border-l">Mediciones</TableHead>
+                <TableHead className="text-center p-2">Promedio</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
