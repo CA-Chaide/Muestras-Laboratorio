@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -63,10 +63,30 @@ function roundHardness(value: number): number {
     return Math.round(value / 5) * 5;
 }
 
-const HardnessRow = ({ control, index }: { 
+const HardnessRow = ({ control, index, setFocus, totalSamples }: { 
   control: Control<HardnessFormValues>, 
-  index: number 
+  index: number,
+  setFocus: UseFormReturn<HardnessFormValues>['setFocus'],
+  totalSamples: number
 }) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      const { name } = e.currentTarget;
+      const nameParts = name.split('.'); // ['samples', '0', 'espesor']
+      const currentSampleIndex = parseInt(nameParts[1], 10);
+      const fieldName = nameParts[2] as 'espesor' | 'dureza';
+
+      if (fieldName === 'espesor') {
+          setFocus(`samples.${currentSampleIndex}.dureza`);
+      } else { // it's 'dureza'
+          if (currentSampleIndex < totalSamples - 1) {
+              setFocus(`samples.${currentSampleIndex + 1}.espesor`);
+          }
+      }
+  };
+  
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
@@ -74,14 +94,14 @@ const HardnessRow = ({ control, index }: {
         <FormField
           control={control}
           name={`samples.${index}.espesor`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.dureza`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
     </TableRow>
@@ -263,7 +283,7 @@ export function HardnessForm({ form }: HardnessFormProps) {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <HardnessRow key={field.id} control={form.control} index={index} />
+                <HardnessRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <HardnessFooter control={form.control} />
@@ -292,3 +312,5 @@ export function HardnessForm({ form }: HardnessFormProps) {
     </Form>
   );
 }
+
+    

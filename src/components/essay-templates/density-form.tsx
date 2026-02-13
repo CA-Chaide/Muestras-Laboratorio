@@ -72,10 +72,11 @@ function calculateDensity(peso: number | string, largo: number, ancho: number, e
   return (numPeso / volumen) * 1000000;
 }
 
-const DensityRow = ({ control, index, setFocus }: { 
+const DensityRow = ({ control, index, setFocus, totalSamples }: { 
   control: Control<DensityFormValues>, 
   index: number,
-  setFocus: UseFormReturn<DensityFormValues>['setFocus']
+  setFocus: UseFormReturn<DensityFormValues>['setFocus'],
+  totalSamples: number
 }) => {
     const values = useWatch({
       control,
@@ -87,45 +88,36 @@ const DensityRow = ({ control, index, setFocus }: {
       e.preventDefault();
 
       const { name } = e.currentTarget;
-      const nameParts = name.split('.'); // e.g., ['samples', '0', 'largo', 'm1'] or ['samples', '0', 'peso']
+      const nameParts = name.split('.'); 
       const currentSampleIndex = parseInt(nameParts[1], 10);
       const dimension = nameParts[2] as 'peso' | 'largo' | 'ancho' | 'espesor';
       const measurement = nameParts[3]; // 'm1', 'm2', etc.
 
+      const dimensionsWithMeasurements: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
+
       if (dimension === 'peso') {
-        setFocus(`samples.${currentSampleIndex}.largo.m1`);
-        return;
+          setFocus(`samples.${currentSampleIndex}.largo.m1`);
+          return;
       }
-      
-      const measurementNumber = parseInt(measurement.substring(1)); // 1 from 'm1'
-      
-      const isColumn1 = [1, 4, 7].includes(measurementNumber);
-      const isColumn2 = [2, 5, 8].includes(measurementNumber);
-      const isColumn3 = [3, 6, 9].includes(measurementNumber);
 
-      const isRow3 = [7, 8, 9].includes(measurementNumber);
-      
-      if (isRow3) {
-        // Last row of a grid, move to next dimension
-        const dimensionsOrder: ('largo' | 'ancho' | 'espesor')[] = ['largo', 'ancho', 'espesor'];
-        const currentDimensionIndex = dimensionsOrder.indexOf(dimension as 'largo' | 'ancho' | 'espesor');
-        const nextDimensionIndex = currentDimensionIndex + 1;
-
-        if (nextDimensionIndex < dimensionsOrder.length) {
-          const nextDimension = dimensionsOrder[nextDimensionIndex];
+      if (dimensionsWithMeasurements.includes(dimension)) {
+          const measurementNumber = parseInt(measurement.substring(1));
+          const currentDimensionIndex = dimensionsWithMeasurements.indexOf(dimension);
           
-          let nextMeasurementNumber;
-          if (isColumn1) nextMeasurementNumber = 1;
-          if (isColumn2) nextMeasurementNumber = 2;
-          if (isColumn3) nextMeasurementNumber = 3;
-
-          setFocus(`samples.${currentSampleIndex}.${nextDimension}.m${nextMeasurementNumber!}`);
-        }
-        // If it's the last dimension of the last measurement, do nothing.
-      } else {
-        // Move to the cell below in the same grid
-        const nextMeasurementNumberInColumn = measurementNumber + 3;
-        setFocus(`samples.${currentSampleIndex}.${dimension}.m${nextMeasurementNumberInColumn}`);
+          if (measurementNumber < 9) {
+              setFocus(`samples.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
+          } else { // Last measurement of a grid
+              if (currentDimensionIndex < dimensionsWithMeasurements.length - 1) {
+                  // Move to the next dimension's first measurement
+                  const nextDimension = dimensionsWithMeasurements[currentDimensionIndex + 1];
+                  setFocus(`samples.${currentSampleIndex}.${nextDimension}.m1`);
+              } else {
+                  // Last dimension, move to next sample
+                  if (currentSampleIndex < totalSamples - 1) {
+                      setFocus(`samples.${currentSampleIndex + 1}.peso`);
+                  }
+              }
+          }
       }
     };
 
@@ -376,7 +368,7 @@ export function DensityForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <DensityRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} />
+                <DensityRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
                 <DensityFooter control={form.control} />
             </TableBody>
@@ -405,3 +397,5 @@ export function DensityForm() {
     </Form>
   );
 }
+
+    

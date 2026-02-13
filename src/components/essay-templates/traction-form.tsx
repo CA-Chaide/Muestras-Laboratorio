@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -83,8 +83,50 @@ function calculateStdDev(values: number[]) {
 }
 // --- End Calculation Helpers ---
 
-const TractionRow = ({ control, index }: { control: Control<TractionFormValues>, index: number }) => {
+const TractionRow = ({ control, index, setFocus, totalSamples }: { 
+  control: Control<TractionFormValues>, 
+  index: number,
+  setFocus: UseFormReturn<TractionFormValues>['setFocus'],
+  totalSamples: number 
+}) => {
   const specimen = useWatch({ control, name: `specimens.${index}` });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      const { name } = e.currentTarget;
+      const nameParts = name.split('.');
+      const currentSampleIndex = parseInt(nameParts[1], 10);
+      const dimension = nameParts[2] as 'ancho' | 'espesor' | 'traccion' | 'elongacion';
+      const measurement = nameParts[3]; // 'm1', 'm2', etc. or undefined
+
+      const dimensionsWithMeasurements: ('ancho' | 'espesor')[] = ['ancho', 'espesor'];
+
+      if (dimensionsWithMeasurements.includes(dimension)) {
+          const measurementNumber = parseInt(measurement.substring(1));
+          const currentDimensionIndex = dimensionsWithMeasurements.indexOf(dimension);
+          
+          if (measurementNumber < 12) {
+              setFocus(`specimens.${currentSampleIndex}.${dimension}.m${measurementNumber + 1}`);
+          } else { // Last measurement of a grid
+              if (currentDimensionIndex < dimensionsWithMeasurements.length - 1) {
+                  // Move to the next dimension's first measurement
+                  const nextDimension = dimensionsWithMeasurements[currentDimensionIndex + 1];
+                  setFocus(`specimens.${currentSampleIndex}.${nextDimension}.m1`);
+              } else {
+                  // Last dimension, move to traccion
+                  setFocus(`specimens.${currentSampleIndex}.traccion`);
+              }
+          }
+      } else if (dimension === 'traccion') {
+          setFocus(`specimens.${currentSampleIndex}.elongacion`);
+      } else if (dimension === 'elongacion') {
+          if (currentSampleIndex < totalSamples - 1) {
+              setFocus(`specimens.${currentSampleIndex + 1}.ancho.m1`);
+          }
+      }
+  };
 
   const intermediateMediansAncho = useMemo(() => {
     if (!specimen) return Array(4).fill(0);
@@ -127,7 +169,7 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
           key={fieldName}
           control={control}
           name={`specimens.${index}.${dimension}.${fieldName as keyof Measurements}`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
         />
       ))}
     </div>
@@ -162,14 +204,14 @@ const TractionRow = ({ control, index }: { control: Control<TractionFormValues>,
         <FormField
           control={control}
           name={`specimens.${index}.traccion`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle min-w-[120px]">
         <FormField
           control={control}
           name={`specimens.${index}.elongacion`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
     </TableRow>
@@ -420,7 +462,7 @@ export function TractionForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TractionRow key={field.id} control={form.control} index={index} />
+                <TractionRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <TractionFooter control={form.control} />
@@ -449,3 +491,5 @@ export function TractionForm() {
     </Form>
   );
 }
+
+    

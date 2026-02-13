@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -73,8 +73,37 @@ function calculateStdDev(values: number[]) {
 }
 
 
-const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: number }) => {
+const TearRow = ({ control, index, setFocus, totalSamples }: { 
+  control: Control<TearFormValues>, 
+  index: number,
+  setFocus: UseFormReturn<TearFormValues>['setFocus'],
+  totalSamples: number
+}) => {
   const specimen = useWatch({ control, name: `specimens.${index}` });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      const { name } = e.currentTarget;
+      const nameParts = name.split('.');
+      const currentSampleIndex = parseInt(nameParts[1], 10);
+      const dimension = nameParts[2] as 'thickness' | 'tearResistance';
+      const measurement = nameParts[3]; // 't1', 't2' etc.
+
+      if (dimension === 'thickness') {
+          const measurementNumber = parseInt(measurement.substring(1));
+          if (measurementNumber < 5) {
+              setFocus(`specimens.${currentSampleIndex}.thickness.t${measurementNumber + 1}`);
+          } else {
+              setFocus(`specimens.${currentSampleIndex}.tearResistance`);
+          }
+      } else { // tearResistance
+          if (currentSampleIndex < totalSamples - 1) {
+              setFocus(`specimens.${currentSampleIndex + 1}.thickness.t1`);
+          }
+      }
+  };
 
   const median = useMemo(() => {
     if (!specimen) return 0;
@@ -90,27 +119,27 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
           <FormField
             control={control}
             name={`specimens.${index}.thickness.t1`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
           />
           <FormField
             control={control}
             name={`specimens.${index}.thickness.t2`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
           />
           <FormField
             control={control}
             name={`specimens.${index}.thickness.t3`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
           />
            <FormField
             control={control}
             name={`specimens.${index}.thickness.t4`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
           />
            <FormField
             control={control}
             name={`specimens.${index}.thickness.t5`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" onKeyDown={handleKeyDown} />}
           />
         </div>
       </TableCell>
@@ -121,7 +150,7 @@ const TearRow = ({ control, index }: { control: Control<TearFormValues>, index: 
         <FormField
             control={control}
             name={`specimens.${index}.tearResistance`}
-            render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+            render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
     </TableRow>
@@ -310,7 +339,7 @@ export function TearForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TearRow key={field.id} control={form.control} index={index} />
+                <TearRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <TearFooter control={form.control} />
@@ -339,3 +368,5 @@ export function TearForm() {
     </Form>
   );
 }
+
+    

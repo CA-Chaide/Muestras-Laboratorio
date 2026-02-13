@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, Control, useWatch } from 'react-hook-form';
+import { useForm, useFieldArray, Control, useWatch, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -70,14 +70,37 @@ function calculateStdDev(values: number[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
-const ResilienceRow = ({ control, index }: {
+const ResilienceRow = ({ control, index, setFocus, totalSamples }: {
   control: Control<ResilienceFormValues>,
-  index: number
+  index: number,
+  setFocus: UseFormReturn<ResilienceFormValues>['setFocus'],
+  totalSamples: number
 }) => {
   const values = useWatch({
     control,
     name: `samples.${index}`,
   });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+
+    const { name } = e.currentTarget;
+    const nameParts = name.split('.');
+    const currentSampleIndex = parseInt(nameParts[1], 10);
+    const fieldName = nameParts[2] as 'rebote1' | 'rebote2' | 'rebote3';
+    
+    const order: ('rebote1' | 'rebote2' | 'rebote3')[] = ['rebote1', 'rebote2', 'rebote3'];
+    const currentIndex = order.indexOf(fieldName);
+
+    if (currentIndex < order.length - 1) {
+        setFocus(`samples.${currentSampleIndex}.${order[currentIndex + 1]}`);
+    } else { // last field for the sample
+        if (currentSampleIndex < totalSamples - 1) {
+            setFocus(`samples.${currentSampleIndex + 1}.${order[0]}`);
+        }
+    }
+  };
 
   const resiliencia = useMemo(() => {
     const rebotes = [values.rebote1, values.rebote2, values.rebote3];
@@ -92,21 +115,21 @@ const ResilienceRow = ({ control, index }: {
         <FormField
           control={control}
           name={`samples.${index}.rebote1`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.rebote2`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.rebote3`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="text-center bg-secondary p-2 align-middle">
@@ -311,7 +334,7 @@ export function ResilienceForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <ResilienceRow key={field.id} control={form.control} index={index} />
+                <ResilienceRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <ResilienceFooter control={form.control} />
@@ -341,3 +364,5 @@ export function ResilienceForm() {
     </Form>
   );
 }
+
+    

@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -64,14 +64,27 @@ function calculateVolumetricFlow(velocidadFlujo: number | string): number {
     return 0.0025 * numVelocidad;
 }
 
-const PermeabilityRow = ({ control, index }: { 
+const PermeabilityRow = ({ control, index, setFocus, totalSamples }: { 
   control: Control<PermeabilityFormValues>, 
-  index: number 
+  index: number,
+  setFocus: UseFormReturn<PermeabilityFormValues>['setFocus'],
+  totalSamples: number
 }) => {
   const values = useWatch({
       control,
       name: `samples.${index}`,
   });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const { name } = e.currentTarget;
+      const currentSampleIndex = parseInt(name.split('.')[1], 10);
+
+      if (currentSampleIndex < totalSamples - 1) {
+          setFocus(`samples.${currentSampleIndex + 1}.flujoMms`);
+      }
+  };
 
   const flujoVolumetrico = useMemo(() => calculateVolumetricFlow(values.flujoMms), [values.flujoMms]);
 
@@ -82,7 +95,7 @@ const PermeabilityRow = ({ control, index }: {
         <FormField
           control={control}
           name={`samples.${index}.flujoMms`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="text-center bg-secondary p-2 align-middle">
@@ -275,7 +288,7 @@ export function PermeabilityForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <PermeabilityRow key={field.id} control={form.control} index={index} />
+                <PermeabilityRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <PermeabilityFooter control={form.control} />
@@ -304,3 +317,5 @@ export function PermeabilityForm() {
     </Form>
   );
 }
+
+    

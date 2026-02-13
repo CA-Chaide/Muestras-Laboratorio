@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, Control, useWatch } from 'react-hook-form';
+import { useForm, useFieldArray, Control, useWatch, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo } from 'react';
+import { useMemo, KeyboardEvent } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -57,10 +57,23 @@ function calculateStdDev(values: (number | string)[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
-const RecoveryTimeRow = ({ control, index }: { 
+const RecoveryTimeRow = ({ control, index, setFocus, totalSamples }: { 
   control: Control<RecoveryTimeFormValues>, 
-  index: number 
+  index: number,
+  setFocus: UseFormReturn<RecoveryTimeFormValues>['setFocus'],
+  totalSamples: number
 }) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const { name } = e.currentTarget;
+      const currentSampleIndex = parseInt(name.split('.')[1], 10);
+
+      if (currentSampleIndex < totalSamples - 1) {
+          setFocus(`samples.${currentSampleIndex + 1}.tiempoRecuperacion`);
+      }
+  };
+
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
@@ -68,7 +81,7 @@ const RecoveryTimeRow = ({ control, index }: {
         <FormField
           control={control}
           name={`samples.${index}.tiempoRecuperacion`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
     </TableRow>
@@ -243,7 +256,7 @@ export function RecoveryTimeForm() {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <RecoveryTimeRow key={field.id} control={form.control} index={index} />
+                <RecoveryTimeRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <RecoveryTimeFooter control={form.control} />
@@ -273,3 +286,5 @@ export function RecoveryTimeForm() {
     </Form>
   );
 }
+
+    

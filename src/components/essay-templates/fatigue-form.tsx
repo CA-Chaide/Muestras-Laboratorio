@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control, UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, KeyboardEvent } from 'react';
 import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -63,14 +63,37 @@ function calculateStdDevWithNegatives(values: (number | string)[]) {
   return Math.sqrt(sumOfSquaredDiffs / (n - 1));
 }
 
-const FatigueRow = ({ control, index }: { 
+const FatigueRow = ({ control, index, setFocus, totalSamples }: { 
   control: Control<FatigueFormValues>, 
-  index: number 
+  index: number,
+  setFocus: UseFormReturn<FatigueFormValues>['setFocus'],
+  totalSamples: number
 }) => {
   const values = useWatch({
     control,
     name: `samples.${index}`,
   });
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+
+    const { name } = e.currentTarget;
+    const nameParts = name.split('.');
+    const currentSampleIndex = parseInt(nameParts[1], 10);
+    const fieldName = nameParts[2] as 'espesorInicial' | 'durezaInicial' | 'espesorFinal' | 'durezaFinal';
+    
+    const order: ('espesorInicial' | 'durezaInicial' | 'espesorFinal' | 'durezaFinal')[] = ['espesorInicial', 'durezaInicial', 'espesorFinal', 'durezaFinal'];
+    const currentIndex = order.indexOf(fieldName);
+
+    if (currentIndex < order.length - 1) {
+        setFocus(`samples.${currentSampleIndex}.${order[currentIndex + 1]}`);
+    } else { // last field for the sample
+        if (currentSampleIndex < totalSamples - 1) {
+            setFocus(`samples.${currentSampleIndex + 1}.${order[0]}`);
+        }
+    }
+  };
 
   const perdidaEspesor = useMemo(() => {
     const inicial = Number(values.espesorInicial);
@@ -93,28 +116,28 @@ const FatigueRow = ({ control, index }: {
         <FormField
           control={control}
           name={`samples.${index}.espesorInicial`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.durezaInicial`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.espesorFinal`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="p-2 align-middle">
         <FormField
           control={control}
           name={`samples.${index}.durezaFinal`}
-          render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+          render={({ field }) => <Input type="number" step="any" min="0" {...field} onKeyDown={handleKeyDown} />}
         />
       </TableCell>
       <TableCell className="text-center bg-muted p-2 align-middle">
@@ -368,7 +391,7 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <FatigueRow key={field.id} control={form.control} index={index} />
+                <FatigueRow key={field.id} control={form.control} index={index} setFocus={form.setFocus} totalSamples={fields.length} />
               ))}
             </TableBody>
             <FatigueFooter control={form.control} />
@@ -397,3 +420,5 @@ export function FatigueForm({ initialHardnessValues }: FatigueFormProps) {
     </Form>
   );
 }
+
+    
