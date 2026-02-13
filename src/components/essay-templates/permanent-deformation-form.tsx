@@ -92,7 +92,7 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
   });
 
   const renderMeasurementInputs = (dimension: 'espesorInicial' | 'espesorFinal') => (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="flex flex-col gap-1">
         {Array.from({ length: 9 }, (_, i) => `m${i + 1}`).map((fieldName) => (
             <FormField
                 key={fieldName}
@@ -139,7 +139,7 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
   return (
     <TableRow>
       <TableCell className="text-center font-medium p-2 align-middle">{index + 1}</TableCell>
-      <TableCell className="p-2 align-middle min-w-[280px]">
+      <TableCell className="p-2 align-middle min-w-[120px]">
         {renderMeasurementInputs('espesorInicial')}
       </TableCell>
        <TableCell className="p-2 align-middle min-w-[120px]">
@@ -150,7 +150,7 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
         </div>
       </TableCell>
       <TableCell className="text-center align-middle p-2">{promedioEspesorInicial > 0 ? promedioEspesorInicial.toFixed(2) : ''}</TableCell>
-      <TableCell className="p-2 align-middle min-w-[280px]">
+      <TableCell className="p-2 align-middle min-w-[120px]">
         {renderMeasurementInputs('espesorFinal')}
       </TableCell>
        <TableCell className="p-2 align-middle min-w-[120px]">
