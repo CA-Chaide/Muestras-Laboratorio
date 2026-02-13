@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
     icon: Archive,
   },
   {
-    title: 'Pruebas Asignadas',
+    title: 'Gestor de Asignación de Pruebas',
     href: '/tests',
     icon: FlaskConical,
   },

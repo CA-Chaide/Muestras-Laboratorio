@@ -10,7 +10,7 @@ import { AssignTestDialog } from '@/components/tests/assign-test-dialog';
 export default function TestsPage() {
   return (
     <div className="flex flex-col w-full">
-      <Header title="Pruebas Asignadas" />
+      <Header title="Gestor de Asignación de Pruebas" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
