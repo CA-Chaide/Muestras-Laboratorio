@@ -54,15 +54,23 @@ const initialSampleValues: SampleData = {
   espesorFinal: { m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '' },
 };
 
-function calculateAverage(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+function calculateMedian(values: (number | string)[]) {
+    const sortedValues = values.map(Number).filter(v => !isNaN(v) && v > 0).sort((a, b) => a - b);
+    if (sortedValues.length === 0) return 0;
+    
+    const mid = Math.floor(sortedValues.length / 2);
+    return sortedValues.length % 2 !== 0 ? sortedValues[mid] : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+}
+
+function calculateAverage(values: number[]) {
+  const validValues = values.filter((v) => !isNaN(v) && v > 0);
   if (validValues.length === 0) return 0;
   const sum = validValues.reduce((a, b) => a + b, 0);
   return sum / validValues.length;
 }
 
-function calculateStdDev(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
+function calculateStdDev(values: number[]) {
+  const validValues = values.filter((v) => !isNaN(v) && v > 0);
   const n = validValues.length;
   if (n < 2) return 0;
   const mean = calculateAverage(validValues);
@@ -96,8 +104,27 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
     </div>
   );
 
-  const promedioEspesorInicial = useMemo(() => calculateAverage(Object.values(values.espesorInicial)), [values.espesorInicial]);
-  const promedioEspesorFinal = useMemo(() => calculateAverage(Object.values(values.espesorFinal)), [values.espesorFinal]);
+  const promedioEspesorInicial = useMemo(() => {
+    if (!values?.espesorInicial) return 0;
+      const allValues = Object.values(values.espesorInicial);
+      const medians = [
+          calculateMedian(allValues.slice(0, 3)),
+          calculateMedian(allValues.slice(3, 6)),
+          calculateMedian(allValues.slice(6, 9))
+      ];
+      return calculateAverage(medians);
+  }, [values.espesorInicial]);
+
+  const promedioEspesorFinal = useMemo(() => {
+    if (!values?.espesorFinal) return 0;
+    const allValues = Object.values(values.espesorFinal);
+    const medians = [
+        calculateMedian(allValues.slice(0, 3)),
+        calculateMedian(allValues.slice(3, 6)),
+        calculateMedian(allValues.slice(6, 9))
+    ];
+    return calculateAverage(medians);
+  }, [values.espesorFinal]);
   
   const deformacion = useMemo(() => {
     return calculateDeformation(promedioEspesorInicial, promedioEspesorFinal);
@@ -128,14 +155,28 @@ const PermanentDeformationFooter = ({ control }: { control: Control<PermanentDef
     if (!samples) return { averageDeformation: 0, stdDevDeformation: 0 };
     
     const deformations = samples.map(s => {
-        const promedioInicial = calculateAverage(Object.values(s.espesorInicial));
-        const promedioFinal = calculateAverage(Object.values(s.espesorFinal));
+        const initialValues = Object.values(s.espesorInicial);
+        const initialMedians = [
+            calculateMedian(initialValues.slice(0, 3)),
+            calculateMedian(initialValues.slice(3, 6)),
+            calculateMedian(initialValues.slice(6, 9))
+        ];
+        const promedioInicial = calculateAverage(initialMedians);
+
+        const finalValues = Object.values(s.espesorFinal);
+        const finalMedians = [
+            calculateMedian(finalValues.slice(0, 3)),
+            calculateMedian(finalValues.slice(3, 6)),
+            calculateMedian(finalValues.slice(6, 9))
+        ];
+        const promedioFinal = calculateAverage(finalMedians);
+
         return calculateDeformation(promedioInicial, promedioFinal);
     }).filter(d => d > 0);
     
     return {
-      averageDeformation: calculateAverage(deformations as any),
-      stdDevDeformation: calculateStdDev(deformations as any),
+      averageDeformation: calculateAverage(deformations),
+      stdDevDeformation: calculateStdDev(deformations),
     };
   }, [samples]);
 
