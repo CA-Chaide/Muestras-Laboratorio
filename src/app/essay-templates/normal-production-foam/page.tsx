@@ -13,6 +13,7 @@ import { RecoveryTimeForm } from '@/components/essay-templates/recovery-time-for
 import { ResilienceForm } from '@/components/essay-templates/resilience-form';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
+import { PermanentDeformationForm } from '@/components/essay-templates/permanent-deformation-form';
 
 const tests = [
   'Densidad',
@@ -89,6 +90,8 @@ export default function NormalProductionFoamPage() {
                           <TractionForm />
                         ) : toValue(test) === 'desgarro' ? (
                           <TearForm />
+                        ) : toValue(test) === 'deformación-remanente' ? (
+                          <PermanentDeformationForm />
                         ) : toValue(test) === 'permeabilidad' ? (
                           <PermeabilityForm />
                         ) : toValue(test) === 'fatiga' ? (
