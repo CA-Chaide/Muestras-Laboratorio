@@ -98,33 +98,39 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
                 key={fieldName}
                 control={control}
                 name={`samples.${index}.${dimension}.${fieldName as keyof NineMeasurements}`}
-                render={({ field }) => <Input type="number" step="any" min="0" {...field} />}
+                render={({ field }) => <Input type="number" step="any" min="0" {...field} className="h-8" />}
             />
         ))}
     </div>
   );
 
-  const promedioEspesorInicial = useMemo(() => {
-    if (!values?.espesorInicial) return 0;
+  const intermediateMediansInicial = useMemo(() => {
+    if (!values?.espesorInicial) return [0, 0, 0];
       const allValues = Object.values(values.espesorInicial);
-      const medians = [
+      return [
           calculateMedian(allValues.slice(0, 3)),
           calculateMedian(allValues.slice(3, 6)),
           calculateMedian(allValues.slice(6, 9))
       ];
-      return calculateAverage(medians);
   }, [values.espesorInicial]);
 
-  const promedioEspesorFinal = useMemo(() => {
-    if (!values?.espesorFinal) return 0;
+  const promedioEspesorInicial = useMemo(() => {
+      return calculateAverage(intermediateMediansInicial);
+  }, [intermediateMediansInicial]);
+
+  const intermediateMediansFinal = useMemo(() => {
+    if (!values?.espesorFinal) return [0, 0, 0];
     const allValues = Object.values(values.espesorFinal);
-    const medians = [
+    return [
         calculateMedian(allValues.slice(0, 3)),
         calculateMedian(allValues.slice(3, 6)),
         calculateMedian(allValues.slice(6, 9))
     ];
-    return calculateAverage(medians);
   }, [values.espesorFinal]);
+
+  const promedioEspesorFinal = useMemo(() => {
+    return calculateAverage(intermediateMediansFinal);
+  }, [intermediateMediansFinal]);
   
   const deformacion = useMemo(() => {
     return calculateDeformation(promedioEspesorInicial, promedioEspesorFinal);
@@ -136,9 +142,23 @@ const PermanentDeformationRow = ({ control, index }: { control: Control<Permanen
       <TableCell className="p-2 align-middle min-w-[280px]">
         {renderMeasurementInputs('espesorInicial')}
       </TableCell>
+       <TableCell className="p-2 align-middle min-w-[120px]">
+        <div className="flex flex-col gap-1 h-full justify-around">
+          {intermediateMediansInicial.map((median, i) => (
+            <Input key={i} readOnly value={median > 0 ? median.toFixed(2) : ''} className="h-8 bg-muted/50 text-center" />
+          ))}
+        </div>
+      </TableCell>
       <TableCell className="text-center align-middle p-2">{promedioEspesorInicial > 0 ? promedioEspesorInicial.toFixed(2) : ''}</TableCell>
       <TableCell className="p-2 align-middle min-w-[280px]">
         {renderMeasurementInputs('espesorFinal')}
+      </TableCell>
+       <TableCell className="p-2 align-middle min-w-[120px]">
+        <div className="flex flex-col gap-1 h-full justify-around">
+          {intermediateMediansFinal.map((median, i) => (
+            <Input key={i} readOnly value={median > 0 ? median.toFixed(2) : ''} className="h-8 bg-muted/50 text-center" />
+          ))}
+        </div>
       </TableCell>
       <TableCell className="text-center align-middle p-2">{promedioEspesorFinal > 0 ? promedioEspesorFinal.toFixed(2) : ''}</TableCell>
       <TableCell className="text-center bg-muted p-2 align-middle font-bold">
@@ -183,13 +203,13 @@ const PermanentDeformationFooter = ({ control }: { control: Control<PermanentDef
   return (
     <TableFooter>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={5}>Promedio</TableCell>
+        <TableCell className="text-right font-bold" colSpan={7}>Promedio</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {averageDeformation > 0 ? averageDeformation.toFixed(1) : ''}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell className="text-right font-bold" colSpan={5}>Desviación Estándar</TableCell>
+        <TableCell className="text-right font-bold" colSpan={7}>Desviación Estándar</TableCell>
         <TableCell className="text-center font-bold bg-secondary">
           {stdDevDeformation > 0 ? stdDevDeformation.toFixed(2) : ''}
         </TableCell>
@@ -384,20 +404,22 @@ export function PermanentDeformationForm() {
               )}
             />
         </div>
-        <div className="overflow-x-auto rounded-lg border max-w-5xl mx-auto">
+        <div className="overflow-x-auto rounded-lg border max-w-7xl mx-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead rowSpan={2} className="text-center align-middle p-2">Muestra</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2">Espesor inicial (mm)</TableHead>
-                <TableHead colSpan={2} className="text-center border-l p-2">Espesor final (mm)</TableHead>
+                <TableHead colSpan={3} className="text-center border-l p-2">Espesor inicial (mm)</TableHead>
+                <TableHead colSpan={3} className="text-center border-l p-2">Espesor final (mm)</TableHead>
                 <TableHead rowSpan={2} className="text-center align-middle border-l p-2">Deformación Remanente (%)</TableHead>
               </TableRow>
               <TableRow>
                 <TableHead className="text-center p-2 border-l">Mediciones</TableHead>
-                <TableHead className="text-center p-2">Promedio</TableHead>
+                <TableHead className="text-center p-2">Medianas</TableHead>
+                <TableHead className="text-center p-2">Promedio de Medianas</TableHead>
                 <TableHead className="text-center p-2 border-l">Mediciones</TableHead>
-                <TableHead className="text-center p-2">Promedio</TableHead>
+                <TableHead className="text-center p-2">Medianas</TableHead>
+                <TableHead className="text-center p-2">Promedio de Medianas</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
