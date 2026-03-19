@@ -1,5 +1,5 @@
-import type { Test, Sample, Document, NavItem } from './types';
-import { LayoutDashboard, FileText, Beaker, FlaskConical, ClipboardList, Archive, FileSpreadsheet } from 'lucide-react';
+import { LayoutDashboard, FileText, Beaker, FlaskConical, ClipboardList, Archive, FileSpreadsheet, ClipboardCheck } from 'lucide-react';
+import type { NavItem } from './types';
 
 export const navItems: NavItem[] = [
   {
@@ -28,6 +28,11 @@ export const navItems: NavItem[] = [
     icon: FlaskConical,
   },
   {
+    title: 'Mis Ensayos',
+    href: '/my-tests',
+    icon: ClipboardCheck,
+  },
+  {
     title: 'Generación de Informes',
     href: '/reports',
     icon: ClipboardList,
@@ -38,9 +43,3 @@ export const navItems: NavItem[] = [
     icon: FileSpreadsheet,
   },
 ];
-
-export const tests: Test[] = [];
-
-export const samples: Sample[] = [];
-
-export const documents: Document[] = [];

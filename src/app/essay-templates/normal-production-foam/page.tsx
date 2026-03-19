@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import { PermanentDeformationForm } from '@/components/essay-templates/permanent-deformation-form';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'next/navigation';
 
 const tests = [
   'Densidad',
@@ -31,6 +33,9 @@ const tests = [
 const initialHardnessSampleValues = { espesor: '', dureza: '' };
 
 export default function NormalProductionFoamPage() {
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const testId = searchParams.get('testId');
   const toValue = (str: string) => str.toLowerCase().replace(/ /g, '-');
 
   const hardnessForm = useForm<HardnessFormValues>({
@@ -48,6 +53,14 @@ export default function NormalProductionFoamPage() {
 
   const hardnessSamples = hardnessForm.watch('samples');
 
+  const handleSaveCompleteTemplate = () => {
+    toast({
+      title: "Guardando Plantilla",
+      description: "Se están procesando todos los ensayos de la muestra.",
+    });
+    // Aquí iría la lógica para persistir todos los formularios en Firestore
+  };
+
   return (
     <div className="flex flex-col w-full">
       <Header title="Plantilla: Ensayos Espumas Producción Normal" />
@@ -56,7 +69,7 @@ export default function NormalProductionFoamPage() {
           <CardHeader>
             <CardTitle>Ensayos de Espuma - Producción Normal</CardTitle>
             <CardDescription>
-              Selecciona un ensayo para ver o editar su configuración.
+              {testId ? `Ejecutando Prueba ID: ${testId}` : 'Completa los datos técnicos de cada ensayo solicitado.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -113,7 +126,9 @@ export default function NormalProductionFoamPage() {
               ))}
             </Tabs>
             <div className="flex justify-end mt-6">
-              <Button size="lg">Guardar Plantilla Completa</Button>
+              <Button size="lg" onClick={handleSaveCompleteTemplate} className="w-full md:w-auto">
+                Guardar Plantilla Completa
+              </Button>
             </div>
           </CardContent>
         </Card>

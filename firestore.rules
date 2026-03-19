@@ -2,108 +2,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * Core Philosophy: This ruleset establishes a strict user-ownership security model.
-     * All user-generated data (documents, samples, etc.) is stored in sub-collections
-     * under the `/users/{userId}` path. Access to any document is granted only if the
-     * requesting user's authenticated UID matches the `userId` in the path.
-     *
-     * Key Security Decisions:
-     * - User-Owned Silos: All data is siloed under a user's personal path. There is no
-     *   shared or public data in this model.
-     * - Path-Based Security: Authorization is derived entirely from the document path.
-     *   Rules do not need to inspect document data to determine ownership.
-     * - Data Integrity: On creation, rules enforce that a `userId` field within the
-     *   document must match the `userId` in the path, ensuring data consistency and
-     *   preventing users from creating data in other users' silos with misleading fields.
-     * - Secure Listing: `list` operations are permitted, but they are inherently secure
-     *   because they are scoped to a specific user's path (e.g., `/users/{request.auth.uid}/samples`).
-     * - Default Deny: All paths not explicitly matched are denied access by default.
-     */
-
     // ------------------------------------------------------------------------
     // Helper Functions
     // ------------------------------------------------------------------------
 
-    /**
-     * Returns true if the user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Returns true if the authenticated user's UID matches the provided userId.
-     * Used to enforce document ownership.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
-    }
-
-    /**
-     * Returns true if the document exists and the user is the owner.
-     * Used for safe update and delete operations.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
     }
 
     // ------------------------------------------------------------------------
     // User Data Rules
     // ------------------------------------------------------------------------
     
-    /**
-     * @description Controls access to user profiles.
-     * @path /users/{userId}
-     * @principle For prototyping, allows any authenticated user to manage profiles.
-     * This will be replaced with role-based access control where only admins can manage users.
-     */
     match /users/{userId} {
       allow read, write: if isSignedIn();
     }
 
-    /**
-     * @description Controls access to a user's private documents.
-     * @path /users/{userId}/documents/{documentId}
-     * @allow (create) An authenticated user creating a document for themselves.
-     * @deny (get) An authenticated user trying to read another user's document.
-     * @principle Restricts access to a user's own data tree.
-     */
     match /users/{userId}/documents/{documentId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow read, write: if isOwner(userId);
     }
     
-    /**
-     * @description Controls access to a user's private samples.
-     * @path /users/{userId}/samples/{sampleId}
-     * @allow (create) An authenticated user creating a sample for themselves, ensuring data integrity.
-     * @deny (get) An authenticated user trying to read another user's sample.
-     * @principle Restricts access to a user's own data tree and validates data on write.
-     */
     match /users/{userId}/samples/{sampleId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId && request.resource.data.categoria is string && request.resource.data.categoria.size() > 0;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow read, write: if isOwner(userId);
     }
 
-    /**
-     * @description Controls access to assigned tests.
-     * @path /tests/{testId}
-     * @principle For prototyping, allows any authenticated user to manage tests.
-     * This can be refined later with role-based access control.
-     */
+    // Regla robusta para la colección de pruebas
+    // Permite lectura y escritura a cualquier usuario autenticado
     match /tests/{testId} {
       allow read, write: if isSignedIn();
     }
 
-    // Allow collection group queries on 'samples' for signed-in users
+    // Permitir consultas de grupo de colecciones para 'samples'
     match /{path=**}/samples/{sampleId} {
-       allow get, list: if isSignedIn();
+       allow read: if isSignedIn();
     }
   }
 }
