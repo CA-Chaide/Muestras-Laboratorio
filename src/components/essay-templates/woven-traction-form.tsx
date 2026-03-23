@@ -8,7 +8,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableFooter,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -22,47 +21,56 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-type SenseData = {
-  f1: number | string;
-  f2: number | string;
-  f3: number | string;
-  f4: number | string;
-  f5: number | string;
-  elongacion: number | string;
+type TractionRowData = {
+  velocidad: string;
+  tension: string;
+  estado: string;
+  anchura: string;
+  f1: string;
+  f2: string;
+  f3: string;
+  f4: string;
+  f5: string;
+  elongacion: string;
 };
 
 export type WovenTractionFormValues = {
   fechaInicio: Date;
   horaInicio: string;
-  temperatura: string;
-  humedadRelativa: string;
   metodo: string;
   acondicionamiento: string;
-  urdiembre: SenseData;
-  transversal: SenseData;
+  urdiembre: TractionRowData;
+  trama: TractionRowData;
   observacionesDesviaciones: string;
 };
 
-const initialSenseValues: SenseData = {
-  f1: '', f2: '', f3: '', f4: '', f5: '',
+const initialRowValues: TractionRowData = {
+  velocidad: '',
+  tension: '',
+  estado: '',
+  anchura: '',
+  f1: '',
+  f2: '',
+  f3: '',
+  f4: '',
+  f5: '',
   elongacion: '',
 };
 
-function calculateAverage(values: (number | string)[]) {
-  const validValues = values.map(Number).filter((v) => !isNaN(v) && v > 0);
-  if (validValues.length === 0) return 0;
-  const sum = validValues.reduce((a, b) => a + b, 0);
-  return sum / validValues.length;
+function calculateAverage(values: (string | number)[]) {
+  const nums = values.map(v => Number(v)).filter(n => !isNaN(n) && n > 0);
+  if (nums.length === 0) return 0;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
 }
 
-const TractionSenseRow = ({ 
-  control, 
-  sense, 
-  label, 
-  setFocus 
-}: { 
-  control: Control<WovenTractionFormValues>, 
-  sense: 'urdiembre' | 'transversal', 
+const TractionSenseRow = ({
+  control,
+  sense,
+  label,
+  setFocus
+}: {
+  control: Control<WovenTractionFormValues>,
+  sense: 'urdiembre' | 'trama',
   label: string,
   setFocus: UseFormReturn<WovenTractionFormValues>['setFocus']
 }) => {
@@ -71,12 +79,14 @@ const TractionSenseRow = ({
     name: sense,
   });
 
+  const fieldsOrder: (keyof TractionRowData)[] = [
+    'velocidad', 'tension', 'estado', 'anchura', 'f1', 'f2', 'f3', 'f4', 'f5', 'elongacion'
+  ];
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const { name } = e.currentTarget;
-    const nameParts = name.split('.'); 
-    const fieldName = nameParts[1];
-    
-    const fieldsOrder = ['f1', 'f2', 'f3', 'f4', 'f5', 'elongacion'];
+    const nameParts = name.split('.');
+    const fieldName = nameParts[1] as keyof TractionRowData;
     const currentIndex = fieldsOrder.indexOf(fieldName);
 
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -86,61 +96,70 @@ const TractionSenseRow = ({
     if (e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
       if (currentIndex < fieldsOrder.length - 1) {
-        setFocus(`${sense}.${fieldsOrder[currentIndex + 1]}` as any);
+        setFocus(`${sense}.${fieldsOrder[currentIndex + 1]}`);
       } else if (sense === 'urdiembre') {
-        setFocus('transversal.f1');
+        setFocus('trama.velocidad');
       }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (currentIndex > 0) {
-        setFocus(`${sense}.${fieldsOrder[currentIndex - 1]}` as any);
-      } else if (sense === 'transversal') {
+        setFocus(`${sense}.${fieldsOrder[currentIndex - 1]}`);
+      } else if (sense === 'trama') {
         setFocus('urdiembre.elongacion');
       }
     }
   };
 
   const promedioFuerza = useMemo(() => {
-    const forces = [values.f1, values.f2, values.f3, values.f4, values.f5];
-    return calculateAverage(forces);
+    return calculateAverage([values.f1, values.f2, values.f3, values.f4, values.f5]);
   }, [values.f1, values.f2, values.f3, values.f4, values.f5]);
 
   return (
     <TableRow>
-      <TableCell className="font-bold text-center bg-muted/30">{label}</TableCell>
+      <TableCell className="font-bold text-center bg-muted/30 text-xs">{label}</TableCell>
+      <TableCell className="p-1">
+        <FormField control={control} name={`${sense}.velocidad`} render={({ field }) => <Input {...field} onKeyDown={handleKeyDown} className="h-8 text-[11px] text-center" />} />
+      </TableCell>
+      <TableCell className="p-1">
+        <FormField control={control} name={`${sense}.tension`} render={({ field }) => <Input {...field} onKeyDown={handleKeyDown} className="h-8 text-[11px] text-center" />} />
+      </TableCell>
+      <TableCell className="p-1">
+        <FormField control={control} name={`${sense}.estado`} render={({ field }) => <Input {...field} onKeyDown={handleKeyDown} className="h-8 text-[11px] text-center" />} />
+      </TableCell>
+      <TableCell className="p-1">
+        <FormField control={control} name={`${sense}.anchura`} render={({ field }) => <Input {...field} onKeyDown={handleKeyDown} className="h-8 text-[11px] text-center" />} />
+      </TableCell>
       {[1, 2, 3, 4, 5].map((num) => (
-        <TableCell key={num} className="p-2">
+        <TableCell key={num} className="p-1">
           <FormField
             control={control}
             name={`${sense}.f${num}` as any}
             render={({ field }) => (
-              <Input 
-                type="number" 
-                step="any" 
-                min="0" 
-                {...field} 
+              <Input
+                type="number"
+                step="any"
+                {...field}
                 onKeyDown={handleKeyDown}
-                className="text-center"
+                className="h-8 text-[11px] text-center font-medium"
               />
             )}
           />
         </TableCell>
       ))}
-      <TableCell className="text-center font-bold bg-secondary/20">
+      <TableCell className="text-center font-bold bg-secondary/20 text-[11px]">
         {promedioFuerza > 0 ? promedioFuerza.toFixed(1) : '-'}
       </TableCell>
-      <TableCell className="p-2">
+      <TableCell className="p-1">
         <FormField
           control={control}
-          name={`${sense}.elongacion` as any}
+          name={`${sense}.elongacion`}
           render={({ field }) => (
-            <Input 
-              type="number" 
-              step="any" 
-              min="0" 
-              {...field} 
+            <Input
+              type="number"
+              step="any"
+              {...field}
               onKeyDown={handleKeyDown}
-              className="text-center"
+              className="h-8 text-[11px] text-center font-bold text-primary"
             />
           )}
         />
@@ -154,56 +173,45 @@ export function WovenTractionForm() {
     defaultValues: {
       fechaInicio: new Date(),
       horaInicio: format(new Date(), 'HH:mm'),
-      temperatura: '',
-      humedadRelativa: '',
       metodo: 'ASTM D5034',
       acondicionamiento: '24 h, temperatura: 21°C ± 1°C, humedad relativa: 65% ± 2%',
-      urdiembre: { ...initialSenseValues },
-      transversal: { ...initialSenseValues },
+      urdiembre: { ...initialRowValues },
+      trama: { ...initialRowValues },
       observacionesDesviaciones: '',
     },
   });
 
   const onSubmit = (data: WovenTractionFormValues) => {
-    console.log("Datos del formulario de Tracción Telas:", data);
+    console.log("Woven Traction Data:", data);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 border rounded-lg bg-card">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-card shadow-sm">
           <FormField
             control={form.control}
             name="fechaInicio"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Fecha inicio de ensayo</FormLabel>
+                <FormLabel className="text-xs font-semibold">Fecha inicio</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'w-full pl-3 text-left font-normal',
+                          'w-full pl-3 text-left font-normal h-8 text-xs',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
-                        {field.value ? (
-                          format(field.value, 'PPP', { locale: es })
-                        ) : (
-                          <span>Selecciona una fecha</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        {field.value ? format(field.value, 'PP', { locale: es }) : <span>Seleccionar</span>}
+                        <CalendarIcon className="ml-auto h-3 w-3 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
+                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
                   </PopoverContent>
                 </Popover>
               </FormItem>
@@ -214,10 +222,8 @@ export function WovenTractionForm() {
             name="horaInicio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hora de inicio</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
+                <FormLabel className="text-xs font-semibold">Hora inicio</FormLabel>
+                <FormControl><Input type="time" {...field} className="h-8 text-xs" /></FormControl>
               </FormItem>
             )}
           />
@@ -226,10 +232,8 @@ export function WovenTractionForm() {
             name="metodo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Método de Ensayo</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FormLabel className="text-xs font-semibold">Método de ensayo</FormLabel>
+                <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
               </FormItem>
             )}
           />
@@ -237,39 +241,42 @@ export function WovenTractionForm() {
             control={form.control}
             name="acondicionamiento"
             render={({ field }) => (
-              <FormItem className="lg:col-span-3">
-                <FormLabel>Acondicionamiento</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+              <FormItem>
+                <FormLabel className="text-xs font-semibold">Acondicionamiento</FormLabel>
+                <FormControl><Input {...field} className="h-8 text-xs" /></FormControl>
               </FormItem>
             )}
           />
         </div>
 
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="text-center w-[150px]">Sentido</TableHead>
-                <TableHead colSpan={5} className="text-center border-l border-r">Fuerza Máxima (N)</TableHead>
-                <TableHead className="text-center">Promedio Fuerza (N)</TableHead>
-                <TableHead className="text-center w-[150px]">Elongación (%)</TableHead>
+              <TableRow className="text-[10px] uppercase tracking-wider bg-muted/50 font-bold">
+                <TableHead className="w-[120px] text-center border-r">Sentido</TableHead>
+                <TableHead className="text-center min-w-[100px]">Velocidad Alarg. (mm/min)</TableHead>
+                <TableHead className="text-center min-w-[100px]">Tensión Previa (N)</TableHead>
+                <TableHead className="text-center min-w-[100px]">Estado Probetas</TableHead>
+                <TableHead className="text-center min-w-[100px]">Anchura Tiras (mm)</TableHead>
+                <TableHead className="text-center border-l" colSpan={5}>Resultados Fuerza (N)</TableHead>
+                <TableHead className="text-center border-l bg-secondary/10">Promedio (N)</TableHead>
+                <TableHead className="text-center border-l text-primary">Elongación (%)</TableHead>
               </TableRow>
-              <TableRow className="bg-muted/50">
-                <TableHead></TableHead>
-                <TableHead className="text-center border-l">1</TableHead>
-                <TableHead className="text-center">2</TableHead>
-                <TableHead className="text-center">3</TableHead>
-                <TableHead className="text-center">4</TableHead>
-                <TableHead className="text-center border-r">5</TableHead>
-                <TableHead></TableHead>
-                <TableHead></TableHead>
+              <TableRow className="text-[9px] bg-muted/20">
+                <TableHead className="border-r"></TableHead>
+                <TableHead colSpan={4}></TableHead>
+                <TableHead className="text-center border-l">F1</TableHead>
+                <TableHead className="text-center">F2</TableHead>
+                <TableHead className="text-center">F3</TableHead>
+                <TableHead className="text-center">F4</TableHead>
+                <TableHead className="text-center">F5</TableHead>
+                <TableHead className="border-l"></TableHead>
+                <TableHead className="border-l"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TractionSenseRow control={form.control} sense="urdiembre" label="Urdiembre" setFocus={form.setFocus} />
-              <TractionSenseRow control={form.control} sense="transversal" label="Transversal" setFocus={form.setFocus} />
+              <TractionSenseRow control={form.control} sense="urdiembre" label="URDIEMBRE" setFocus={form.setFocus} />
+              <TractionSenseRow control={form.control} sense="trama" label="TRAMA" setFocus={form.setFocus} />
             </TableBody>
           </Table>
         </div>
@@ -279,14 +286,8 @@ export function WovenTractionForm() {
           name="observacionesDesviaciones"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Observaciones / Desviaciones</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Registre cualquier observación relevante..." 
-                  className="min-h-[100px]"
-                  {...field} 
-                />
-              </FormControl>
+              <FormLabel className="text-xs font-semibold">Observaciones / Desviaciones</FormLabel>
+              <FormControl><Textarea {...field} placeholder="Registre cualquier hallazgo o desviación..." className="min-h-[80px] text-xs resize-none" /></FormControl>
             </FormItem>
           )}
         />
