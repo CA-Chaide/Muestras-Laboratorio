@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import { WovenTractionForm } from '@/components/essay-templates/woven-traction-form';
+import { WovenTearForm } from '@/components/essay-templates/woven-tear-form';
 
 const tests = [
   'Tracción',
@@ -67,6 +68,8 @@ export default function WovenFabricPage() {
                     <CardContent className="space-y-4">
                       {toValue(test) === 'traccion' ? (
                         <WovenTractionForm />
+                      ) : toValue(test) === 'desgarro' ? (
+                        <WovenTearForm />
                       ) : (
                         <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg bg-accent/5">
                           <h3 className="text-xl font-semibold">Formulario de {test}</h3>
