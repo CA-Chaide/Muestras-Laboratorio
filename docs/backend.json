@@ -1,10 +1,109 @@
 {
   "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user account within the LabTrack application, including their personal details and role.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for login and notifications.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the system, determining their permissions and access levels (e.g., 'Admin', 'Analyst', 'DocumentManager', 'ClientContact', 'Viewer')."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "role"
+      ]
+    },
+    "Client": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Client",
+      "type": "object",
+      "description": "Represents a client or organization that submits samples to the lab for testing.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Client entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the client or organization."
+        },
+        "contactPerson": {
+          "type": "string",
+          "description": "The name of the primary contact person at the client organization."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The email address of the primary contact person.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The phone number of the primary contact person."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical address of the client organization."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "contactPerson",
+        "contactEmail"
+      ]
+    },
+    "DocumentType": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DocumentType",
+      "type": "object",
+      "description": "Defines categories for documents managed in the system, such as SOPs or calibration records.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DocumentType entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the document type (e.g., 'SOP', 'Calibration Record', 'Training Material')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of what this document type represents."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
     "Document": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Document",
       "type": "object",
-      "description": "Represents a lab document, such as SOPs, calibration records, and training materials.",
+      "description": "Represents a document stored and managed within the LabTrack system, such as Standard Operating Procedures (SOPs), calibration records, or training materials.",
       "properties": {
         "id": {
           "type": "string",
@@ -12,235 +111,358 @@
         },
         "title": {
           "type": "string",
-          "description": "Title of the document."
+          "description": "The title or name of the document."
         },
         "description": {
           "type": "string",
-          "description": "Detailed description of the document."
+          "description": "A brief description of the document's content or purpose."
         },
-        "fileUrl": {
+        "documentTypeId": {
           "type": "string",
-          "description": "URL or path to the document file.",
+          "description": "Reference to the DocumentType this document belongs to. (Relationship: DocumentType 1:N Document)"
+        },
+        "documentPath": {
+          "type": "string",
+          "description": "The URI or path to the stored document file.",
           "format": "uri"
         },
         "uploadDate": {
           "type": "string",
-          "description": "Date and time when the document was uploaded.",
+          "description": "The date and time when the document was uploaded.",
           "format": "date-time"
         },
-        "category": {
+        "uploadedById": {
           "type": "string",
-          "description": "Category or type of the document (e.g., SOP, Calibration Record)."
+          "description": "Reference to the UserProfile who uploaded this document. (Relationship: UserProfile 1:N Document)"
+        },
+        "version": {
+          "type": "string",
+          "description": "The version number or identifier of the document (e.g., '1.0', 'Rev B')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the document (e.g., 'Draft', 'Approved', 'Archived', 'Superseded')."
         }
       },
       "required": [
+        "id",
         "title",
-        "fileUrl",
+        "documentTypeId",
+        "documentPath",
         "uploadDate",
-        "category"
+        "uploadedById",
+        "version",
+        "status"
+      ]
+    },
+    "StorageLocation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StorageLocation",
+      "type": "object",
+      "description": "Defines physical locations within the lab where samples or other items are stored.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the StorageLocation entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "A descriptive name for the storage location (e.g., 'Freezer -80C A', 'Refrigerator B', 'Shelf 3, Cabinet 2')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional details or description of the storage location."
+        },
+        "locationType": {
+          "type": "string",
+          "description": "The type of storage location (e.g., 'Freezer', 'Fridge', 'Cabinet', 'Shelf', 'Room')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "locationType"
       ]
     },
     "Sample": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Sample",
       "type": "object",
-      "description": "Represents a lab sample with its registration details.",
-      "properties": {
-        "identificacion": {
-          "type": "string",
-          "description": "Identifier assigned to the sample by the lab."
-        },
-        "registrationDateTime": {
-          "type": "string",
-          "description": "Date and time when the sample was registered, in ISO format.",
-          "format": "date-time"
-        },
-        "descripcion": {
-          "type": "string",
-          "description": "Detailed description of the sample."
-        },
-        "fechaFabricacionLote": {
-          "type": "string",
-          "description": "Manufacturing date or lot number of the sample."
-        },
-        "categoria": {
-          "type": "string",
-          "description": "The category of the sample (e.g., Espuma, Tela, Colchón)."
-        },
-        "tipoMuestra": {
-          "type": "string",
-          "description": "The type of the sample.",
-          "enum": [
-            "Producción Normal",
-            "Prueba de Producción",
-            "Prueba de Calidad",
-            "Ensayo Rápido"
-          ]
-        },
-        "ensayosSolicitados": {
-          "type": "string",
-          "description": "List of requested tests for the sample."
-        },
-        "solicitudNumero": {
-          "type": "string",
-          "description": "The request number associated with the sample."
-        },
-        "informeNumero": {
-          "type": "string",
-          "description": "The report number associated with the sample."
-        },
-        "status": {
-          "type": "string",
-          "description": "Current status of the sample.",
-          "default": "Registrado"
-        },
-        "userId": {
-          "type": "string",
-          "description": "The ID of the user who registered the sample."
-        }
-      },
-      "required": [
-        "identificacion",
-        "registrationDateTime",
-        "descripcion",
-        "fechaFabricacionLote",
-        "categoria",
-        "tipoMuestra",
-        "ensayosSolicitados",
-        "solicitudNumero",
-        "informeNumero",
-        "userId"
-      ]
-    },
-    "Test": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Test",
-      "type": "object",
-      "description": "Represents a test assigned to a sample and a technician.",
+      "description": "Represents a single physical sample registered in the lab, submitted by a client for testing.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Test entity."
+          "description": "Unique identifier for the Sample entity."
+        },
+        "sampleCode": {
+          "type": "string",
+          "description": "A human-readable unique code assigned to the sample."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to the Client who submitted this sample. (Relationship: Client 1:N Sample)"
+        },
+        "registrationDate": {
+          "type": "string",
+          "description": "The date and time when the sample was registered in the system.",
+          "format": "date-time"
+        },
+        "receivedById": {
+          "type": "string",
+          "description": "Reference to the UserProfile who received and registered the sample. (Relationship: UserProfile 1:N Sample)"
+        },
+        "storageLocationId": {
+          "type": "string",
+          "description": "Reference to the StorageLocation where the sample is currently stored. (Relationship: StorageLocation 1:N Sample)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description or notes about the sample."
+        },
+        "currentStatus": {
+          "type": "string",
+          "description": "The current processing status of the sample (e.g., 'Registered', 'In Progress', 'Testing Complete', 'Report Generated', 'Archived', 'Discarded')."
+        }
+      },
+      "required": [
+        "id",
+        "sampleCode",
+        "clientId",
+        "registrationDate",
+        "receivedById",
+        "currentStatus"
+      ]
+    },
+    "TestDefinition": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TestDefinition",
+      "type": "object",
+      "description": "Defines a type of test that can be performed in the lab, including its parameters and expected values.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TestDefinition entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the test (e.g., 'pH Measurement', 'Spectroscopy', 'Chromatography')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the test and its methodology."
+        },
+        "standardOperatingProcedureDocId": {
+          "type": "string",
+          "description": "Reference to the Document (SOP) describing how to perform this test. (Relationship: Document 1:N TestDefinition)"
+        },
+        "expectedMinResult": {
+          "type": "number",
+          "description": "The minimum expected result value for this test, if applicable."
+        },
+        "expectedMaxResult": {
+          "type": "number",
+          "description": "The maximum expected result value for this test, if applicable."
+        },
+        "unit": {
+          "type": "string",
+          "description": "The unit of measurement for the test result (e.g., 'pH units', 'mg/L', 'nm')."
+        },
+        "testMethod": {
+          "type": "string",
+          "description": "The specific method or technique used for the test (e.g., 'Titration', 'UV-Vis', 'HPLC')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "standardOperatingProcedureDocId",
+        "unit"
+      ]
+    },
+    "SampleTestAssignment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SampleTestAssignment",
+      "type": "object",
+      "description": "Represents a specific test that has been assigned to a particular sample for execution.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SampleTestAssignment entity."
         },
         "sampleId": {
           "type": "string",
-          "description": "ID of the sample being tested."
+          "description": "Reference to the Sample this test is assigned to. (Relationship: Sample 1:N SampleTestAssignment)"
         },
-        "sampleIdentificacion": {
+        "testDefinitionId": {
           "type": "string",
-          "description": "Identifier of the sample, for display purposes."
-        },
-        "assignedToId": {
-          "type": "string",
-          "description": "The ID of the user (technician) to whom the test is assigned."
-        },
-        "assignedToName": {
-          "type": "string",
-          "description": "The name of the user (technician) to whom the test is assigned."
+          "description": "Reference to the TestDefinition for the type of test being performed. (Relationship: TestDefinition 1:N SampleTestAssignment)"
         },
         "assignedById": {
           "type": "string",
-          "description": "The ID of the user who assigned the test."
+          "description": "Reference to the UserProfile who assigned this test. (Relationship: UserProfile 1:N SampleTestAssignment - assigned by)"
         },
-        "templateId": {
+        "assignedToId": {
           "type": "string",
-          "description": "Identifier for the essay template to be used (e.g., 'normal-production-foam')."
+          "description": "Reference to the UserProfile (analyst) who is assigned to perform this test. (Relationship: UserProfile 1:N SampleTestAssignment - assigned to)"
         },
-        "templateName": {
+        "assignmentDate": {
           "type": "string",
-          "description": "Display name for the essay template."
+          "description": "The date and time when the test was assigned.",
+          "format": "date-time"
         },
-        "assignedDate": {
+        "dueDate": {
           "type": "string",
-          "description": "Date when the test was assigned.",
+          "description": "The date and time by which the test is expected to be completed.",
           "format": "date-time"
         },
         "status": {
           "type": "string",
-          "description": "Current status of the test.",
-          "enum": [
-            "Pendiente",
-            "En Progreso",
-            "Completado"
-          ]
+          "description": "The current status of the test assignment (e.g., 'Assigned', 'In Progress', 'Pending Review', 'Completed', 'Rejected')."
         }
       },
       "required": [
+        "id",
         "sampleId",
-        "sampleIdentificacion",
-        "assignedToId",
-        "assignedToName",
+        "testDefinitionId",
         "assignedById",
-        "templateId",
-        "templateName",
-        "assignedDate",
+        "assignedToId",
+        "assignmentDate",
         "status"
+      ]
+    },
+    "TestResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TestResult",
+      "type": "object",
+      "description": "Records the specific outcome and observations for a completed SampleTestAssignment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TestResult entity."
+        },
+        "sampleTestAssignmentId": {
+          "type": "string",
+          "description": "Reference to the SampleTestAssignment this result belongs to. (Relationship: SampleTestAssignment 1:N TestResult)"
+        },
+        "resultValue": {
+          "type": "string",
+          "description": "The measured or observed result value of the test. Stored as string for flexibility to accommodate various data types (numeric, text, PASS/FAIL)."
+        },
+        "unit": {
+          "type": "string",
+          "description": "The unit of measurement for the result value, if applicable."
+        },
+        "testDate": {
+          "type": "string",
+          "description": "The date and time when the test was performed.",
+          "format": "date-time"
+        },
+        "performedById": {
+          "type": "string",
+          "description": "Reference to the UserProfile (analyst) who performed the test. (Relationship: UserProfile 1:N TestResult)"
+        },
+        "observation": {
+          "type": "string",
+          "description": "Any additional observations or notes recorded during the test."
+        },
+        "isDeviation": {
+          "type": "boolean",
+          "description": "Indicates whether the result deviates from expected values or parameters."
+        },
+        "deviationReason": {
+          "type": "string",
+          "description": "A description of the reason for the deviation, if 'isDeviation' is true."
+        },
+        "genaiReferenceLink": {
+          "type": "string",
+          "description": "A link to the external source (e.g., online article, database) used by GenAI to extract reference information about potential deviations.",
+          "format": "uri"
+        },
+        "genaiReferenceInfo": {
+          "type": "string",
+          "description": "Summary of the reference information extracted by GenAI, relevant to observed deviations."
+        },
+        "reviewedById": {
+          "type": "string",
+          "description": "Reference to the UserProfile who reviewed these test results. (Relationship: UserProfile 1:N TestResult - reviewed by)"
+        },
+        "reviewDate": {
+          "type": "string",
+          "description": "The date and time when the test results were reviewed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "sampleTestAssignmentId",
+        "resultValue",
+        "testDate",
+        "performedById",
+        "isDeviation"
       ]
     },
     "Report": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Report",
       "type": "object",
-      "description": "Represents a test report generated for a sample.",
+      "description": "Represents a generated report, compiling test results and other relevant data for samples or clients.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the Report entity."
         },
-        "testId": {
+        "reportCode": {
           "type": "string",
-          "description": "Reference to Test. (Relationship: Test 1:1 Report)"
+          "description": "A unique, human-readable code for the generated report."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the report."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or summary of the report's content."
+        },
+        "reportPath": {
+          "type": "string",
+          "description": "The URI or path to the generated report file (e.g., PDF).",
+          "format": "uri"
         },
         "generationDate": {
           "type": "string",
-          "description": "Date and time when the report was generated.",
+          "description": "The date and time when the report was generated.",
           "format": "date-time"
         },
-        "results": {
+        "generatedById": {
           "type": "string",
-          "description": "Detailed results of the test."
+          "description": "Reference to the UserProfile who generated this report. (Relationship: UserProfile 1:N Report)"
         },
-        "deviations": {
+        "status": {
           "type": "string",
-          "description": "Any deviations observed during the test and their descriptions."
+          "description": "The current status of the report (e.g., 'Draft', 'Final', 'Issued', 'Archived')."
         },
-        "referenceLink": {
+        "sampleIds": {
+          "type": "array",
+          "description": "References to Samples included in this report. (Relationship: Sample N:N Report)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clientId": {
           "type": "string",
-          "description": "Link to any reference information used during the test (e.g., from online sources).",
-          "format": "uri"
+          "description": "Reference to the Client for whom this report was generated, if applicable. (Relationship: Client 1:N Report)"
         }
       },
       "required": [
-        "testId",
+        "id",
+        "reportCode",
+        "title",
+        "reportPath",
         "generationDate",
-        "results"
-      ]
-    },
-    "UserProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "User Profile",
-      "description": "Stores details about a user, including their role.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The full name of the user."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address.",
-          "format": "email"
-        },
-        "role": {
-          "type": "string",
-          "description": "The role of the user in the system.",
-          "enum": ["Administrador", "Técnico"]
-        }
-      },
-      "required": [
-        "name",
-        "email",
-        "role"
+        "generatedById",
+        "status",
+        "sampleIds"
       ]
     }
   },
@@ -253,78 +475,186 @@
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}",
+        "path": "/userProfiles/{userProfileId}",
         "definition": {
           "entityName": "UserProfile",
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores user profile information. The document ID is the same as the Firebase Auth UID. This collection is managed by administrators.",
+          "description": "Stores user profile information and their assigned role. The 'userProfileId' MUST correspond to the Firebase Authentication UID. This collection serves as the primary source for user roles for Database Access Control (DBAC). For 'ClientContact' roles, this document will include a 'clientIds' array specifying which clients the user can access, enabling Authorization Independence for related data. Self-referential get() for own profile role lookup is allowed.",
           "params": [
             {
-              "name": "userId",
-              "description": "The user's Auth UID."
+              "name": "userProfileId",
+              "description": "The unique identifier of the user profile, matching the Firebase Authentication UID."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/documents/{documentId}",
+        "path": "/clients/{clientId}",
+        "definition": {
+          "entityName": "Client",
+          "schema": {
+            "$ref": "#/backend/entities/Client"
+          },
+          "description": "Contains information about each client or organization. Access is typically restricted to 'Admin' and 'DocumentManager' roles. 'ClientContact' users' access to related data (samples, reports) is managed by denormalized 'clientId' in those respective documents, coupled with 'clientIds' in their 'UserProfile'.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "The unique identifier for a client."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/documentTypes/{documentTypeId}",
+        "definition": {
+          "entityName": "DocumentType",
+          "schema": {
+            "$ref": "#/backend/entities/DocumentType"
+          },
+          "description": "Defines categories for documents, such as SOPs or calibration records. Generally read-only for most users, editable by 'Admin' or 'DocumentManager' roles.",
+          "params": [
+            {
+              "name": "documentTypeId",
+              "description": "The unique identifier for a document type."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/documents/{documentId}",
         "definition": {
           "entityName": "Document",
           "schema": {
             "$ref": "#/backend/entities/Document"
           },
-          "description": "Stores documents (SOPs, records) owned by a specific user. Access is restricted to the owning user.",
+          "description": "Stores approved and published documents accessible to relevant lab personnel. Documents in this collection have a 'status' indicating they are not drafts (e.g., 'Approved', 'Archived'). 'uploadedById' serves for provenance. Document management (create/update/delete) is restricted to 'Admin' or 'DocumentManager' roles, while viewing is broader.",
           "params": [
             {
-              "name": "userId",
-              "description": "The ID of the user who owns the document."
-            },
-            {
               "name": "documentId",
-              "description": "The ID of the document."
+              "description": "The unique identifier for an approved or published document."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/samples/{sampleId}",
+        "path": "/userProfiles/{userId}/draftDocuments/{documentId}",
+        "definition": {
+          "entityName": "Document",
+          "schema": {
+            "$ref": "#/backend/entities/Document"
+          },
+          "description": "A subcollection for user-specific draft documents. This path-based ownership ensures that only the `userId` (matching `request.auth.uid`) can access their own drafts, achieving strong Authorization Independence for personal data. The 'status' field for these documents would typically be 'Draft'.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this draft document."
+            },
+            {
+              "name": "documentId",
+              "description": "The unique identifier for the draft document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/storageLocations/{storageLocationId}",
+        "definition": {
+          "entityName": "StorageLocation",
+          "schema": {
+            "$ref": "#/backend/entities/StorageLocation"
+          },
+          "description": "Lists physical storage locations within the lab. Generally read-only for most users, editable by 'Admin' or 'DocumentManager' roles.",
+          "params": [
+            {
+              "name": "storageLocationId",
+              "description": "The unique identifier for a storage location."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/samples/{sampleId}",
         "definition": {
           "entityName": "Sample",
           "schema": {
             "$ref": "#/backend/entities/Sample"
           },
-          "description": "Stores samples registered by a specific user. Access is restricted to the owning user.",
+          "description": "Contains details for each registered sample. Includes denormalized 'clientId' for Authorization Independence, allowing 'ClientContact' users to query their samples directly without `get()` calls to the parent client. Access is also controlled by 'receivedById' and global roles.",
           "params": [
             {
-              "name": "userId",
-              "description": "The ID of the user who owns the sample."
-            },
-            {
               "name": "sampleId",
-              "description": "The ID of the sample."
+              "description": "The unique identifier for a sample."
             }
           ]
         }
       },
       {
-        "path": "/tests/{testId}",
+        "path": "/testDefinitions/{testDefinitionId}",
         "definition": {
-          "entityName": "Test",
+          "entityName": "TestDefinition",
           "schema": {
-            "$ref": "#/backend/entities/Test"
+            "$ref": "#/backend/entities/TestDefinition"
           },
-          "description": "Stores all assigned tests. Read access for assigned technicians and all admins. Write access for admins.",
+          "description": "Defines the types of tests that can be performed. Generally read-only for most users, editable by 'Admin' or 'DocumentManager' roles.",
           "params": [
             {
-              "name": "testId",
-              "description": "The unique ID of the test."
+              "name": "testDefinitionId",
+              "description": "The unique identifier for a test definition."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sampleTestAssignments/{sampleTestAssignmentId}",
+        "definition": {
+          "entityName": "SampleTestAssignment",
+          "schema": {
+            "$ref": "#/backend/entities/SampleTestAssignment"
+          },
+          "description": "Represents a specific test assigned to a sample. Includes denormalized 'clientId' (copied from the associated Sample) for Authorization Independence, allowing 'ClientContact' users to query their relevant assignments. 'assignedToId' enables QAP for analysts to view their own assigned tests.",
+          "params": [
+            {
+              "name": "sampleTestAssignmentId",
+              "description": "The unique identifier for a sample test assignment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/testResults/{testResultId}",
+        "definition": {
+          "entityName": "TestResult",
+          "schema": {
+            "$ref": "#/backend/entities/TestResult"
+          },
+          "description": "Records the results of a completed test assignment. Includes denormalized 'clientId' (copied from the associated SampleTestAssignment) for Authorization Independence, allowing 'ClientContact' users to query relevant results. 'performedById' enables QAP for analysts to view their own results, and 'reviewedById' for reviewers.",
+          "params": [
+            {
+              "name": "testResultId",
+              "description": "The unique identifier for a test result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/reports/{reportId}",
+        "definition": {
+          "entityName": "Report",
+          "schema": {
+            "$ref": "#/backend/entities/Report"
+          },
+          "description": "Stores generated reports. The 'clientId' field is inherently present, enabling Authorization Independence for 'ClientContact' users to query reports specific to their clients. 'generatedById' allows QAP for the report generator.",
+          "params": [
+            {
+              "name": "reportId",
+              "description": "The unique identifier for a report."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to be user-centric. Each user has their own collections of documents and samples, ensuring strong data isolation. Authorization is handled through path-based ownership. A top-level `/tests` collection is added to manage test assignments across different users and roles, allowing for centralized tracking and role-based access."
+    "reasoning": "The recommended Firestore data structure for LabTrack prioritizes security, scalability, and debuggability by strictly adhering to the core design principles. The approach leverages structural segregation, path-based ownership, and strategic denormalization to achieve Authorization Independence and enable Query-Accessible Permissions (QAPs).\n\n**Authorization Independence:** This is achieved primarily through two mechanisms:\n1.  **Path-Based Ownership:** For sensitive user-specific data, such as draft documents, the data is placed in subcollections under the user's profile path (e.g., `/userProfiles/{userId}/draftDocuments/{documentId}`). This inherently links the document's access to the authenticated user (`request.auth.uid`) without needing to fetch parent documents to determine ownership. This also enables atomic operations when creating user-owned resources.\n2.  **Denormalization of Authorization Context:** To enable `list` operations for 'ClientContact' users and other cross-cutting access patterns without requiring expensive and rule-breaking `get()` calls to parent documents, key authorization fields are denormalized. Specifically:\n    *   The `UserProfile` for a 'ClientContact' user will contain a `clientIds` array (or a single `clientId` if 1:1) indicating the client(s) they represent. This is an allowed `get()` for the user's *own* profile to determine their role and associated clients.\n    *   `Sample` documents contain the `clientId` field.\n    *   `SampleTestAssignment` documents also contain the `clientId` field, copied from the associated `Sample`.\n    *   `TestResult` documents contain the `clientId` field, copied from the associated `SampleTestAssignment`.\n    *   `Report` documents inherently contain `clientId`.\n    This denormalization ensures that when evaluating security rules for a `Sample`, `SampleTestAssignment`, `TestResult`, or `Report`, the `clientId` is directly available within the document (`resource.data.clientId`), avoiding `get()` calls to determine client ownership from a parent.\n\n**Query-Accessible Permissions (QAPs):** The structure facilitates secure `list` operations without requiring security rules to act as filters (which is insecure and inefficient).\n1.  **Homogeneous Collections:** Each collection (e.g., `/clients`, `/documentTypes`, `/storageLocations`, `/testDefinitions`) holds documents with a consistent security posture. Access to these collections is typically determined by the user's global `role` (e.g., 'Admin', 'Analyst') stored in their `UserProfile`.\n2.  **Path-Based QAPs:** For user-owned `draftDocuments`, the path `/userProfiles/{userId}/draftDocuments/{documentId}` automatically ensures that `list` queries are restricted to the `request.auth.uid`, satisfying the QAP for personal drafts.\n3.  **Denormalized Field-Based QAPs:** For 'ClientContact' users to list their specific samples, test assignments, test results, or reports, they can issue queries like `db.collection('samples').where('clientId', 'in', userProfile.clientIds)`. The denormalized `clientId` in the document, combined with the `clientIds` from their `UserProfile` (fetched once), makes these queries inherently secure and performant without needing `get()` calls in the rules themselves to validate client ownership for each document.\n4.  **Assigned User QAPs:** For analysts to view their assigned tests or performed test results, they can query `db.collection('sampleTestAssignments').where('assignedToId', '==', request.auth.uid)` or `db.collection('testResults').where('performedById', '==', request.auth.uid)`. These fields are naturally part of the respective entities.\n\nThe user-reported Firebase Auth `(auth/configuration-not-found)` error is a client-side or server-side Firebase project configuration issue, not a data structure problem. This data structure assumes Firebase Authentication is correctly configured and initialized, allowing `request.auth.uid` to be reliably available for rule evaluation."
   }
 }
