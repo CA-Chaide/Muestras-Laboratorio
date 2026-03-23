@@ -73,7 +73,7 @@ const TractionSenseRow = ({
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const { name } = e.currentTarget;
-    const nameParts = name.split('.'); // ['urdiembre', 'f1']
+    const nameParts = name.split('.'); 
     const fieldName = nameParts[1];
     
     const fieldsOrder = ['f1', 'f2', 'f3', 'f4', 'f5', 'elongacion'];
@@ -154,6 +154,8 @@ export function WovenTractionForm() {
     defaultValues: {
       fechaInicio: new Date(),
       horaInicio: format(new Date(), 'HH:mm'),
+      temperatura: '',
+      humedadRelativa: '',
       metodo: 'ASTM D5034',
       acondicionamiento: '24 h, temperatura: 21°C ± 1°C, humedad relativa: 65% ± 2%',
       urdiembre: { ...initialSenseValues },
