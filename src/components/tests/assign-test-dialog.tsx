@@ -48,7 +48,8 @@ interface AssignTestDialogProps {
 }
 
 const templates = [
-  { id: 'normal-production-foam', name: 'Ensayos Espumas Producción Normal' }
+  { id: 'normal-production-foam', name: 'Ensayos Espumas Producción Normal' },
+  { id: 'woven-fabric', name: 'Ensayos Telas Tejido Plano' }
 ];
 
 export function AssignTestDialog({ children }: AssignTestDialogProps) {

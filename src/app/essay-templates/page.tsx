@@ -12,6 +12,12 @@ const essayTemplates = [
     icon: FileSpreadsheet,
     description: 'Gestionar plantilla para ensayos de espumas en producción normal.',
   },
+  {
+    title: 'Ensayos Telas Tejido Plano',
+    href: '/essay-templates/woven-fabric',
+    icon: FileSpreadsheet,
+    description: 'Gestionar plantilla para ensayos de telas de tejido plano.',
+  },
 ];
 
 export default function EssayTemplatesPage() {
