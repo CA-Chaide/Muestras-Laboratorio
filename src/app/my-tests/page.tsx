@@ -1,32 +1,28 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { mockCurrentUser, getTestsByUser } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import type { Test } from '@/lib/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MyTestsPage() {
-  const { firestore, user } = useFirebase();
+  // TODO: Reemplazar mockCurrentUser con usuario autenticado desde la API
+  const user = mockCurrentUser;
 
-  const myTestsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(
-      collection(firestore, 'tests'),
-      where('assignedToId', '==', user.uid),
-      orderBy('assignedDate', 'desc')
-    );
-  }, [firestore, user]);
+  // TODO: Reemplazar con fetch a GET /api/tests?assignedToId=...
+  const [tests, setTests] = useState<Test[]>([]);
 
-  const { data: tests, isLoading, error } = useCollection<Test>(myTestsQuery);
+  useEffect(() => {
+    setTests(getTestsByUser(user.uid));
+  }, [user.uid]);
 
   const getStatusVariant = (status: Test['status']) => {
     switch (status) {
@@ -60,17 +56,7 @@ export default function MyTestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  [...Array(3)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
-                    </TableRow>
-                  ))
-                ) : tests && tests.length > 0 ? (
+                {tests && tests.length > 0 ? (
                   tests.map((test) => (
                     <TableRow key={test.id}>
                       <TableCell className="font-medium">{test.sampleIdentificacion}</TableCell>

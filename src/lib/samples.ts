@@ -1,15 +1,20 @@
-'use client';
-import { collection, doc, Firestore, getDocs, query, where } from "firebase/firestore";
-import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+/**
+ * Servicio de Muestras
+ * TODO: Reemplazar funciones con llamadas a API REST
+ */
 import type { SampleFormValues } from "@/components/samples/sample-form";
+import type { Sample } from "./types";
+import { samples, generateId } from "./data";
 
-export async function saveSample(firestore: Firestore, userId: string, sampleData: SampleFormValues, categoria: string) {
-    const samplesCollectionRef = collection(firestore, 'users', userId, 'samples');
-
-    const q = query(samplesCollectionRef, where("identificacion", "==", sampleData.identificacion));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
+/**
+ * Guarda una nueva muestra en el almacén de datos.
+ * TODO: Reemplazar con POST /api/samples
+ */
+export async function saveSample(userId: string, sampleData: SampleFormValues, categoria: string): Promise<Sample> {
+    const existing = samples.find(
+      s => s.identificacion === sampleData.identificacion && s.userId === userId
+    );
+    if (existing) {
       throw new Error(`Ya existe una muestra con la identificación '${sampleData.identificacion}'.`);
     }
 
@@ -19,7 +24,8 @@ export async function saveSample(firestore: Firestore, userId: string, sampleDat
 
     const { fechaIngreso, horaIngreso, ...rest } = sampleData;
 
-    const dataToSave = {
+    const newSample: Sample = {
+        id: generateId(),
         ...rest,
         registrationDateTime: registrationDateTime.toISOString(),
         status: 'Registrado',
@@ -27,22 +33,24 @@ export async function saveSample(firestore: Firestore, userId: string, sampleDat
         categoria: categoria,
     };
 
-    return addDocumentNonBlocking(samplesCollectionRef, dataToSave);
+    samples.push(newSample);
+    return newSample;
 }
 
-export async function updateSample(firestore: Firestore, userId: string, sampleId: string, sampleData: SampleFormValues) {
-    const sampleDocRef = doc(firestore, 'users', userId, 'samples', sampleId);
-    const samplesCollectionRef = collection(firestore, 'users', userId, 'samples');
+/**
+ * Actualiza una muestra existente.
+ * TODO: Reemplazar con PUT /api/samples/:sampleId
+ */
+export async function updateSample(userId: string, sampleId: string, sampleData: SampleFormValues): Promise<Sample> {
+    const sampleIndex = samples.findIndex(s => s.id === sampleId);
+    if (sampleIndex === -1) throw new Error('Muestra no encontrada.');
 
-    const q = query(samplesCollectionRef, where("identificacion", "==", sampleData.identificacion));
-    const querySnapshot = await getDocs(q);
-
-    const otherDocs = querySnapshot.docs.filter(doc => doc.id !== sampleId);
-
-    if (otherDocs.length > 0) {
+    const duplicate = samples.find(
+      s => s.identificacion === sampleData.identificacion && s.id !== sampleId && s.userId === userId
+    );
+    if (duplicate) {
       throw new Error(`Ya existe otra muestra con la identificación '${sampleData.identificacion}'.`);
     }
-
 
     const registrationDateTime = new Date(sampleData.fechaIngreso);
     const [hours, minutes] = sampleData.horaIngreso.split(':');
@@ -50,10 +58,11 @@ export async function updateSample(firestore: Firestore, userId: string, sampleI
 
     const { fechaIngreso, horaIngreso, ...rest } = sampleData;
 
-    const dataToUpdate = {
+    samples[sampleIndex] = {
+        ...samples[sampleIndex],
         ...rest,
         registrationDateTime: registrationDateTime.toISOString(),
     };
 
-    return updateDocumentNonBlocking(sampleDocRef, dataToUpdate);
+    return samples[sampleIndex];
 }

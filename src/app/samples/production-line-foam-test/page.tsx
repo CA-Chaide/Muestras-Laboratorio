@@ -5,14 +5,15 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SampleForm, sampleFormSchema, type SampleFormValues } from '@/components/samples/sample-form';
 import { useToast } from "@/hooks/use-toast";
-import { useFirebase } from '@/firebase';
+import { mockCurrentUser } from '@/lib/data';
 import { saveSample } from '@/lib/samples';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function ProductionLineFoamTestPage() {
   const { toast } = useToast();
-  const { firestore, user } = useFirebase();
+  // TODO: Reemplazar mockCurrentUser con usuario autenticado desde la API
+  const user = mockCurrentUser;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SampleFormValues>({
@@ -30,18 +31,11 @@ export default function ProductionLineFoamTestPage() {
   });
 
   const handleSubmit = async (values: SampleFormValues) => {
-    if (!firestore || !user) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debe iniciar sesión para registrar un ensayo.",
-      });
-      return;
-    }
     setIsSubmitting(true);
 
     try {
-      await saveSample(firestore, user.uid, values, 'Ensayos Espuma en Línea de Producción');
+      // TODO: Reemplazar con llamada a API
+      await saveSample(user.uid, values, 'Ensayos Espuma en Línea de Producción');
       toast({
         title: "Ensayo registrado",
         description: "El ensayo de espuma en línea de producción ha sido registrado exitosamente.",

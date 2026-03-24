@@ -1,7 +1,7 @@
 'use client';
 
-import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useState, useCallback } from 'react';
+import { getUsers } from '@/lib/data';
 import {
   Card,
   CardContent,
@@ -20,20 +20,19 @@ import {
     TableRow,
   } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { UserFormDialog } from './user-form-dialog';
 import { DeleteUserDialog } from './delete-user-dialog';
 import type { UserProfile } from '@/lib/types';
 
 
 export function UserManagement() {
-    const { firestore } = useFirebase();
+    // TODO: Reemplazar con fetch a GET /api/users
+    const [users, setUsers] = useState<UserProfile[]>(() => getUsers());
 
-    const usersCollection = useMemoFirebase(
-        () => (firestore ? collection(firestore, 'users') : null),
-        [firestore]
-    );
-    const { data: users, isLoading } = useCollection<UserProfile>(usersCollection);
+    const refreshUsers = useCallback(() => {
+      // TODO: Reemplazar con fetch a GET /api/users
+      setUsers(getUsers());
+    }, []);
 
     return (
         <Card>
@@ -44,7 +43,7 @@ export function UserManagement() {
                     Agrega, edita y gestiona los técnicos del laboratorio.
                     </CardDescription>
                 </div>
-                <UserFormDialog>
+                <UserFormDialog onSuccess={refreshUsers}>
                     <Button>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Agregar Técnico
@@ -62,16 +61,7 @@ export function UserManagement() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {isLoading ? (
-                        [...Array(3)].map((_, i) => (
-                            <TableRow key={i}>
-                                <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                                <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                                <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                                <TableCell className="text-right"><Skeleton className="h-8 w-20" /></TableCell>
-                            </TableRow>
-                        ))
-                    ) : users && users.length > 0 ? (
+                    {users && users.length > 0 ? (
                         users.map((user) => (
                         <TableRow key={user.id}>
                             <TableCell className="font-medium">{user.name}</TableCell>
@@ -80,13 +70,13 @@ export function UserManagement() {
                             <Badge variant={user.role === 'Administrador' ? 'default' : 'secondary'}>{user.role}</Badge>
                             </TableCell>
                             <TableCell className="text-right space-x-2">
-                                <UserFormDialog user={user}>
+                                <UserFormDialog user={user} onSuccess={refreshUsers}>
                                     <Button variant="ghost" size="icon">
                                         <FilePenLine className="h-4 w-4" />
                                         <span className="sr-only">Editar</span>
                                     </Button>
                                 </UserFormDialog>
-                                <DeleteUserDialog userId={user.id} userName={user.name}>
+                                <DeleteUserDialog userId={user.id} userName={user.name} onSuccess={refreshUsers}>
                                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                                         <Trash2 className="h-4 w-4" />
                                         <span className="sr-only">Eliminar</span>

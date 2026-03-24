@@ -1,7 +1,9 @@
-'use client';
-import { collection, Firestore } from "firebase/firestore";
-import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+/**
+ * Servicio de Tests / Ensayos
+ * TODO: Reemplazar funciones con llamadas a API REST
+ */
 import type { Test } from "./types";
+import { tests, generateId } from "./data";
 
 export type TestAssignmentData = {
   assignedTo: { id: string; name: string; };
@@ -9,10 +11,13 @@ export type TestAssignmentData = {
   template: { id: string; name: string; };
 };
 
-export function assignTest(firestore: Firestore, userId: string, data: TestAssignmentData) {
-    const testsCollectionRef = collection(firestore, 'tests');
-    
-    const dataToSave: Omit<Test, 'id'> = {
+/**
+ * Asigna un nuevo test/ensayo.
+ * TODO: Reemplazar con POST /api/tests
+ */
+export async function assignTest(userId: string, data: TestAssignmentData): Promise<Test> {
+    const newTest: Test = {
+        id: generateId(),
         sampleId: data.sample.id,
         sampleIdentificacion: data.sample.identificacion,
         assignedToId: data.assignedTo.id,
@@ -24,5 +29,6 @@ export function assignTest(firestore: Firestore, userId: string, data: TestAssig
         status: 'Pendiente',
     };
 
-    return addDocumentNonBlocking(testsCollectionRef, dataToSave);
+    tests.push(newTest);
+    return newTest;
 }

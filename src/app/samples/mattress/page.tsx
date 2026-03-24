@@ -5,14 +5,15 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SampleForm, sampleFormSchema, type SampleFormValues } from '@/components/samples/sample-form';
 import { useToast } from "@/hooks/use-toast";
-import { useFirebase } from '@/firebase';
+import { mockCurrentUser } from '@/lib/data';
 import { saveSample } from '@/lib/samples';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function MattressSamplePage() {
   const { toast } = useToast();
-  const { firestore, user } = useFirebase();
+  // TODO: Reemplazar mockCurrentUser con usuario autenticado desde la API
+  const user = mockCurrentUser;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SampleFormValues>({
@@ -30,18 +31,11 @@ export default function MattressSamplePage() {
   });
 
   const handleSubmit = async (values: SampleFormValues) => {
-    if (!firestore || !user) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debe iniciar sesión para registrar una muestra.",
-      });
-      return;
-    }
     setIsSubmitting(true);
     
     try {
-      await saveSample(firestore, user.uid, values, 'Colchón');
+      // TODO: Reemplazar con llamada a API
+      await saveSample(user.uid, values, 'Colchón');
       toast({
         title: "Muestra registrada",
         description: "La muestra de Colchón ha sido registrada exitosamente.",

@@ -15,18 +15,20 @@ import {
 } from '@/components/ui/dialog';
 import { SampleForm, sampleFormSchema, type SampleFormValues } from '@/components/samples/sample-form';
 import { useToast } from "@/hooks/use-toast";
-import { useFirebase } from '@/firebase';
+import { mockCurrentUser } from '@/lib/data';
 import { updateSample } from '@/lib/samples';
 import type { Sample } from '@/lib/types';
 import { format } from 'date-fns';
 
 interface EditSampleDialogProps {
   sample: Sample & { id: string };
+  onSuccess?: () => void;
 }
 
-export function EditSampleDialog({ sample }: EditSampleDialogProps) {
+export function EditSampleDialog({ sample, onSuccess }: EditSampleDialogProps) {
   const { toast } = useToast();
-  const { firestore, user } = useFirebase();
+  // TODO: Reemplazar mockCurrentUser con usuario autenticado desde la API
+  const user = mockCurrentUser;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,23 +50,17 @@ export function EditSampleDialog({ sample }: EditSampleDialogProps) {
   });
 
   const handleSubmit = async (values: SampleFormValues) => {
-    if (!firestore || !user) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debe iniciar sesión para editar una muestra.",
-      });
-      return;
-    }
     setIsSubmitting(true);
 
     try {
-      await updateSample(firestore, user.uid, sample.id, values);
+      // TODO: Reemplazar con llamada a PUT /api/samples/:id
+      await updateSample(user.uid, sample.id, values);
       toast({
         title: "Muestra actualizada",
         description: "La muestra ha sido actualizada exitosamente.",
       });
-      setIsOpen(false); 
+      setIsOpen(false);
+      onSuccess?.();
     } catch(e) {
       if (e instanceof Error) {
         toast({

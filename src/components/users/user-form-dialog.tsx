@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,10 +48,10 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 interface UserFormDialogProps {
   user?: UserProfile;
   children: React.ReactNode;
+  onSuccess?: () => void;
 }
 
-export function UserFormDialog({ user, children }: UserFormDialogProps) {
-  const { firestore } = useFirebase();
+export function UserFormDialog({ user, children, onSuccess }: UserFormDialogProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,19 +66,21 @@ export function UserFormDialog({ user, children }: UserFormDialogProps) {
   });
 
   const handleSubmit = async (values: UserFormValues) => {
-    if (!firestore) return;
     setIsSubmitting(true);
 
     try {
       if (user) {
-        await updateUser(firestore, user.id, values);
+        // TODO: Reemplazar con llamada a PUT /api/users/:id
+        await updateUser(user.id, values);
         toast({ title: 'Técnico actualizado', description: 'Los datos del técnico han sido actualizados.' });
       } else {
-        await addUser(firestore, values);
+        // TODO: Reemplazar con llamada a POST /api/users
+        await addUser(values);
         toast({ title: 'Técnico agregado', description: 'El nuevo técnico ha sido agregado al sistema.' });
       }
       setIsOpen(false);
       form.reset();
+      onSuccess?.();
     } catch (e) {
       if (e instanceof Error) {
         toast({

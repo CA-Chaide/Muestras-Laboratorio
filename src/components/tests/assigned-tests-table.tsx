@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -8,23 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { getTests } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import type { Test } from '@/lib/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Skeleton } from '../ui/skeleton';
 
 export function AssignedTestsTable() {
-  const { firestore } = useFirebase();
+  // TODO: Reemplazar con fetch a GET /api/tests
+  const [tests, setTests] = useState<Test[]>([]);
 
-  const testsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'tests'), orderBy('assignedDate', 'desc'));
-  }, [firestore]);
-
-  const { data: tests, isLoading, error } = useCollection<Test>(testsQuery);
+  useEffect(() => {
+    setTests(getTests());
+  }, []);
 
   const getStatusVariant = (status: Test['status']) => {
     switch (status) {
@@ -50,33 +47,6 @@ export function AssignedTestsTable() {
       </TableRow>
     </TableHeader>
   );
-
-  if (isLoading) {
-    return (
-      <Table>
-        {tableHeader}
-        <TableBody>
-          {[...Array(5)].map((_, i) => (
-            <TableRow key={i}>
-              <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-48" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-28" /></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-24 text-destructive">
-        <p>Error al cargar las pruebas. Es posible que falte un índice de Firestore. Revise la consola para más detalles.</p>
-      </div>
-    );
-  }
 
   if (!tests || tests.length === 0) {
     return (

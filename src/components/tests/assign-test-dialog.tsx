@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { mockCurrentUser, getUsers, getAllSamples } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { collection, query, where, collectionGroup } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -53,7 +52,8 @@ const templates = [
 ];
 
 export function AssignTestDialog({ children }: AssignTestDialogProps) {
-  const { firestore, user } = useFirebase();
+  // TODO: Reemplazar mockCurrentUser con autenticación real
+  const user = mockCurrentUser;
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,27 +62,12 @@ export function AssignTestDialog({ children }: AssignTestDialogProps) {
     resolver: zodResolver(assignTestSchema),
   });
 
-  const techniciansQuery = useMemoFirebase(
-    () => (firestore ? query(collection(firestore, 'users'), where('role', '==', 'Técnico')) : null),
-    [firestore]
-  );
-  const { data: technicians, isLoading: isLoadingTechnicians } = useCollection<UserProfile>(techniciansQuery);
-
-  const samplesQuery = useMemoFirebase(
-    () => (firestore ? collectionGroup(firestore, 'samples') : null),
-    [firestore]
-  );
-  const { data: samples, isLoading: isLoadingSamples } = useCollection<Sample>(samplesQuery);
+  // TODO: Reemplazar con fetch a GET /api/users?role=Técnico
+  const technicians = getUsers().filter(u => u.role === 'Técnico');
+  // TODO: Reemplazar con fetch a GET /api/samples
+  const samples = getAllSamples();
 
   const handleSubmit = async (values: AssignTestFormValues) => {
-    if (!firestore || !user) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Debe iniciar sesión para asignar una prueba.',
-        });
-        return;
-    };
     setIsSubmitting(true);
 
     try {
@@ -94,7 +79,8 @@ export function AssignTestDialog({ children }: AssignTestDialogProps) {
         throw new Error("Datos de asignación inválidos.");
       }
 
-      await assignTest(firestore, user.uid, {
+      // TODO: Reemplazar con llamada a POST /api/tests
+      await assignTest(user.uid, {
         assignedTo: { id: technician.id, name: technician.name },
         sample: { id: sample.id, identificacion: sample.identificacion },
         template: { id: template.id, name: template.name },
@@ -131,10 +117,10 @@ export function AssignTestDialog({ children }: AssignTestDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Asignar a Técnico</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingTechnicians}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={isLoadingTechnicians ? "Cargando técnicos..." : "Selecciona un técnico"} />
+                        <SelectValue placeholder="Selecciona un técnico" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -153,10 +139,10 @@ export function AssignTestDialog({ children }: AssignTestDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Muestra a Analizar</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingSamples}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={isLoadingSamples ? "Cargando muestras..." : "Selecciona una muestra"} />
+                        <SelectValue placeholder="Selecciona una muestra" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

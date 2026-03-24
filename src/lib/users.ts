@@ -1,6 +1,9 @@
-'use client';
-import { collection, doc, Firestore } from "firebase/firestore";
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+/**
+ * Servicio de Usuarios
+ * TODO: Reemplazar funciones con llamadas a API REST
+ */
+import type { UserProfile } from "./types";
+import { users, generateId } from "./data";
 
 export type UserData = {
   name: string;
@@ -8,17 +11,36 @@ export type UserData = {
   role: 'Administrador' | 'Técnico';
 }
 
-export function addUser(firestore: Firestore, userData: UserData) {
-    const usersCollectionRef = collection(firestore, 'users');
-    return addDocumentNonBlocking(usersCollectionRef, userData);
+/**
+ * Agrega un nuevo usuario.
+ * TODO: Reemplazar con POST /api/users
+ */
+export async function addUser(userData: UserData): Promise<UserProfile> {
+    const newUser: UserProfile = {
+        id: generateId(),
+        ...userData,
+    };
+    users.push(newUser);
+    return newUser;
 }
 
-export function updateUser(firestore: Firestore, userId: string, userData: Partial<UserData>) {
-    const userDocRef = doc(firestore, 'users', userId);
-    return updateDocumentNonBlocking(userDocRef, userData);
+/**
+ * Actualiza un usuario existente.
+ * TODO: Reemplazar con PUT /api/users/:userId
+ */
+export async function updateUser(userId: string, userData: Partial<UserData>): Promise<UserProfile> {
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) throw new Error('Usuario no encontrado.');
+    users[userIndex] = { ...users[userIndex], ...userData };
+    return users[userIndex];
 }
 
-export function deleteUser(firestore: Firestore, userId: string) {
-    const userDocRef = doc(firestore, 'users', userId);
-    return deleteDocumentNonBlocking(userDocRef);
+/**
+ * Elimina un usuario.
+ * TODO: Reemplazar con DELETE /api/users/:userId
+ */
+export async function deleteUser(userId: string): Promise<void> {
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) throw new Error('Usuario no encontrado.');
+    users.splice(userIndex, 1);
 }

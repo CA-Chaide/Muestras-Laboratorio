@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -21,20 +20,21 @@ interface DeleteUserDialogProps {
   userId: string;
   userName: string;
   children: React.ReactNode;
+  onSuccess?: () => void;
 }
 
-export function DeleteUserDialog({ userId, userName, children }: DeleteUserDialogProps) {
-  const { firestore } = useFirebase();
+export function DeleteUserDialog({ userId, userName, children, onSuccess }: DeleteUserDialogProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!firestore) return;
     setIsDeleting(true);
 
     try {
-      await deleteUser(firestore, userId);
+      // TODO: Reemplazar con llamada a DELETE /api/users/:id
+      await deleteUser(userId);
       toast({ title: 'Técnico eliminado', description: `${userName} ha sido eliminado del sistema.` });
+      onSuccess?.();
     } catch (e) {
       if (e instanceof Error) {
         toast({

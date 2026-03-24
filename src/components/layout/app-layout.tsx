@@ -21,16 +21,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { useFirebase } from '@/firebase';
+import { mockCurrentUser } from '@/lib/data';
 import { Skeleton } from '../ui/skeleton';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, auth, isUserLoading } = useFirebase();
+  // TODO: Reemplazar con autenticación real contra la API
+  const user = mockCurrentUser;
+  const isUserLoading = false;
 
   const handleLogout = () => {
-    if (auth) {
-      auth.signOut();
-    }
+    // TODO: Implementar cierre de sesión con la API
+    console.log('Cerrar sesión');
   };
 
   return (
